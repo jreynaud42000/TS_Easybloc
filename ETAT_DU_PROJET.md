@@ -1,7 +1,7 @@
 # État du projet — éditeur Blockly micro:bit V2
 
 Dossier de travail d'origine : `C:\Users\jreyn\OneDrive\Bureau\blockly_ts` (V2.0C)
-Dossier de travail actuel (copie d'essai, V2.0E) : `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_minimal`
+Dossier de travail actuel (copie d'essai, V2.0E) : `C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_minimal`
 Lancement : double-clic sur `lancer_projet.bat`, puis <http://localhost:8000> — ou l'exe `dist\MicrobitEasybloc_V2.0E.exe`
 Hébergement : dossier `site_web` (site statique, voir `PROMPT_RECREATION.md` §26)
 Fichiers ajoutés depuis la V2.0C : `bandeau.js`, `montage.js`, `exercices.js`, `exercices.json`, `ia-immediat.js`, `ia-son-immediat.js`, `seances.js`, `lib/mediapipe`, `lib/zxing`, `site_web/` (voir la section « Évolutions de la copie »)
@@ -68,9 +68,9 @@ Passe suivante, avec une image de référence de l'utilisateur (« je veux que l
 | Piste partagée entre les trois robots | Demande explicite de l'utilisateur : « je veux que la partie simulation piste soit la même et disponible pour tous les robots ». Un seul panneau/canevas (`#piste-panneau`, 300×220) pour Maqueen Plus, Kitrobot v2 et Maqueen Lite — un seul robot affiché à la fois, déterminé par `robotActifDetecte()` (quels blocs sont posés). Le tracé « Ligne droite (départ/arrivée) », auparavant la piste dédiée et séparée de Kitrobot (choix explicite antérieur de NE PAS réutiliser celle de Maqueen), est désormais un 4ᵉ choix dans le même sélecteur que les tracés Maqueen, utilisable par n'importe quel robot. Les couleurs de la piste (vert/blanc ou blanc/noir) suivent le **robot actif**, pas le tracé choisi (`couleursPisteRobotActif()`) — Kitrobot lit un pixel sombre comme « sur la ligne », l'inverse des deux autres, donc la piste doit s'inverser avec lui quel que soit le tracé. Largeur de piste et échelle du robot (curseurs déjà existants pour Maqueen Plus) désormais partagés par les trois. Vérifié : changement de robot actif change le titre du panneau, montre le bon sprite, cache les deux autres, redessine la piste dans les bonnes couleurs ; capteurs de ligne testés sur la piste partagée pour les trois robots ; fanions Départ/Arrivée affichés uniquement sur ce tracé, quel que soit le robot ; curseur d'échelle confirmé agir sur le robot réellement affiché (bug trouvé et corrigé : ne mettait à jour que le sprite Maqueen Plus au premier essai). Glisser-déposer du robot (souris/tactile via Pointer Events) également manquant pour Kitrobot v2 et Maqueen Lite après la fusion — signalé par l'utilisateur, pas trouvé par les tests — corrigé en factorisant l'écouteur (`activerGlisserDeposerRobot`) et en l'attachant aux trois robots au lieu du seul `#maqueen-robot` d'origine ; vérifié par `PointerEvent` synthétiques sur les trois |
 | Kitrobot v2 | Module séparé de Maqueen : broches **facultatives et configurables** par des blocs « définir » (pas de câblage réel vérifié pour ce kit), piste dédiée départ/arrivée (droite, noir sur blanc — inversée de Maqueen exprès pour les distinguer d'un coup d'œil). Génération de code vérifiée (tous les blocs, y compris ceux à l'intérieur du pilote retiré côté simulateur). Les 16 fonctions `_kb_*` du pilote — entièrement à l'intérieur du bloc `# >>> pilote kitrobot`, donc retirées avant exécution — ont chacune leur substitut dans le simulateur ; vérifié en exécutant un programme qui les appelle toutes (`_kb_avancer`, `_kb_pivoter`, `_kb_moteur`, `_kb_case`, `_kb_virage`, `_kb_buzzer`, `_kb_del_couleur`, `_kb_del_rgb`, `_kb_clignoter`, `_kb_arcenciel`…) sans aucune erreur. Cinématique et capteurs de ligne réutilisent le modèle de Maqueen (même formule différentielle), avec seulement deux capteurs (gauche/droit) et une détection **inversée** (ligne sombre sur fond clair). Panneau affiché/masqué selon les blocs posés, vérifié via `window.kitrobotTest` (même limite déjà connue : `workspace.clear()` synthétique ne déclenche pas l'écouteur de changement, la fonction de rafraîchissement appelée directement si). Non-régression sur Maqueen confirmée (les deux panneaux réagissent indépendamment) |
 
-## Évolutions de la copie `blockly_ts_adacraft_vilain` (V2.0C → V2.0E, oct. 2026)
+## Évolutions de la copie `easybloc_ts_adacraft_vilain` (V2.0C → V2.0E, oct. 2026)
 
-Toutes les évolutions ci-dessous ont été faites dans la **copie** `C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain`
+Toutes les évolutions ci-dessous ont été faites dans la **copie** `C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain`
 (le projet principal `blockly_ts` reste à la V2.0C, exe compris). Principe de travail : **ne modifier aucune fonction existante** quand un
 nouveau fichier suffit — d'où `bandeau.js` et `exercices.js`, qui s'appuient sur les identifiants et les classes existants (`.inactif`,
 `#btn-vue-*`, `window.workspace`, `window.simuEnCours`…). Détails de réalisation : `PROMPT_RECREATION.md` §22 à §26 (pièges nº 59 à nº 70) et
@@ -298,7 +298,7 @@ nouveau retour de l'utilisateur :
     cliquables conservés ; vérifié : `pin0` à `pin2`, logo et bouton A s'activent et
     se mettent en surbrillance, aucune erreur console.
 
-    Reprise de blockly_ts_microbit (3f09efa) dans Mode classe, Adacraft minimal et
+    Reprise de easybloc_ts_microbit (3f09efa) dans Mode classe, Adacraft minimal et
     Plateforme ; vérifié dans Mode classe : thèmes sombre et clair, contraste élevé
     clair et sombre, les deux cartes de `multi.html` (masque et ombre), `pin0`, `pin2`,
     bouton A et logo par de vrais clics.
@@ -388,7 +388,7 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
     l'état de repos de la broche écho avant de choisir le front à mesurer —
     fidèlement reproduite, mais jamais vue fonctionner sur une vraie carte).
 10. **La vue montage** (oct. 2026, `montage.js`, readme §43), reprise de
-   `blockly_ts_microbit` (commit c7244e5). Vérifiée là-bas dans le navigateur intégré
+   `easybloc_ts_microbit` (commit c7244e5). Vérifiée là-bas dans le navigateur intégré
    (carte Grove, « port partagé », « bus I2C partagé », « hors port Grove », clics
    dans le montage, Échap, thèmes). Carte Grove redessinée dans Mode classe (oct. 2026)
    d'après les photos du produit (The Pi Hut, vue de dessus avec règle) : ports en bas,
@@ -398,28 +398,28 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    contrastes dans les quatre thèmes ; ici, ajouts identiques, non ouverts dans le
    navigateur. Positions mesurées sur photo, à quelques millimètres près.
    **BitMaker V2** et choix de la carte (boutons radio « Carte d'extension »,
-   mémorisés dans `localStorage` sous `montageCarte`), repris de `blockly_ts_microbit`
+   mémorisés dans `localStorage` sous `montageCarte`), repris de `easybloc_ts_microbit`
    (commit ffbb986) : carte dessinée d'après la photo de dessus Seeed (57 × 70 mm,
    cotes converties depuis les pixels), vérifiée là-bas dans le navigateur (7 modules,
    P13 « réservée aux LED de la carte », bascule mémorisée, thèmes). À comparer avec
    une vraie carte : sens des fils de chaque port (lu sur la sérigraphie).
    Ruban sur P13 avec la BitMaker = les 4 LED de la carte, repris de
-   `blockly_ts_microbit` (commit 768788c, vérifié là-bas en simulation : couleurs
+   `easybloc_ts_microbit` (commit 768788c, vérifié là-bas en simulation : couleurs
    recopiées en direct, « la carte n'a que 4 LED » au-delà de 4, extinction à la
    réinitialisation). Les couleurs sont recopiées de `#grove-ruban`
    (MutationObserver), sans toucher à `un.js`.
    **Montage dans la colonne** (maquette B choisie par l'utilisateur), repris de
-   `blockly_ts_microbit` (commit d8a5ce8) : une seule scène, déplacée entre
+   `easybloc_ts_microbit` (commit d8a5ce8) : une seule scène, déplacée entre
    `#montage-colonne-zone` et la vue agrandie ; trois modes (carte seule, colonne,
    agrandi), seuil de 480 px avec 24 px d'hystérésis (ResizeObserver sur
    `#simulator-container`). Vérifié là-bas (538 px : montage ; 303 px : carte seule
    et « Voir le montage » ; retour automatique ; Agrandir, Échap, Fermer ; thèmes).
    À revoir sur un vrai poste en faisant glisser la poignée de la colonne.
-   `montage.js` repris ensuite de `blockly_ts_microbit` (commit 2d49aac, DFR0548
+   `montage.js` repris ensuite de `easybloc_ts_microbit` (commit 2d49aac, DFR0548
    redessinée d'après le schéma DFRobot) pour garder un fichier identique d'un
    éditeur à l'autre ; ce dessin sert depuis l'ajout de la catégorie DFR0548 (point 11).
    **Montage en direct** (variante 1 choisie par l'utilisateur : valeur sous le
-   dessin), repris de `blockly_ts_microbit` (commit 192a4ff) : `majVivant()` recopie
+   dessin), repris de `easybloc_ts_microbit` (commit 192a4ff) : `majVivant()` recopie
    toutes les 200 ms l'affichage de « Périphériques » (lecteurs par module dans
    `LECTEURS`, clé du module dans `data-cle`), sans toucher à `un.js` ; bouton
    poussoir et joystick manipulables dans le montage (souris, Espace ou Entrée).
@@ -428,12 +428,12 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    LCD, 4 digits, pas à pas.
    **Réglages des capteurs** (liste réduite aux réglages + titre repliable, déplié
    par défaut, mémorisé sous `montageReglagesReplies`), repris de
-   `blockly_ts_microbit` (commit 7c7e11a) : `majReglages()` pose `montage-reglages`
+   `easybloc_ts_microbit` (commit 7c7e11a) : `majReglages()` pose `montage-reglages`
    sur `#grove-panneau` en mode colonne ; les sections masquées restent mises à jour
    par `un.js`. Ici, `#grove-panneau` a les mêmes sections que dans microbit (rien de
    propre à la séance) ; LCD du montage aux couleurs de celui de la liste.
 11. **La carte moteurs DFR0548** (oct. 2026, readme §44), reprise de
-   `blockly_ts_microbit` (commits f64fedf et 8132971). Canaux, impulsions, séquences
+   `easybloc_ts_microbit` (commits f64fedf et 8132971). Canaux, impulsions, séquences
    et durées repris de la bibliothèque MakeCode officielle `DFRobot/pxt-motor`
    (`main.ts`) ; dans microbit, le pilote généré, exécuté avec un faux bus I²C, écrit
    les mêmes registres que cette bibliothèque. Jamais exécuté sur une vraie carte. Si
@@ -441,7 +441,7 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
    des pas à pas — la bibliothèque obtient l'angle par une durée (1 s par tour pour
    le 28BYJ-48), ce qui paraît très rapide pour ce moteur et doit être mesuré.
 12. **La carte Motor:bit V1.6** (oct. 2026, readme §45), reprise de
-   `blockly_ts_microbit` (commit 6363b5e). Brochage repris de la documentation
+   `easybloc_ts_microbit` (commit 6363b5e). Brochage repris de la documentation
    ELECFREAKS et du paquet MakeCode pxt-motorbit (M1 : P1 vitesse, P8 sens ; M2 : P2
    vitesse, P12 sens), jamais exécuté sur une vraie carte. Carte du montage dessinée
    d'après le dessin coté du wiki ELECFREAKS. Si une carte est disponible : vérifier
@@ -492,9 +492,9 @@ Rien de tout cela n'est douteux, mais rien n'est confirmé non plus.
 Donner ces trois fichiers comme point de départ :
 
 ```
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\ETAT_DU_PROJET.md
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\readme.txt
-C:\Users\jreyn\OneDrive\Documents\claude\blockly_ts_adacraft_vilain\PROMPT_RECREATION.md
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\ETAT_DU_PROJET.md
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\readme.txt
+C:\Users\jreyn\OneDrive\Documents\claude\easybloc_ts_adacraft_vilain\PROMPT_RECREATION.md
 ```
 
 Puis préciser ce qu'on veut faire. Le code lui-même est commenté en français, en
