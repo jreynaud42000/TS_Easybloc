@@ -1695,5 +1695,10 @@ Demandes de l'utilisateur :
 - Zoom de la simulation : Ctrl + molette sur la carte micro:bit ou le montage (de 50 % a 300 %), comme la molette dans la
   zone de blocs ; la molette seule fait toujours defiler la colonne. Le bouton "Zoom ... % - revenir a 100 %" apparait
   des que le zoom n'est plus a 100 %. Un pave tactile (pincement) zoome de la meme facon.
+  Montage dans la colonne (variante 3 choisie par l'utilisateur, nov. 2026) : ce bouton devient une pastille toujours
+  visible a gauche d'"Agrandir". A 100 % elle indique "Ctrl + molette pour zoomer" (bordure en pointilles, hors de
+  l'ordre de tabulation, aria-disabled) ; une fois zoome elle affiche "Zoom ... % - revenir a 100 %" et remet l'echelle
+  d'origine au clic. Carte seule et montage agrandi : comportement inchange (bouton en haut de la colonne, visible
+  seulement une fois zoome). montage.js : placerZoom(). Repris d'Easybloc_ts_microbit.
 - Theme clair (essai B choisi par l'utilisateur) : meme bandeau Educatech qu'en sombre, et fonds gris doux au lieu
   du blanc (zone de blocs #f2f2ef, colonne du simulateur #ececea, cadre du montage #dadad5).

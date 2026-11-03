@@ -987,6 +987,11 @@
         color: var(--texte-chrome); border: 1px solid var(--bordure-chrome); border-radius: 6px; cursor: pointer; }
     .sim-zoom[hidden] { display: none; }
     .sim-zoom:focus-visible { outline: 3px solid #4fc3d9; outline-offset: 2px; }
+    /* Dans la barre du montage : pastille a gauche d'« Agrandir » ; a 100 % simple aide (variante 3, nov. 2026). */
+    .sim-zoom { display: inline-flex; align-items: center; gap: 5px; }
+    .montage-colonne-outils .sim-zoom { align-self: center; margin: 0 0 0 auto; border-radius: 999px; white-space: nowrap; }
+    .montage-colonne-outils .sim-zoom + .montage-agrandir { margin-left: 0; }
+    .sim-zoom.indication { cursor: default; border-style: dashed; }
     .montage-colonne-zone { display: flex; justify-content: center; overflow: hidden; border-radius: 8px;
         background: var(--fond-chrome-profond); padding: 8px; }
     .montage-colonne-agrandi { display: none; margin: 0; padding: 16px; text-align: center; font-size: 13px;
@@ -1457,7 +1462,7 @@
       --ec-grille: #d6d6d1; --ec-flyout: #dcdcd7; --bordure-chrome: #c6c6c0;
     }
     :root[data-theme="light"]:not([data-contrast="high"]) #toolbar {
-      background: linear-gradient(90deg, #1f9e8f, #6a2c91); border-bottom-color: #e0218a; }
+      background: linear-gradient(90deg, #1f9e8f, #6a2c91); border-bottom: none; }   /* sans filet magenta (demande de l'utilisateur, nov. 2026) */
     :root[data-contrast="high"] {   /* SOMBRE + CONTRASTE ELEVE : noir, bord et texte blancs */
       --ec-page: #000;
       --ec-cat-txt: #fff; --ec-cat-hover: #333; --ec-cat-sel: #fff; --ec-cat-sel-txt: #000; --ec-cat-lisere: transparent;
@@ -1511,7 +1516,7 @@
       --ec-pan: #171c47; --ec-pan-bord: #2c3577; --ec-sep: #2c3577;
     }
     :root:is([data-saison="salon"], :not([data-saison])):not([data-theme="light"]):not([data-contrast="high"]) #toolbar {
-      background: linear-gradient(90deg, #1f9e8f, #6a2c91); border-bottom-color: #e0218a; }
+      background: linear-gradient(90deg, #1f9e8f, #6a2c91); border-bottom: none; }   /* sans filet magenta (demande de l'utilisateur, nov. 2026) */
     /* Filet du bandeau : neige (Noel) ; rayures « bonbon » orange, jaune, blanc (Halloween) ; magenta (salon). */
     :root[data-saison]:not([data-theme="light"]):not([data-contrast="high"]) #toolbar { border-bottom-color: var(--accent-fonce); }
     :root[data-saison="halloween"]:not([data-theme="light"]):not([data-contrast="high"]) #toolbar {
