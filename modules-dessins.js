@@ -807,6 +807,379 @@ export function allumerLcdRgb(g, rgb, lignes, affiche) {
     });
 }
 
+/** Condensateur CMS beige (bouts metalliques, cadre serigraphie), debout si h > l (dessins du modele). */
+function condensateur(X, Y, k, x0, y0, l, h) {
+    const rect = (a, b, c, d, attr) => `<rect x="${X(a)}" y="${Y(b)}" width="${(c - a) * k}" height="${(d - b) * k}" ${attr}/>`;
+    const v = h > l, b = (v ? h : l) * 0.22;
+    return rect(x0 - 0.2, y0 - 0.2, x0 + l + 0.2, y0 + h + 0.2, 'fill="none" stroke="#e8f1f8" stroke-width="0.8"')
+        + rect(x0, y0, x0 + l, y0 + h, 'rx="1" fill="#c09468"')
+        + (v ? rect(x0, y0, x0 + l, y0 + b, `fill="${C_MODULE.metal}"`) + rect(x0, y0 + h - b, x0 + l, y0 + h, `fill="${C_MODULE.metal}"`)
+             : rect(x0, y0, x0 + b, y0 + h, `fill="${C_MODULE.metal}"`) + rect(x0 + l - b, y0, x0 + l, y0 + h, `fill="${C_MODULE.metal}"`));
+}
+
+/** Capteur de pression BMP280 Grove (TS 276301, photo du modele relevee au millimetre ; dessin du modele
+    « dessinBmp280 », nov. 2026) : circuit 40 x 20 mm, oreilles en haut et en bas (x 10 mm) et a droite, encoches
+    demi-rondes en haut et en bas (x 30 mm) ; prise Grove couchee a gauche (ouverture vers la gauche, pattes GND VCC SDA
+    SCL) ; 4 condensateurs, 4 resistances, 3 transistors ; la puce metallique du capteur dans son cadre serigraphie ;
+    connecteur SPI a 6 trous (VCC SDI GND SDO SCK CS) au bord droit. */
+function dessinBmp280(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const SERI = 'fill="none" stroke="#e8f1f8" stroke-width="0.8"';
+    const condo = (x0, y0, l, h) => condensateur(X, Y, k, x0, y0, l, h);
+    const s = [oreille(X(10.0), Y(-0.6), 1.75 * k), oreille(X(10.0), Y(20.6), 1.75 * k), oreille(X(40.4), Y(9.9), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches demi-rondes des bords haut et bas
+    const xe = 30.0, re = 2.6 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(xe) - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(xe) - re} ${Y(20) + 2} V ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)} V ${Y(20) + 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Prise Grove couchee : pattes metalliques, boitier blanc avec ses rebords, creux d'entree a gauche
+    const pattes = [6.85, 8.83, 10.9, 12.9];
+    pattes.forEach(v => s.push(rect(8.3, v - 0.35, 11.2, v + 0.35, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.6"`)));
+    s.push(`<path d="M ${X(0.25)} ${Y(3.4)} H ${X(10.1)} V ${Y(4.9)} H ${X(8.5)} V ${Y(12.2)} H ${X(10.0)} V ${Y(15.2)} H ${X(8.5)} V ${Y(16.1)} H ${X(0.25)} Z"
+                  fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2" stroke-linejoin="round"/>`,
+           rect(1.9, 4.9, 4.0, 12.2, `fill="${C_PRISE.creux}"`), rect(3.0, 6.3, 4.0, 10.6, 'fill="#efede7"'),
+           rect(0.6, 15.4, 3.6, 16.1, 'fill="#9aa1a5"'));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(11.5, pattes[i], t, 1.05)));
+    // Rangee du haut : 2 condensateurs et 2 resistances debout, 2 condensateurs couches
+    s.push(condo(14.3, 5.1, 1.0, 2.6), condo(16.1, 5.1, 1.0, 2.6),
+           composantCMS(X, Y, k, 18.0, 5.1, 1.1, 2.6), composantCMS(X, Y, k, 19.8, 5.1, 1.1, 2.6),
+           condo(21.7, 5.05, 2.6, 0.85), condo(21.7, 6.8, 2.6, 0.85));
+    // 3 transistors (une patte en haut, deux en bas)
+    [[14.2, 17.3, 15.75, 14.7, 16.65], [17.7, 20.6, 19.1, 18.3, 20.0], [21.2, 24.15, 22.6, 21.7, 23.4]].forEach(([x0, x1, h, b1, b2]) => s.push(
+        rect(h - 0.35, 8.5, h + 0.35, 9.2, `fill="${C_MODULE.metal}"`), rect(b1 - 0.35, 10.6, b1 + 0.35, 11.35, `fill="${C_MODULE.metal}"`),
+        rect(b2 - 0.35, 10.6, b2 + 0.35, 11.35, `fill="${C_MODULE.metal}"`), rect(x0, 9.2, x1, 10.65, 'rx="1" fill="#1f1f1f"')));
+    // Rangee du bas : 2 condensateurs debout, 2 resistances couchees et leurs pastilles libres
+    s.push(condo(14.3, 12.35, 1.0, 2.6), condo(16.1, 12.35, 1.0, 2.6),
+           composantCMS(X, Y, k, 17.8, 12.45, 2.7, 0.9), composantCMS(X, Y, k, 21.4, 12.45, 2.7, 0.9));
+    [18.05, 19.75, 21.65, 23.35].forEach(v => s.push(rect(v, 14.2, v + 0.75, 14.95, `rx="1" fill="${C_MODULE.metal}"`)));
+    [[17.8, 20.6], [21.4, 24.2]].forEach(([x0, x1]) => s.push(rect(x0, 13.9, x1, 15.2, SERI)));
+    // Cadre serigraphie autour de la puce du capteur (ouvert a gauche) et la puce metallique
+    s.push(`<path d="M ${X(26.0)} ${Y(6.1)} V ${Y(5.2)} H ${X(32.2)} V ${Y(14.2)} H ${X(26.0)} V ${Y(13.3)}"
+                  fill="none" stroke="#e8f1f8" stroke-width="${0.32 * k}" stroke-linejoin="miter"/>`,
+           rect(27.75, 8.75, 29.75, 11.15, 'rx="1.5" fill="#5d6268"'), rect(27.95, 8.95, 29.55, 10.95, 'rx="1" fill="#c3c8cd"'),
+           `<circle cx="${X(29.25)}" cy="${Y(9.35)}" r="${0.18 * k}" fill="#3a3f44"/>
+            <circle cx="${X(30.0)}" cy="${Y(8.05)}" r="${0.22 * k}" fill="none" stroke="#e8f1f8" stroke-width="0.8"/>`);
+    // Connecteur SPI : cadre des noms, cadre des trous, 6 pastilles (VCC carree)
+    s.push(rect(33.2, 2.3, 35.05, 17.7, SERI), rect(35.05, 2.3, 37.2, 17.7, SERI), T(36.1, 1.45, 'SPI', 1.2, 'middle'));
+    [4.8, 7.2, 9.6, 12.0, 14.45].forEach(v => s.push(`<path d="M ${X(33.2)} ${Y(v)} H ${X(35.05)}" stroke="#e8f1f8" stroke-width="0.8"/>`));
+    [['VCC', 3.6], ['SDI', 6.0], ['GND', 8.4], ['SDO', 10.8], ['SCK', 13.2], ['CS', 15.7]].forEach(([t, v], i) => s.push(
+        T(34.15, v, t, 0.85, 'middle', -90),
+        i === 0 ? rect(35.3, v - 0.8, 36.9, v + 0.8, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"`)
+                : `<circle cx="${X(36.1)}" cy="${Y(v)}" r="${0.8 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>`,
+        `<circle cx="${X(36.1)}" cy="${Y(v)}" r="${0.45 * k}" class="mod-encoche"/>`));
+    return s.join('\n');
+}
+
+/** Capteur de qualite de l'air SGP30 Grove (TS 277449, photo du modele relevee au millimetre ; dessin du modele
+    « dessinSgp30 », nov. 2026) : circuit 40 x 20 mm, oreilles en haut et en bas (x 10 mm) et a droite, encoches
+    demi-rondes en haut et en bas (x 30 mm) et a gauche derriere la prise ; prise Grove couchee (ouverture vers la
+    gauche, pattes GND VCC SDA SCL) ; 6 condensateurs, 4 resistances, 3 transistors ; la puce metallique du capteur
+    dans son cadre argente. */
+function dessinSgp30(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const SERI = 'fill="none" stroke="#e8f1f8" stroke-width="0.8"';
+    const condo = (x0, y0, l, h) => condensateur(X, Y, k, x0, y0, l, h);
+    const resistance = (x0, y0, l, h) => rect(x0 - 0.2, y0 - 0.2, x0 + l + 0.2, y0 + h + 0.2, SERI) + composantCMS(X, Y, k, x0, y0, l, h);
+    const s = [oreille(X(10.0), Y(-0.6), 1.75 * k), oreille(X(10.0), Y(20.6), 1.75 * k), oreille(X(40.4), Y(9.9), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches demi-rondes des bords haut et bas, et du bord gauche (derriere l'ouverture de la prise)
+    const xe = 30.0, re = 2.6 * k, rg = 2.5 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(xe) - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(xe) - re} ${Y(20) + 2} V ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)} V ${Y(20) + 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(0) - 2} ${Y(10.1) - rg} H ${X(0)} A ${rg} ${rg} 0 0 1 ${X(0)} ${Y(10.1) + rg} H ${X(0) - 2} Z"/>`);
+    // Prise Grove couchee : pattes metalliques, boitier blanc avec ses rebords, fente et loquet
+    const pattes = [6.9, 8.97, 10.98, 13.05];
+    pattes.forEach(v => s.push(rect(8.4, v - 0.35, 11.2, v + 0.35, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.6"`)));
+    s.push(`<path d="M ${X(0.45)} ${Y(3.7)} H ${X(10.2)} V ${Y(5.0)} H ${X(8.65)} V ${Y(15.15)} H ${X(10.0)} V ${Y(16.45)} H ${X(0.45)}
+                     V ${Y(12.6)} H ${X(1.95)} V ${Y(7.6)} H ${X(0.45)} Z"
+                  fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2" stroke-linejoin="round"/>`,
+           `<path d="M ${X(0.45)} ${Y(5.0)} H ${X(8.65)} M ${X(0.45)} ${Y(15.15)} H ${X(8.65)}" stroke="${C_PRISE.bord}" stroke-width="0.8"/>`,
+           rect(2.1, 7.6, 3.8, 12.6, 'fill="#efede7"'), rect(4.0, 8.3, 5.45, 12.0, `fill="#e4dfd5" stroke="${C_PRISE.bord}" stroke-width="0.6"`),
+           rect(0.6, 15.6, 1.3, 16.2, 'fill="#9aa1a5"'));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(11.5, pattes[i], t, 1.0)));
+    // Rangee du haut : 2 condensateurs et 2 resistances debout, 2 condensateurs couches
+    s.push(condo(14.4, 4.9, 1.1, 2.6), condo(16.1, 4.9, 1.1, 2.6), resistance(18.0, 4.95, 1.1, 2.5), resistance(19.8, 4.95, 1.1, 2.5),
+           condo(21.6, 4.75, 2.5, 0.95), condo(21.6, 6.6, 2.5, 1.0));
+    // 3 transistors (une patte en haut, deux en bas)
+    [[14.3, 17.25, 15.5, 14.9, 16.6], [17.75, 20.6, 19.2, 18.3, 20.1], [21.4, 24.3, 22.85, 21.9, 23.8]].forEach(([x0, x1, h, b1, b2]) => s.push(
+        rect(h - 0.35, 8.2, h + 0.35, 8.97, `fill="${C_MODULE.metal}"`), rect(b1 - 0.35, 10.6, b1 + 0.35, 11.4, `fill="${C_MODULE.metal}"`),
+        rect(b2 - 0.35, 10.6, b2 + 0.35, 11.4, `fill="${C_MODULE.metal}"`), rect(x0, 8.97, x1, 10.6, 'rx="1" fill="#1f1f1f"')));
+    // Rangee du bas : 2 condensateurs debout, 2 resistances couchees
+    s.push(condo(14.3, 12.3, 1.15, 2.6), condo(16.05, 12.3, 1.2, 2.6), resistance(17.95, 12.25, 2.6, 1.1), resistance(21.55, 12.25, 2.6, 1.1));
+    // Zone du capteur : piste claire autour, fond sombre, cadre argente ouvert a gauche, puce metallique
+    s.push(rect(25.5, 4.85, 32.65, 14.7, `rx="${0.4 * k}" fill="none" stroke="#2f6fb0" stroke-width="1"`),
+           rect(25.95, 6.3, 31.2, 13.25, 'fill="#155a7a"'),
+           `<path d="M ${X(25.95)} ${Y(5.2)} H ${X(32.3)} V ${Y(14.4)} H ${X(25.95)} V ${Y(13.25)} H ${X(31.2)} V ${Y(6.3)} H ${X(25.95)} Z"
+                  fill="#d9dcdc" stroke="#b9bdbe" stroke-width="0.8" stroke-linejoin="round"/>`);
+    [27.65, 28.45, 29.3].forEach(v => s.push(rect(v - 0.18, 8.25, v + 0.18, 8.6, `fill="${C_MODULE.metal}"`),
+                                             rect(v - 0.18, 11.05, v + 0.18, 11.4, `fill="${C_MODULE.metal}"`)));
+    s.push(rect(27.2, 8.55, 29.8, 11.1, 'rx="1" fill="#c9cbca" stroke="#9a9d9e" stroke-width="0.8"'),
+           `<circle cx="${X(28.45)}" cy="${Y(9.85)}" r="${0.55 * k}" fill="#ffffff"/>
+            <circle cx="${X(26.9)}" cy="${Y(11.3)}" r="${0.22 * k}" fill="#ffffff"/>`);
+    return s.join('\n');
+}
+
+/** Capteur de temperature et d'humidite DHT20 Grove (TS 277531, meme puce que l'AHT20 ; photo du modele mesuree au
+    pixel ; dessin du modele « dessinDht20 », nov. 2026) : circuit 40 x 20 mm, oreilles en haut et en bas (x 10,1 mm)
+    et a droite, encoches demi-rondes en haut et en bas (x 29,9 mm) ; prise I2C a gauche (GND VCC SDA SCL de haut en
+    bas) ; trois transistors a 3 pattes et 8 petits composants ; 4 pattes ; boitier noir a grille de fenetres. */
+function dessinDht20(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const s = [oreille(X(10.1), Y(-0.6), 1.75 * k), oreille(X(10.1), Y(20.6), 1.75 * k), oreille(X(40.6), Y(9.85), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches demi-rondes des bords haut et bas
+    const xe = 29.9, re = 2.8 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(xe) - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(xe) - re} ${Y(20) + 2} V ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)} V ${Y(20) + 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Prise I2C a gauche : boitier, creux, 4 contacts et leurs noms
+    const ys = [6.85, 8.85, 10.95, 13.2];
+    s.push(rect(0.9, 4.85, 5.9, 15.4, `rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"`),
+           rect(1.7, 5.75, 4.5, 14.5, `rx="1.5" fill="${C_PRISE.creux}"`));
+    ys.forEach(v => s.push(rect(2.8, v - 0.3, 3.4, v + 0.3, 'fill="#9aa1a5"')));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(6.35, [7.1, 8.85, 11.1, 13.3][i], t, 1.1)));
+    // Transistors a 3 pattes (une a gauche, deux a droite)
+    const transistor = (x0, y0, x1, y1, gauche, droites) => [
+        rect(x0 - 0.45, gauche - 0.4, x0, gauche + 0.4, `fill="${C_MODULE.metal}"`),
+        ...droites.map(v => rect(x1, v - 0.4, x1 + 0.45, v + 0.4, `fill="${C_MODULE.metal}"`)),
+        rect(x0, y0, x1, y1, 'rx="1" fill="#1f1f1f"')].join('');
+    s.push(transistor(9.45, 3.9, 11.0, 6.85, 5.2, [4.45, 6.4]), transistor(12.0, 9.0, 13.3, 12.0, 10.3, [9.5, 11.4]),
+           transistor(12.0, 12.35, 13.3, 15.4, 13.7, [12.6, 14.4]));
+    // Petits composants : 4 en colonne en haut, 1 couche a gauche, 3 debout en bas a gauche
+    [4.15, 5.35, 6.55, 7.75].forEach(v => s.push(composantCMS(X, Y, k, 12.4, v - 0.3, 1.6, 0.6)));
+    s.push(composantCMS(X, Y, k, 9.45, 7.35, 1.85, 0.85));
+    [[9.1, 10.95], [11.5, 13.2], [13.5, 15.3]].forEach(([y0, y1]) => s.push(composantCMS(X, Y, k, 9.5, y0, 0.9, y1 - y0)));
+    // Pattes du capteur : pastilles et pattes jusqu'au boitier
+    [6.0, 8.65, 11.3, 13.9].forEach(v => s.push(rect(15.9, v - 0.17, 17.9, v + 0.17, `fill="${C_MODULE.metal}"`),
+        `<circle cx="${X(15.9)}" cy="${Y(v)}" r="${0.55 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>`));
+    // Boitier noir et ses fenetres (rangees du haut et du bas incompletes)
+    s.push(rect(17.8, 3.3, 34.05, 16.8, `rx="${0.5 * k}" fill="#2b2829" stroke="#0e0d0d" stroke-width="1"`));
+    [6.15, 8.8, 11.4, 13.95].forEach(v => s.push(`<path d="M ${X(18.2)} ${Y(v)} H ${X(33.8)}" stroke="#3d393a" stroke-width="1.2"/>`));
+    const cols = [[20.1, 21.4], [22.6, 23.9], [25.1, 26.5], [27.7, 29.1], [30.3, 31.6], [32.9, 33.9]];
+    const rangs = [[3.6, 5.45], [6.85, 8.2], [9.4, 10.8], [11.95, 13.35], [14.6, 16.2]];
+    rangs.forEach(([y0, y1], r) => cols.forEach(([x0, x1], c) => {
+        if ((r === 0 || r === 4) && c !== 0 && c !== 2 && c !== 3) return;
+        s.push(rect(x0, y0, x1, y1, 'rx="1" fill="#0d0c0e"'), rect(x0 + 0.25, y0 + (y1 - y0) * 0.5, x0 + 0.5, y1 - 0.2, 'fill="#8a8d91" opacity="0.5"'));
+    }));
+    return s.join('\n');
+}
+
+/** Capteur de gestes PAJ7620 Grove (TS 275833, photo du modele redressee et relevee au millimetre ; dessin du modele
+    « dessinPaj7620 », nov. 2026) : circuit 20 x 20 mm, oreilles a gauche et a droite, encoches demi-rondes en haut et
+    en bas ; le capteur U1 au milieu (sa fenetre s'eclaire quand un geste est detecte : allumerGestes), Q1 Q2 U3 U4,
+    resistances et condensateurs serigraphies, pastille INT. La prise Grove est au dos : sa fiche depasse du bord bas
+    (vue de face : GND a droite). Comme le modele, un clic sur le module ouvre la liste des gestes. */
+function dessinPaj7620(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const SERI = 'fill="none" stroke="#e8f1f8" stroke-width="0.8"';
+    // Bout de la prise soudee au dos : il depasse sous le bord bas (le cable y arrive)
+    const s = [rect(4.7, 19.0, 15.5, 23.4, 'rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"'),
+        oreille(X(-0.5), Y(10), 1.75 * k), oreille(X(20.5), Y(10), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${20 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    const re = 1.6 * k, xe = X(10.3);
+    s.push(`<path class="mod-encoche" d="M ${xe - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${xe + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${xe - re} ${Y(0)} A ${re} ${re} 0 0 0 ${xe + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Transistors et regulateurs SOT-23 : Q2 (en haut a gauche), Q1 (a droite), U4 (en bas a droite), U3 (en bas a gauche)
+    const patte = (px, y0, y1) => rect(px - 0.3, y0, px + 0.3, y1, `fill="${C_MODULE.metal}"`);
+    s.push(patte(4.9, 2.2, 3.0), patte(4.2, 4.2, 5.2), patte(6.1, 4.2, 5.2), rect(3.7, 3.0, 6.7, 4.2, 'rx="1" fill="#1f1f1f"'), T(3.3, 4.9, 'Q2', 1.0, 'end'),
+           patte(14.2, 6.3, 7.1), patte(15.8, 6.3, 7.1), patte(15.0, 8.3, 9.2), rect(13.7, 7.1, 16.7, 8.3, 'rx="1" fill="#1f1f1f"'),
+           T(17.4, 6.8, 'R1', 1.0, 'middle', -90), T(17.4, 8.4, 'Q1', 1.0, 'middle', -90),
+           patte(15.2, 13.8, 14.5), patte(17.4, 13.8, 14.5), patte(16.3, 16.1, 16.8), rect(14.7, 14.5, 17.9, 16.1, 'rx="1" fill="#1f1f1f"'),
+           T(18.6, 15.3, 'U4', 1.0, 'middle', -90),
+           patte(5.1, 16.3, 17.0), patte(7.0, 16.3, 17.0), patte(6.0, 18.6, 19.3), rect(4.7, 17.0, 7.9, 18.6, 'rx="1" fill="#1f1f1f"'),
+           T(4.2, 18.2, 'U3', 1.0, 'end'));
+    // Resistances (corps noir) et condensateurs (beiges), dans leur cadre serigraphie
+    const res = (x0, y0, x1, y1) => composantCMS(X, Y, k, x0, y0, x1 - x0, y1 - y0);
+    const cond = (x0, y0, x1, y1) => {
+        const v = (y1 - y0) > (x1 - x0), b = (v ? y1 - y0 : x1 - x0) * 0.22;
+        return rect(x0, y0, x1, y1, 'rx="1" fill="#c09468"')
+            + (v ? rect(x0, y0, x1, y0 + b, `fill="${C_MODULE.metal}"`) + rect(x0, y1 - b, x1, y1, `fill="${C_MODULE.metal}"`)
+                 : rect(x0, y0, x0 + b, y1, `fill="${C_MODULE.metal}"`) + rect(x1 - b, y0, x1, y1, `fill="${C_MODULE.metal}"`));
+    };
+    s.push(rect(3.9, 5.5, 7.2, 15.3, SERI), res(4.3, 5.85, 6.7, 6.9));
+    [[7.45, 'C7'], [9.05, 'C6'], [10.6, 'C1'], [12.2, 'C11'], [13.8, 'C10']].forEach(([y0, t]) => s.push(cond(4.3, y0, 6.7, y0 + 1.25), T(3.6, y0 + 0.65, t, 1.0, 'end')));
+    s.push(T(3.6, 6.4, 'R3', 1.0, 'end'),
+           rect(7.5, 4.2, 10.0, 5.9, SERI), res(7.75, 4.45, 9.75, 5.65), T(8.75, 3.6, 'R4', 1.0, 'middle'),
+           rect(10.2, 4.2, 12.7, 5.9, SERI), res(10.45, 4.45, 12.45, 5.65), T(11.45, 3.6, 'R5', 1.0, 'middle'),
+           rect(13.5, 4.2, 16.7, 5.9, SERI), res(13.75, 4.45, 16.45, 5.65),
+           rect(14.0, 10.3, 16.9, 13.5, SERI), res(14.25, 10.5, 16.65, 11.65), cond(14.25, 12.1, 16.65, 13.3),
+           T(17.4, 10.9, 'R2', 1.0, 'middle', -90), T(17.4, 12.7, 'C2', 1.0, 'middle', -90));
+    // Condensateurs du bas et leurs noms
+    s.push(rect(7.6, 14.1, 14.5, 17.2, SERI), cond(7.9, 14.4, 9.1, 16.8), cond(9.5, 14.5, 11.2, 16.7), cond(11.6, 14.5, 13.3, 16.7), cond(13.5, 14.9, 14.3, 16.4));
+    [[14.2, 'C9'], [15.4, 'C5'], [16.7, 'C8'], [17.7, 'C3']].forEach(([tx, t]) => s.push(T(tx, 18.6, t, 1.0, 'middle', 90)));
+    // Pastille INT (en haut a droite)
+    s.push(rect(16.7, 2.3, 18.8, 4.6, SERI), `<circle cx="${X(17.7)}" cy="${Y(3.4)}" r="${0.7 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>
+            <circle cx="${X(17.7)}" cy="${Y(3.4)}" r="${0.35 * k}" class="mod-encoche"/>`, T(17.7, 1.2, 'INT', 0.9, 'middle', -90));
+    // Le capteur U1 : boitier noir, detrompeur, petit trou, fenetre (eclairee quand un geste est detecte)
+    s.push(rect(8.9, 7.4, 12.8, 12.9, 'rx="1" fill="#1d1c1e" stroke="#0c0c0d" stroke-width="0.8"'),
+           rect(8.9, 7.4, 9.6, 9.8, 'fill="#2c2a2c"'),
+           `<circle cx="${X(11.4)}" cy="${Y(8.7)}" r="${0.35 * k}" fill="#0a0a0a" stroke="#444" stroke-width="0.6"/>`,
+           `<circle class="mv-geste-lueur" cx="${X(11.3)}" cy="${Y(11.9)}" r="${1.6 * k}" fill="#ffb347" opacity="0" filter="url(#mod-halo)"/>`,
+           rect(10.5, 11.2, 12.1, 12.6, 'class="mv-geste-fenetre" rx="1" fill="#7a5b22" stroke="#3a2a0e" stroke-width="0.6"'),
+           T(13.3, 10.6, 'U1', 1.0, 'middle', 90));
+    return s.join('\n');
+}
+
+/** Fenetre du capteur de gestes eclairee (geste detecte) ou eteinte. */
+export function allumerGestes(g, actif) {
+    const fenetre = g.querySelector('.mv-geste-fenetre'), lueur = g.querySelector('.mv-geste-lueur');
+    if (fenetre) fenetre.setAttribute('fill', actif ? '#ffb347' : '#7a5b22');
+    if (lueur) lueur.setAttribute('opacity', actif ? '0.6' : '0');
+}
+
+/** Capteur de CO2 SCD30 Grove (TS 277450, photo du modele relevee au millimetre ; dessin du modele « dessinScd30 »,
+    nov. 2026) : circuit 60 x 40 mm ; oreilles au milieu du haut, en bas (x 10 et 50 mm), a gauche et a droite ;
+    encoches demi-rondes en haut (x 10 et 50 mm), en bas (x 30 mm), a gauche et a droite (y 30 mm) ; prise Grove
+    couchee a gauche (ouverture vers la gauche, pattes GND VCC SDA SCL) ; le capteur Sensirion : boitier noir visse de
+    chaque cote, fenetre de la lampe, deux trous de mesure entoures de cercles graves, « T/H » et le capteur de
+    temperature et d'humidite. */
+function dessinScd30(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const rond = (cx, cy, r, attr) => `<circle cx="${X(cx)}" cy="${Y(cy)}" r="${r * k}" ${attr}/>`;
+    const s = [oreille(X(30), Y(-0.5), 1.75 * k), oreille(X(10), Y(40.5), 1.75 * k), oreille(X(50), Y(40.5), 1.75 * k),
+        oreille(X(-0.5), Y(10), 1.75 * k), oreille(X(60.5), Y(10), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${60 * k}" height="${40 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches demi-rondes, creusees vers l'interieur de la carte
+    const re = 2.2 * k;
+    [[10, 0, 'haut'], [50, 0, 'haut'], [30, 40, 'bas'], [0, 30, 'gauche'], [60, 30, 'droite']].forEach(([ex, ey, bord]) => {
+        const cx = X(ex), cy = Y(ey), h = bord === 'haut' || bord === 'bas';
+        const sens = bord === 'haut' ? -1 : bord === 'bas' ? 1 : bord === 'gauche' ? -1 : 1;
+        const [x0, y0, x1, y1] = h ? [cx - re, cy, cx + re, cy] : [cx, cy - re, cx, cy + re];
+        const arc = `A ${re} ${re} 0 0 ${(bord === 'bas' || bord === 'gauche') ? 1 : 0} ${x1} ${y1}`;
+        const dehors = h ? `M ${x0} ${y0 + 2 * sens} V ${y0} ${arc} V ${y1 + 2 * sens} Z` : `M ${x0 + 2 * sens} ${y0} H ${x0} ${arc} H ${x1 + 2 * sens} Z`;
+        s.push(`<path class="mod-encoche" d="${dehors}"/><path d="M ${x0} ${y0} ${arc}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    });
+    // Prise Grove couchee : pattes sur leur barrette noire, boitier blanc, fente et loquet
+    const pattes = [16.75, 18.8, 20.8, 22.8];
+    s.push(rect(8.4, 15.9, 10.1, 23.7, 'fill="#2a2a2a"'));
+    pattes.forEach(v => s.push(rect(8.6, v - 0.3, 11.3, v + 0.3, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.6"`)));
+    s.push(rect(8.4, 13.6, 10.1, 14.6, 'fill="#c9c5bb"'), rect(8.4, 25.0, 10.1, 26.0, 'fill="#c9c5bb"'),
+           `<path d="M ${X(0.2)} ${Y(13.5)} H ${X(8.4)} V ${Y(26.1)} H ${X(0.2)} V ${Y(22.8)} H ${X(1.9)} V ${Y(17.3)} H ${X(0.2)} Z"
+                  fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2" stroke-linejoin="round"/>`,
+           `<path d="M ${X(0.2)} ${Y(17.3)} H ${X(8.4)} M ${X(0.2)} ${Y(22.8)} H ${X(8.4)}" stroke="${C_PRISE.bord}" stroke-width="0.8"/>`,
+           rect(2.2, 17.3, 3.6, 22.8, 'fill="#efede7"'), rect(3.6, 18.1, 5.7, 21.8, `fill="#e4dfd5" stroke="${C_PRISE.bord}" stroke-width="0.6"`),
+           rect(2.55, 18.85, 3.05, 19.15, 'fill="#9aa1a5"'), rect(2.55, 20.75, 3.05, 21.05, 'fill="#9aa1a5"'));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(11.5, 25.2 + 1.4 * i, t, 1.2)));
+    // Boitier noir du capteur : deux pattes de fixation rondes vissees a gauche et a droite
+    const NOIR = 'fill="#2c2b2f"', BORD = 'stroke="#141416" stroke-width="0.8"';
+    s.push(rond(14.6, 20.0, 2.9, `${NOIR} ${BORD}`), rond(57.6, 20.0, 2.5, `${NOIR} ${BORD}`),
+           rect(14.93, 6.05, 57.33, 34.0, `rx="${1.7 * k}" ${NOIR} ${BORD}`), rond(14.6, 20.0, 2.85, NOIR), rond(57.6, 20.0, 2.45, NOIR));
+    [[14.6, 20.0], [57.6, 20.0]].forEach(([cx, cy]) => s.push(
+        rond(cx, cy, 1.6, 'fill="#3a393d" stroke="#8b8d91" stroke-width="1"'),
+        `<path d="M ${X(cx - 0.9)} ${Y(cy)} H ${X(cx + 0.9)} M ${X(cx)} ${Y(cy - 0.9)} V ${Y(cy + 0.9)}" stroke="#101012" stroke-width="${0.35 * k}" stroke-linecap="round"/>`));
+    // Cercles graves (coupes au bord du boitier) et leurs petits reperes
+    const idClip = 'scd30-' + Math.round(x) + '-' + Math.round(y);
+    const GRAVE = 'fill="none" stroke="#0b0b0d" stroke-width="1"';
+    s.push(`<clipPath id="${idClip}"><rect x="${X(14.93)}" y="${Y(6.05)}" width="${42.4 * k}" height="${27.95 * k}" rx="${1.7 * k}"/></clipPath>`,
+           `<g clip-path="url(#${idClip})">` +
+           [[22.1, 16.2, 6.3], [22.1, 16.2, 9.4], [36.2, 11.4, 4.1], [36.2, 11.4, 7.3], [36.2, 21.4, 4.1], [36.2, 21.4, 7.3]]
+               .map(([cx, cy, r]) => rond(cx, cy, r, GRAVE)).join('') + '</g>');
+    [[30.0, 7.3], [42.3, 7.4], [43.4, 11.0], [42.7, 14.8], [43.0, 19.3], [29.1, 24.2], [40.8, 27.2], [34.3, 28.7]]
+        .forEach(([cx, cy]) => s.push(rond(cx, cy, 0.25, GRAVE)));
+    // Fenetre de la lampe et les deux trous de mesure
+    s.push(rond(22.1, 16.2, 2.9, 'fill="#17161a"'), rect(20.9, 13.6, 23.65, 19.0, 'rx="1.5" fill="#5a4636" stroke="#2a211a" stroke-width="0.8"'),
+           rect(21.3, 14.1, 23.25, 18.5, 'rx="1" fill="#7a604a"'));
+    [11.4, 21.4].forEach(cy => s.push(rond(36.2, cy, 2.4, 'fill="#0f0f12"'),
+        `<path d="M ${X(35.2)} ${Y(cy - 1.2)} Q ${X(34.6)} ${Y(cy)} ${X(35.4)} ${Y(cy + 1.3)}" fill="none" stroke="#9aa1a5" stroke-width="1" opacity="0.7"/>`));
+    // « T/H » grave et le capteur de temperature et d'humidite
+    s.push(`<text x="${X(50.2)}" y="${Y(26.2)}" text-anchor="middle" font-family="Inter, 'Segoe UI', sans-serif" font-size="${4.4 * k}"
+                 fill="none" stroke="#141416" stroke-width="1">T/H</text>`,
+           rect(47.8, 27.5, 53.1, 33.0, `rx="${0.8 * k}" fill="#1c1b1f" stroke="#141416" stroke-width="1"`),
+           rect(48.3, 28.0, 52.6, 32.5, `rx="${0.5 * k}" fill="#232a24"`), rond(50.0, 29.8, 0.2, 'fill="#c0392b"'));
+    return s.join('\n');
+}
+
+/** Capteurs DHT11 et DHT22 Grove (photos du modele ; dessin du modele « dessinDht », nov. 2026) : circuit 40 x 20 mm,
+    oreilles en haut et en bas (x 10 mm) et a droite, encoches demi-rondes en haut et en bas pres du bord droit ; prise
+    J2 a gauche (ouverture vers la gauche, GND VCC NC SIG de haut en bas), condensateur C1 et resistance R1, 4 pattes du
+    capteur. DHT11 : boitier bleu ciel a grille de fenetres (5 rangees). DHT22 (AM2302) : boitier blanc, grille de
+    barreaux, partie droite chanfreinee avec son plot ; tout ce qui est pose sur le circuit est recale en hauteur comme
+    dans le modele (capteur mal centre sur la photo). */
+function dessinDht(x, y, modele) {
+    const k = K_MODULE, X = v => x + v * k, Y0 = v => y + v * k;
+    const d22 = modele === '22';
+    const Y = d22 ? v => Y0(1.72 + (v - 1.2) * 1.021) : Y0;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${Y(y1) - Y(y0)}" ${attr}/>`;
+    const s = [oreille(X(10.1), Y0(-0.6), 1.75 * k), oreille(X(10.1), Y0(20.6), 1.75 * k), oreille(X(40.6), Y0(9.9), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y0(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches demi-rondes des bords haut et bas
+    const xe = d22 ? 31.2 : 30.1, re = 2.3 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(xe) - re} ${Y0(0) - 2} V ${Y0(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y0(0)} V ${Y0(0) - 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y0(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y0(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(xe) - re} ${Y0(20) + 2} V ${Y0(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y0(20)} V ${Y0(20) + 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y0(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y0(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Prise J2 a gauche : boitier, creux et 4 contacts
+    const P = d22 ? { x0: 0.8, x1: 6.4, y0: 3.9, y1: 14.3, cx: 3.2, ys: [6.1, 8.2, 10.2, 12.3] }
+                  : { x0: 1.2, x1: 6.8, y0: 4.6, y1: 15.3, cx: 3.5, ys: [6.6, 8.7, 10.8, 12.9] };
+    s.push(rect(P.x0, P.y0, P.x1, P.y1, `rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"`),
+           rect(P.x0 + 0.8, P.y0 + 0.9, P.x0 + 3.6, P.y1 - 0.9, `rx="1.5" fill="${C_PRISE.creux}"`));
+    P.ys.forEach(v => s.push(rect(P.cx - 0.3, v - 0.3, P.cx + 0.3, v + 0.3, 'fill="#9aa1a5"')));
+    ['GND', 'VCC', 'NC', 'SIG'].forEach((t, i) => s.push(d22 ? T(P.x1 + 0.2, P.ys[i], t, 1.0) : T(P.x1 - 0.05, P.ys[i], t, 0.9)));
+    // Pattes du capteur : pastilles soudees et pattes jusqu'au boitier (DHT22 : premiere pastille carree)
+    const pattes = d22 ? { x: 10.9, fin: 13.1, ys: [5.7, 8.2, 10.5, 13.0] } : { x: 15.9, fin: 18.1, ys: [6.2, 8.8, 11.3, 13.9] };
+    pattes.ys.forEach((v, i) => s.push(rect(pattes.x, v - 0.17, pattes.fin, v + 0.17, `fill="${C_MODULE.metal}"`),
+        i === 0 && d22 ? rect(pattes.x - 0.55, v - 0.55, pattes.x + 0.55, v + 0.55, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"`)
+                       : `<circle cx="${X(pattes.x)}" cy="${Y(v)}" r="${0.55 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>`));
+    if (!d22) {
+        // DHT11 : C1 et R1 entre la prise et les pattes, noms des pattes, contour serigraphie U1
+        s.push(composantCMS(X, Y, k, 9.15, 5.6, 1.4, 3.1), T(9.85, 4.6, 'C1', 1.0, 'middle'),
+               composantCMS(X, Y, k, 9.15, 10.9, 1.4, 3.1), T(9.85, 9.85, 'R1', 1.0, 'middle'));
+        ['VCC', 'SIG', 'NC', 'GND'].forEach((t, i) => s.push(T(12.2, pattes.ys[i], t, 1.1)));
+        s.push(rect(17.8, 3.2, 33.8, 16.5, 'fill="none" stroke="#e8f1f8" stroke-width="0.8"'), T(25.9, 2.2, 'U1', 1.1, 'middle'));
+        // Boitier bleu ciel et ses fenetres : 5 rangees x 6 colonnes, rangees du haut et du bas incompletes
+        s.push(rect(18.1, 3.7, 34.6, 16.2, `rx="${0.5 * k}" fill="#5cb8e6" stroke="#3f97c4" stroke-width="1"`));
+        const cols = [[20.5, 21.9], [23.1, 24.4], [25.7, 27.1], [28.3, 29.7], [30.8, 32.2], [33.4, 34.3]];
+        const rangs = [[4.05, 5.6], [6.75, 8.2], [9.4, 10.8], [11.9, 13.3], [14.5, 15.8]];
+        [6.2, 8.8, 11.35, 13.9].forEach(v => s.push(`<path d="M ${X(18.5)} ${Y(v)} H ${X(34.4)}" stroke="#3f97c4" stroke-width="0.8"/>`));
+        rangs.forEach(([y0, y1], r) => cols.forEach(([x0, x1], c) => {
+            if ((r === 0 || r === 4) && c !== 0 && c !== 2 && c !== 3) return;
+            s.push(rect(x0, y0, x1, y1, 'rx="1" fill="#24465a"'), rect(x0 + 0.2, y0 + (y1 - y0) * 0.55, x1 - 0.2, y1 - 0.15, 'fill="#8fb9cc" opacity="0.55"'));
+        }));
+    } else {
+        // DHT22 : C1 en haut, R1 en bas, noms tournes ; U2
+        s.push(composantCMS(X, Y, k, 5.3, 1.9, 2.6, 1.0), composantCMS(X, Y, k, 5.3, 15.8, 2.6, 1.0),
+               T(2.6, 2.4, 'J2', 1.0, 'middle', -90), T(4.2, 2.4, 'C1', 1.0, 'middle', -90),
+               T(4.2, 16.3, 'R1', 1.0, 'middle', -90), T(11.8, 2.4, 'U2', 1.0, 'middle', -90));
+        // Boitier blanc : jupe en trapeze a droite, grille de barreaux, bloc plein de droite a 3 petites fenetres
+        const BLANC = '#f4f2ee', FOND = '#c2bbae', PAROI = '#e2ded6';
+        s.push(`<path d="M ${X(33.6)} ${Y(1.85)} L ${X(38.0)} ${Y(4.0)} Q ${X(38.6)} ${Y(4.4)} ${X(38.6)} ${Y(5.3)} V ${Y(13.5)}
+                      Q ${X(38.6)} ${Y(14.4)} ${X(38.0)} ${Y(14.8)} L ${X(33.6)} ${Y(16.85)} Z"
+                      fill="#eeeae2" stroke="#cbc4b7" stroke-width="1" stroke-linejoin="round"/>`,
+               rect(13.0, 1.2, 33.8, 16.9, `rx="${0.3 * k}" fill="${BLANC}" stroke="#c9c3b9" stroke-width="1"`),
+               rect(18.1, 1.45, 29.8, 16.0, `fill="${FOND}"`), rect(18.1, 1.45, 29.8, 2.45, `fill="${PAROI}"`));
+        [[19.5, 20.7], [22.0, 23.2], [24.7, 25.9], [27.3, 28.5]].forEach(([x0, x1]) => s.push(
+            rect(x0, 1.2, x1, 16.9, `rx="1" fill="${BLANC}" stroke="#d6d0c6" stroke-width="0.6"`)));
+        [[4.4, 5.7], [7.2, 8.4], [9.75, 11.0], [12.3, 13.5]].forEach(([y0, y1]) => s.push(rect(18.1, y0, 29.8, y1, `fill="${BLANC}"`)));
+        [[5.8, 7.1], [8.4, 9.6], [11.05, 12.2]].forEach(([y0, y1]) => s.push(rect(31.6, y0, 32.7, y1, `fill="${FOND}"`)));
+        // Plot de fixation : base a ailettes et bille centrale ; inscription du boitier
+        const px = X(35.9), py = Y(9.1);
+        s.push(`<circle cx="${px}" cy="${py}" r="${1.55 * k}" fill="#f7f5f1" stroke="#d3ccc0" stroke-width="1"/>
+                <path d="M ${px - 1.4 * k} ${py - 0.6 * k} Q ${px} ${py - 1.9 * k} ${px + 1.3 * k} ${py - 0.4 * k}
+                         M ${px - 1.2 * k} ${py + 0.9 * k} Q ${px + 0.2 * k} ${py + 1.9 * k} ${px + 1.4 * k} ${py + 0.6 * k}"
+                      fill="none" stroke="#d3ccc0" stroke-width="0.8"/>
+                <circle cx="${px}" cy="${py}" r="${0.95 * k}" fill="#ffffff" stroke="#d6d0c5" stroke-width="0.8"/>`,
+               `<text x="${X(15.6)}" y="${Y(9.0)}" font-family="Inter, Segoe UI, Arial" font-size="${1.15 * k}" font-weight="600"
+                      fill="#aaa399" text-anchor="middle" dominant-baseline="central" transform="rotate(90 ${X(15.6)} ${Y(9.0)})">AOSONG AM2302</text>`);
+    }
+    return s.join('\n');
+}
+
 /** Tourne en direct le bouton du potentiometre dessine : valeur 0 a 1023 -> -150 a +150 degres. */
 export function allumerPotentiometre(g, valeur) {
     const repere = g.querySelector('.mv-repere');
@@ -890,4 +1263,25 @@ export const DESSINS_MODULES = {
     // (fils SCL, SDA, VCC, GND)
     lcdrgb: { largeur: 80, hauteur: 40, afficheur: true, filsDessus: true, connecteur: { x: 15.6, y: 34.7, sens: 'gauche', contacts: [36.7, 34.7, 32.8, 30.8] },
            dessin: (x, y) => dessinLcdRgb(x, y) },
+    // Prise couchee a gauche : GND VCC SDA SCL de haut en bas (fils SCL, SDA, VCC, GND)
+    bmp280: { largeur: 40, hauteur: 20, connecteur: { x: 0.3, y: 9.9, sens: 'gauche', contacts: [12.9, 10.9, 8.83, 6.85] },
+           dessin: (x, y) => dessinBmp280(x, y) },
+    // Prise couchee a gauche : GND VCC SDA SCL de haut en bas (fils SCL, SDA, VCC, GND)
+    sgp30: { largeur: 40, hauteur: 20, connecteur: { x: 0.5, y: 10.0, sens: 'gauche', contacts: [13.05, 10.98, 8.97, 6.9] },
+           dessin: (x, y) => dessinSgp30(x, y) },
+    // Prise I2C a gauche : GND VCC SDA SCL de haut en bas (fils SCL, SDA, VCC, GND)
+    dht20: { largeur: 40, hauteur: 20, connecteur: { x: 0.9, y: 10.1, sens: 'gauche', contacts: [13.2, 10.95, 8.85, 6.85] },
+           dessin: (x, y) => dessinDht20(x, y) },
+    // Prise au dos, fiche sous le bord bas, GND a droite (vue de face) : fils SCL, SDA, VCC, GND de gauche a droite ;
+    // un clic sur le module ouvre la liste des gestes (gestes: true)
+    paj7620: { largeur: 20, hauteur: 20, deborde: 3.4, gestes: true, connecteur: { x: 10.1, y: 23.4, sens: 'bas', contacts: [7.1, 9.1, 11.1, 13.1] },
+           dessin: (x, y) => dessinPaj7620(x, y) },
+    // Prise couchee a gauche : GND VCC SDA SCL de haut en bas (fils SCL, SDA, VCC, GND)
+    scd30: { largeur: 60, hauteur: 40, connecteur: { x: 0.3, y: 19.8, sens: 'gauche', contacts: [22.8, 20.8, 18.8, 16.75] },
+           dessin: (x, y) => dessinScd30(x, y) },
+    // Prise J2 a gauche : GND VCC NC SIG de haut en bas (fils SIG, NC, VCC, GND) ; DHT22 : contacts recales comme le dessin
+    dht11: { largeur: 40, hauteur: 20, connecteur: { x: 1.2, y: 9.75, sens: 'gauche', contacts: [12.9, 10.8, 8.7, 6.6] },
+           dessin: (x, y) => dessinDht(x, y, '11') },
+    dht22: { largeur: 40, hauteur: 20, connecteur: { x: 0.8, y: 9.9, sens: 'gauche', contacts: [13.05, 10.91, 8.87, 6.72] },
+           dessin: (x, y) => dessinDht(x, y, '22') },
 };

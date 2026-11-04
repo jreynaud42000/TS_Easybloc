@@ -18,7 +18,7 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
-import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb } from './modules-dessins.js';
+import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb, allumerGestes } from './modules-dessins.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -47,22 +47,22 @@ const MODULES = [
     { motif: /^grove_pir$/,                   nom: 'Détecteur de mouvement', champs: ['BROCHE'], picto: 'pir' },
     { motif: /^grove_buzzer_/,                nom: 'Buzzer',                champs: ['BROCHE'], picto: 'buzzer' },
     { motif: /^grove_relais$/,                nom: 'Relais',                champs: ['BROCHE'], picto: 'relais' },
-    { motif: /^grove_dht11_definir$/,         nom: 'DHT11',                 champs: ['BROCHE'], picto: 'dht' },
-    { motif: /^grove_dht22_definir$/,         nom: 'DHT22',                 champs: ['BROCHE'], picto: 'dht' },
+    { motif: /^grove_dht11_definir$/,         nom: 'DHT11',                 champs: ['BROCHE'], picto: 'dht11' },
+    { motif: /^grove_dht22_definir$/,         nom: 'DHT22',                 champs: ['BROCHE'], picto: 'dht22' },
     { motif: /^grove_barre_/,                 nom: 'Barre de LED',          champs: ['PORT'], picto: 'barre', large: true },
     { motif: /^servo_/,                       nom: 'Servomoteur',           champs: ['BROCHE'], picto: 'servo', servo: true },
     { motif: /^grove_oled_/,                  nom: 'Écran OLED',            i2c: true, picto: 'oled', large: true },
     { motif: /^grove_lcd_/,                   nom: 'Écran LCD 16×2',        i2c: true, picto: 'lcd', large: true },
     { motif: /^grove_lcdrgb_/,                nom: 'Écran LCD RGB',         i2c: true, picto: 'lcdrgb', large: true },
-    { motif: /^grove_bmp280$/,                nom: 'Capteur de pression',   i2c: true, picto: 'puce' },
-    { motif: /^grove_sgp30$/,                 nom: 'Capteur COV',           i2c: true, picto: 'puce' },
+    { motif: /^grove_bmp280$/,                nom: 'Capteur de pression',   i2c: true, picto: 'bmp280' },
+    { motif: /^grove_sgp30$/,                 nom: 'Capteur COV',           i2c: true, picto: 'sgp30' },
     { motif: /^grove_rtc_/,                   nom: 'Horloge RTC',           i2c: true, picto: 'rtc' },
     { motif: /^grove_pca_/,                   nom: 'Carte servos PCA9685',  i2c: true, picto: 'pca', large: true },
-    { motif: /^grove_gestes_/,                nom: 'Capteur de gestes',     i2c: true, picto: 'puce' },
-    { motif: /^grove_th_/,                    nom: 'Température, humidité', i2c: true, picto: 'puce' },
+    { motif: /^grove_gestes_/,                nom: 'Capteur de gestes',     i2c: true, picto: 'paj7620' },
+    { motif: /^grove_th_/,                    nom: 'Température, humidité', i2c: true, picto: 'dht20' },
     { motif: /^grove_couleur_/,               nom: 'Capteur de couleur',    i2c: true, picto: 'couleur' },
     { motif: /^grove_moteur_/,                nom: 'Pilote de moteurs I2C', i2c: true, picto: 'pilote' },
-    { motif: /^grove_scd30_/,                 nom: 'Capteur CO₂ SCD30',     i2c: true, picto: 'puce', large: true },
+    { motif: /^grove_scd30_/,                 nom: 'Capteur CO₂ SCD30',     i2c: true, picto: 'scd30', large: true },
     { motif: /^grove_scd41_/,                 nom: 'Capteur CO₂ SCD41',     i2c: true, picto: 'puce' },
 ];
 const BLOC_EXTENSION = /^(grove_|servo_|dfr_|motorbit_)/;
@@ -1210,7 +1210,11 @@ const LECTEURS = {
         if (cadre) cadre.setAttribute('stroke', c || 'none');
         return c ? 'couleur ' + c.toUpperCase() : '';
     },
-    gestes() { const l = $('grove-geste'); return l && l.selectedOptions[0] ? l.selectedOptions[0].textContent.trim() : ''; },
+    gestes(g) {
+        allumerGestes(g, Date.now() < gesteEclaire);   // dessin du modele : fenetre eclairee juste apres un geste
+        const l = $('grove-geste');
+        return l && l.selectedOptions[0] ? l.selectedOptions[0].textContent.trim() : '';
+    },
     rtc() { const z = $('grove-rtc'); return z ? z.textContent.trim().replace(/(\d{2}:\d{2}:\d{2})(?=\d)/, '$1 · ') : ''; },
     bouton(g) {
         const enfonce = boutonEnfonce || !!($('grove-bouton-maintenu') || {}).checked;
@@ -1296,6 +1300,42 @@ function choisirCouleur(id, x, y) {
     const premier = menu.querySelector('button.choisi') || menu.querySelector('button');
     if (premier) premier.focus();
 }
+// Capteur de gestes (comme le modele, choisirGeste) : un clic sur le module, sans le deplacer, ouvre la liste des gestes ;
+// en choisir un le declenche, comme « Declencher le geste » de « Peripheriques » (meme liste, meme bouton). La fenetre
+// du capteur s'eclaire un instant.
+let gesteEclaire = 0;
+function choisirGeste(x, y) {
+    const liste = $('grove-geste'), declencher = $('grove-geste-btn');
+    if (!liste || !declencher) return;
+    const ancien = document.getElementById('menu-couleur-module');
+    if (ancien) ancien.remove();
+    const menu = document.createElement('div');
+    menu.id = 'menu-couleur-module';
+    menu.className = 'tb-dropdown-menu visible';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = '<div class="menu-titre">Geste devant le capteur</div>' + [...liste.options].map(o =>
+        `<button type="button" role="menuitem" data-geste="${echap(o.value)}" class="${o.selected ? 'choisi' : ''}">${echap(o.textContent.trim())}</button>`).join('');
+    menu.style.cssText = `position:fixed;left:${Math.min(x, window.innerWidth - 200)}px;top:${Math.min(y, window.innerHeight - 330)}px;z-index:200200;`;
+    document.body.appendChild(menu);
+    const fermer = () => { menu.remove(); document.removeEventListener('pointerdown', dehors, true); document.removeEventListener('keydown', clavier, true); };
+    const dehors = e => { if (!menu.contains(e.target)) fermer(); };
+    const clavier = e => { if (e.key === 'Escape') { e.stopPropagation(); fermer(); } };
+    menu.addEventListener('click', e => {
+        const b = e.target.closest('[data-geste]');
+        if (!b) return;
+        liste.value = b.dataset.geste;
+        liste.dispatchEvent(new Event('change', { bubbles: true }));
+        fermer();
+        declencher.click();
+        gesteEclaire = Date.now() + 700;
+        majVivant();
+        setTimeout(majVivant, 750);
+    });
+    setTimeout(() => { document.addEventListener('pointerdown', dehors, true); document.addEventListener('keydown', clavier, true); }, 0);
+    const premier = menu.querySelector('button.choisi') || menu.querySelector('button');
+    if (premier) premier.focus();
+}
+
 function installerDeplacement() {
     svgBas.addEventListener('pointerdown', e => {
         const g = e.target.closest('.montage-module');
@@ -1321,6 +1361,7 @@ function installerDeplacement() {
             cadreVue().classList.remove('module-deplace');
             const def = DESSINS_MODULES[m.picto];
             if (!bouge && ev.type === 'pointerup' && def && def.couleurs) choisirCouleur(id, ev.clientX, ev.clientY);
+            if (!bouge && ev.type === 'pointerup' && def && def.gestes) choisirGeste(ev.clientX, ev.clientY);
             document.removeEventListener('pointermove', bouger);
             document.removeEventListener('pointerup', finir);
             document.removeEventListener('pointercancel', finir);
