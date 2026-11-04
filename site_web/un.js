@@ -6341,6 +6341,12 @@ try {
               next: { block: { type: 'boucle_infinie' } } }
         ]}}, window.workspace);
     }
+    // Changement de langue (langue.js) : le programme affiche avant le rechargement revient tel quel.
+    const repriseLangue = typeof window.repriseLangue === 'function' ? window.repriseLangue() : null;
+    if (repriseLangue) {
+        try { Blockly.serialization.workspaces.load(repriseLangue.blocs, window.workspace); }
+        catch (erreur) { console.error('Programme non repris apres le changement de langue :', erreur); }
+    }
     if (!window.workspace.getTopBlocks(false).length) {
         chargerEspaceDeDepart();
     }
@@ -9984,6 +9990,7 @@ try {
     // par l'utilisateur ne peut pas s'afficher tel quel, seul le PRINCIPE
     // d'une confirmation est reglable ici.
     window.addEventListener('beforeunload', (evenement) => {
+        if (window.CHANGEMENT_LANGUE) return;   // changement de langue : le programme est garde (langue.js)
         evenement.preventDefault();
         evenement.returnValue = '';
     });

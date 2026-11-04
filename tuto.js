@@ -17,6 +17,8 @@
 const $ = (sel, racine = document) => racine.querySelector(sel);
 
 const bouton = id => document.getElementById(id);
+// Texte affiche dans la langue choisie (langue.js) : les verifications des etapes comparent au texte traduit.
+const trad = t => (typeof window.tr === 'function' ? window.tr(t) : t);
 const panneauOuvert = (btnId) => { const b = bouton(btnId); return !!b && !b.classList.contains('inactif'); };
 function ouvrir(btnId) { const b = bouton(btnId); if (b && b.classList.contains('inactif')) b.click(); }
 
@@ -24,7 +26,8 @@ function ouvrir(btnId) { const b = bouton(btnId); if (b && b.classList.contains(
 function categorie(nom) {
     for (const e of document.querySelectorAll('.blocklyToolboxCategory')) {
         const lib = $('.blocklyTreeLabel', e);
-        if (lib && lib.textContent.trim() === nom) return e;
+        // En anglais (langue.js), le libelle affiche est traduit : on compare aux deux
+        if (lib && (lib.textContent.trim() === nom || lib.textContent.trim() === trad(nom))) return e;
     }
     return null;
 }
@@ -206,7 +209,7 @@ const ETAPES_IA = [
         cible: colImm + ' .ia-demarrer',
         avant: panneauIA,
         consigne: 'Cliquez sur « ▶ Démarrer » et testez.',
-        attendre: () => { const b = $(colImm + ' .ia-demarrer'); return !!b && b.textContent.includes('Arrêter'); },
+        attendre: () => { const b = $(colImm + ' .ia-demarrer'); return !!b && (b.textContent.includes('Arrêter') || b.textContent.includes(trad('Arrêter'))); },
     },
     {
         titre: '6. Le seuil de confiance',
@@ -305,7 +308,7 @@ const ETAPES_IA = [
 // ---------- visite guidee de la console (menu Aide > Visite guidee Console) ----------
 const ouvrirConsole = () => ouvrir('btn-vue-console');
 const menuContextuel = () => { const m = $('.blocklyContextMenu'); return m && m.offsetWidth > 0 ? m : null; };
-const menuContient = texte => { const m = menuContextuel(); return !!m && m.textContent.includes(texte); };
+const menuContient = texte => { const m = menuContextuel(); return !!m && (m.textContent.includes(texte) || m.textContent.includes(trad(texte))); };
 
 const ETAPES_CONSOLE = [
     {
@@ -483,7 +486,7 @@ const ETAPES_CLIC_DROIT = [
             'rattrapable par « Annuler »).',
         cible: '#blocklyDiv',
         consigne: 'Faites un clic droit sur une zone vide du fond de la zone de blocs.',
-        attendre: () => !!menuContextuel() && menuContient('Nettoyer'),
+        attendre: () => !!menuContextuel() && (menuContient('Nettoyer') || menuContient((Blockly.Msg && Blockly.Msg.CLEAN_UP) || 'Clean up')),
     },
     {
         titre: '8. Supprimer, c\'est rattrapable',

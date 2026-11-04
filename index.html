@@ -47,7 +47,13 @@
   <script src="lib/blockly/blockly_compressed.js"></script>
   <script src="lib/blockly/blocks_compressed.js"></script>
   <script src="lib/blockly/python_compressed.js"></script>
+  <!-- Langues (etape 9) : messages anglais de Blockly lus d'abord et mis de cote (MSG_EN), puis les francais ;
+       langue.js remet les anglais si la langue choisie est l'anglais. Tout est enregistre dans le logiciel (RGPD). -->
+  <script src="lib/blockly/msg/en.js"></script>
+  <script>window.MSG_EN = Object.assign({}, Blockly.Msg);</script>
   <script src="lib/blockly/msg/fr.js"></script>
+  <script src="langue-en.js"></script>
+  <script src="langue.js"></script>
   
   <script src="lib/brython/brython.min.js"></script>
   <script src="lib/brython/brython_stdlib.min.js"></script>
@@ -258,7 +264,12 @@
     .tb-dropdown-menu button.choisi { font-weight: 700; color: var(--accent-fonce); }
     .tb-dropdown-menu button.choisi::after { content: '  ✓'; }
     #menu-affichage-panneau { left: 0; min-width: 190px; }
-    #menu-aide-panneau { left: auto; right: 0; min-width: 230px; }     /* Aide : tout a droite, s'ouvre vers la gauche */
+    #menu-aide-panneau { left: auto; right: 0; min-width: 230px; }
+    /* Langue : drapeau SVG (pas d'emoji), menu ouvert vers la gauche */
+    #btn-langue { display: inline-flex; align-items: center; gap: 4px; }
+    #menu-langue { left: auto; right: 0; min-width: 150px; }
+    #menu-langue button { display: flex; align-items: center; gap: 8px; }
+    .drapeau { width: 21px; height: 14px; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25); flex: 0 0 auto; }     /* Aide : tout a droite, s'ouvre vers la gauche */
 
     /* Selecteur de carte (non disponible sur micro:bit : grise), pousse a droite */
     #port-group {
@@ -2169,6 +2180,11 @@
              identique a app.py, app.spec et version_info.txt). Simple mention, pas un bouton. -->
         <div class="menu-version">Version <span id="copyright-toolbar">V2.0E</span></div>
       </div>
+    </div>
+    <!-- 20. Langue (comme le modele R4) : drapeau SVG a droite du menu Aide ; menu Francais / English (langue.js) -->
+    <div id="menu-langue-conteneur" class="tb-dropdown menu-deroulant">
+      <button id="btn-langue" class="tb-btn menu-btn" title="Langue"></button>
+      <div id="menu-langue" class="tb-dropdown-menu menu-panneau"></div>
     </div>
   </div>
   
