@@ -1153,7 +1153,7 @@
     .montage-colonne-zone { position: relative; height: clamp(280px, 55vh, 640px); padding: 0; background: transparent;
         border: 1px solid var(--ec-bord, var(--bordure-chrome)); }
     .montage-zone { position: relative; overflow: hidden; padding: 0; }
-    .montage-cadre-echelle { position: absolute; inset: 0; overflow: hidden; cursor: default; touch-action: none; }
+    .montage-cadre-echelle { position: absolute; inset: 0; overflow: hidden; cursor: default; touch-action: none; user-select: none; -webkit-user-select: none; }
     .montage-cadre-echelle.vue-deplacee { cursor: grabbing; }
     #montage-scene { transform-origin: 0 0; }
     /* Curseurs comme le modele : doigt = appuyer (bouton, joystick du montage, boutons et logo de la carte) */
@@ -1162,6 +1162,15 @@
     /* Fleches en croix = deplacer un module (montage.js) ; bouton et joystick se deplacent par leurs libelles. */
     .montage-cadre-echelle .montage-module { cursor: move; }
     .montage-cadre-echelle .montage-module.montage-appui { cursor: pointer; }
+    /* Modules dessines d'apres le modele (bouton) : doigt sur la touche seulement, fleches ailleurs. */
+    .montage-cadre-echelle .montage-module.montage-appui:has(.mv-appui),
+    .montage-cadre-echelle .montage-module.montage-appui:has(.mv-manche) { cursor: move; }
+    .montage-cadre-echelle .montage-module .mv-appui { cursor: pointer; }
+    /* Bouton du potentiometre dessine : main pour le tourner (comme le modele) */
+    .montage-cadre-echelle .montage-module .mv-tourner, .montage-cadre-echelle .montage-module .mv-manche { cursor: grab; }
+    .montage-cadre-echelle.module-tourne, .montage-cadre-echelle.module-tourne * { cursor: grabbing; }
+    .montage-module[role="slider"]:focus { outline: none; }
+    .montage-module[role="slider"]:focus-visible .mv-tourner circle { stroke: #4fc3d9; stroke-width: 4; }
     .montage-cadre-echelle .montage-module.montage-appui text,
     .montage-cadre-echelle.module-deplace, .montage-cadre-echelle.module-deplace * { cursor: move; }
     .vue-boutons { position: absolute; right: 10px; bottom: 10px; z-index: 5; display: flex; flex-direction: column; gap: 6px; }

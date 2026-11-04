@@ -18,7 +18,7 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
-import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais } from './modules-dessins.js';
+import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick } from './modules-dessins.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -404,7 +404,8 @@ function hauteurModule(m, cote) {
     const def = DESSINS_MODULES[m.picto];
     if (!def) return MODULE.h;
     const rot = rotationVers(def, cote || coteVoulu(m));
-    return Math.max(MODULE.h, (rot % 180 ? def.largeur : def.hauteur) * K_MODULE);
+    // deborde : ce qui depasse du circuit (oreilles, lentille du PIR), en mm de chaque cote, pour ne pas toucher les libelles
+    return Math.max(MODULE.h, ((rot % 180 ? def.largeur : def.hauteur) + 2 * (def.deborde || 0)) * K_MODULE);
 }
 /** Geometrie d'un module dessine : rotation, centre, et passage d'un point du dessin (mm) a la scene. */
 function geometrie(m) {
@@ -749,9 +750,17 @@ function dessinerScene(etat) {
         const hMod = hauteurModule(m), cx = m.x + MODULE.l / 2, cy = m.y + MODULE.h / 2;
         const vivant = VIVANT[m.nom] || m.picto;
         // Bouton poussoir et joystick : on appuie directement dessus (meme effet que dans « Peripheriques »).
-        const appui = vivant === 'bouton' || vivant === 'joystick'
-            ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : maintenir pour appuyer"` : '';
-        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}>${dessinModule(m, cx, cy)}` +
+        // Detecteur PIR dessine : un clic sur la lentille bascule le mouvement (comme le modele).
+        const pirDessine = vivant === 'pir' && DESSINS_MODULES[m.picto];
+        const appui = vivant === 'joystick' && DESSINS_MODULES[m.picto]
+            ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : glisser ou flèches pour pousser le manche, Espace pour appuyer"`
+            : vivant === 'bouton' || vivant === 'joystick'
+            ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : maintenir pour appuyer"`
+            : pirDessine ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : cliquer pour simuler un mouvement (un autre clic l'arrête)"` : '';
+        // Potentiometre dessine : bouton noir tourne a la souris, fleches du clavier (role slider)
+        const reglable = vivant === 'pot' && DESSINS_MODULES[m.picto]
+            ? ` role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="1023" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : tourner le bouton (flèches du clavier)"` : '';
+        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}${reglable}>${dessinModule(m, cx, cy)}` +
                texte(cx, m.y + hMod + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
                texte(cx, m.y + hMod + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
         bas += texte(cx, m.y + hMod + 62, '', 'class="montage-valeur" text-anchor="middle"');
@@ -1111,15 +1120,20 @@ const LECTEURS = {
 
     // Capteurs : la valeur reglee dans « Peripheriques » (curseurs, cases), avec son unite.
     ultrason: () => texteDe('grove-distance-val') + ' cm',
-    lumiere: () => texteDe('grove-lumiere-val'),
+    lumiere(g) {
+        if (g.querySelector('.mv-lentille')) allumerLumiere(g, Number(($('grove-lumiere') || {}).value || 0));   // halo de la lentille
+        return texteDe('grove-lumiere-val');
+    },
     pot(g) {
         const v = Number(($('grove-pot') || {}).value || 512), repere = g.querySelector('.mv-pot');
+        if (g.querySelector('.mv-repere')) { allumerPotentiometre(g, v); g.setAttribute('aria-valuenow', v); }   // dessin du modele
         if (repere) repere.style.transform = `rotate(${(v / 1023 * 300 - 150).toFixed(1)}deg)`;
         return texteDe('grove-pot-val');
     },
     pir(g) {
         const vu = !!($('grove-pir') || {}).checked;
-        g.querySelector('.mv-pir').setAttribute('fill', vu ? '#ffe08a' : '#f4f4f4');
+        if (g.querySelector('.mv-appui')) allumerPir(g, vu);   // dessin du modele : cercle vert autour de la lentille
+        else g.querySelector('.mv-pir').setAttribute('fill', vu ? '#ffe08a' : '#f4f4f4');
         return vu ? 'mouvement détecté' : 'rien ne bouge';
     },
     th: () => texteDe('grove-temp-val') + ' °C · ' + texteDe('grove-humi-val') + ' %',
@@ -1136,13 +1150,17 @@ const LECTEURS = {
     rtc() { const z = $('grove-rtc'); return z ? z.textContent.trim().replace(/(\d{2}:\d{2}:\d{2})(?=\d)/, '$1 · ') : ''; },
     bouton(g) {
         const enfonce = boutonEnfonce || !!($('grove-bouton-maintenu') || {}).checked;
-        g.querySelector('.mv-capuchon').setAttribute('fill', enfonce ? '#1a1a1a' : '#3a3a3a');
-        g.querySelector('.mv-capuchon').setAttribute('r', enfonce ? 9 : 11);
+        if (g.querySelector('.mv-appui')) allumerBouton(g, enfonce);   // dessin du modele : touche et anneau vert
+        else {
+            g.querySelector('.mv-capuchon').setAttribute('fill', enfonce ? '#1a1a1a' : '#3a3a3a');
+            g.querySelector('.mv-capuchon').setAttribute('r', enfonce ? 9 : 11);
+        }
         return enfonce ? 'appuyé' : 'relâché';
     },
     joystick(g) {
         const x = Number(($('grove-jx') || {}).value || 512), y = Number(($('grove-jy') || {}).value || 512);
         const enfonce = !!($('grove-jbtn') || {}).checked, manette = g.querySelector('.mv-manette');
+        if (!manette) { allumerJoystick(g, x, y, enfonce); return 'X ' + x + ' · Y ' + y + (enfonce ? ' · appuyé' : ''); }   // dessin du modele
         manette.style.transform = `translate(${((x - 512) / 512 * 9).toFixed(1)}px, ${((512 - y) / 512 * 9).toFixed(1)}px)`;
         manette.setAttribute('fill', enfonce ? '#2a2a2a' : '#4a4a4a');
         return 'X ' + x + ' · Y ' + y + (enfonce ? ' · appuyé' : '');
@@ -1158,6 +1176,12 @@ function appuyerModule(g, enfonce) {
         if (!source || boutonEnfonce === enfonce) return;
         boutonEnfonce = enfonce;
         source.dispatchEvent(new PointerEvent(enfonce ? 'pointerdown' : 'pointerup', { bubbles: true }));
+    } else if (g.dataset.vivant === 'pir') {
+        // Bascule : un appui change l'etat, le relachement ne fait rien (comme le modele)
+        const casePir = $('grove-pir');
+        if (!casePir || !enfonce) return;
+        casePir.checked = !casePir.checked;
+        casePir.dispatchEvent(new Event('change', { bubbles: true }));
     } else if (g.dataset.vivant === 'joystick') {
         const caseBouton = $('grove-jbtn');
         if (!caseBouton || caseBouton.checked === enfonce) return;
@@ -1212,7 +1236,8 @@ function installerDeplacement() {
     svgBas.addEventListener('pointerdown', e => {
         const g = e.target.closest('.montage-module');
         if (!g || e.button !== 0 || !g.dataset.id) return;
-        if (g.classList.contains('montage-appui') && !e.target.closest('text')) return;   // appui (installerAppuis)
+        if (g.classList.contains('montage-appui') && zoneAppui(g, e.target)) return;   // appui (installerAppuis)
+        if (e.target.closest('.mv-tourner')) return;   // bouton du potentiometre : on le tourne (installerAppuis)
         const id = g.dataset.id, m = dernierEtat && dernierEtat.modules.find(x => x.id === id);
         if (!m || m.x === undefined) return;
         e.preventDefault();
@@ -1264,10 +1289,109 @@ window.montageRestaurer = donnees => {
     attente = setTimeout(redessiner, 150);
 };
 
+/** Zone ou l'on appuie : la touche dessinee (mv-appui) comme le modele, sinon tout le pictogramme sauf ses libelles.
+    Ailleurs, on deplace le module (installerDeplacement). */
+function zoneAppui(g, cible) {
+    if (g.querySelector('.mv-manche')) return !!cible.closest('.mv-manche');   // joystick dessine : le dome
+    return g.querySelector('.mv-appui') ? !!cible.closest('.mv-appui') : !cible.closest('text');
+}
+
+/** Regle le potentiometre (0 a 1023) : meme effet que le curseur de « Peripheriques ». */
+function reglerPotentiometre(valeur) {
+    const curseur = $('grove-pot');
+    if (!curseur) return;
+    curseur.value = Math.max(0, Math.min(1023, Math.round(valeur)));
+    curseur.dispatchEvent(new Event('input', { bubbles: true }));
+    majVivant();
+}
+/** Bouton du potentiometre tourne a la souris, comme le modele (tournerBouton) : l'angle autour de son centre, dans
+    le repere du module (qui peut etre tourne), de -150 a +150 degres, donne 0 a 1023 ; au-dela, il reste en butee. */
+function tournerPotentiometre(g, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const bouton = g.querySelector('.mv-tourner circle'), r = bouton.getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    const m = dernierEtat && dernierEtat.modules.find(x => x.id === g.dataset.id), geo = m && geometrie(m);
+    const rotModule = geo ? geo.rot : 0;
+    let dernier = Number(($('grove-pot') || {}).value) || 0;
+    const bouger = ev => {
+        let a = Math.atan2(ev.clientX - cx, cy - ev.clientY) * 180 / Math.PI - rotModule;   // 0 = haut du module
+        a = ((a + 540) % 360) - 180;
+        if (a > 150 || a < -150) a = dernier > 511 ? 150 : -150;
+        dernier = Math.round((a + 150) / 300 * 1023);
+        reglerPotentiometre(dernier);
+    };
+    const finir = () => {
+        cadreVue().classList.remove('module-tourne');
+        document.removeEventListener('pointermove', bouger);
+        document.removeEventListener('pointerup', finir);
+        document.removeEventListener('pointercancel', finir);
+    };
+    cadreVue().classList.add('module-tourne');
+    document.addEventListener('pointermove', bouger);
+    document.addEventListener('pointerup', finir);
+    document.addEventListener('pointercancel', finir);
+    bouger(e);
+}
+
+/** Regle les axes du joystick (0 a 1023) : meme effet que les curseurs X et Y de « Peripheriques ». */
+function reglerJoystick(vx, vy) {
+    [['grove-jx', vx], ['grove-jy', vy]].forEach(([id, v]) => {
+        const c = $(id);
+        if (!c) return;
+        c.value = Math.max(0, Math.min(1023, Math.round(v)));
+        c.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    majVivant();
+}
+/** Pousse le manche dans une direction de l'ecran (nx, ny de -1 a 1, course circulaire) : ramenee dans le repere du
+    module (qui peut etre tourne), dans le sens du vrai module (X baisse vers la prise, Y vers la droite du dessin). */
+function pousserVers(g, nx, ny) {
+    const m = dernierEtat && dernierEtat.modules.find(x => x.id === g.dataset.id), geo = m && geometrie(m);
+    const a = (geo ? geo.rot : 0) * Math.PI / 180;
+    const mx = Math.cos(a) * nx + Math.sin(a) * ny, my = -Math.sin(a) * nx + Math.cos(a) * ny;
+    reglerJoystick(512 - my * 511.5, 512 - mx * 511.5);
+}
+/** Joystick manipule a la souris, comme le modele (pousserJoystick) : glisser le dome pousse le manche (au bout de la
+    course a mi-rayon de la jupe, sur un cercle), il revient au centre au relachement (ressort) ; un clic rapide sans
+    glisser appuie sur le bouton pendant une demi-seconde. Plage 0 a 1023 (choix du professeur, nov. 2026). */
+function pousserJoystick(g, e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const r = g.querySelector('.mv-manche circle').getBoundingClientRect();
+    const cx = r.left + r.width / 2, cy = r.top + r.height / 2, course = r.width / 4;
+    const x0 = e.clientX, y0 = e.clientY, t0 = Date.now();
+    let bouge = false;
+    const bouger = ev => {
+        if (!bouge && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) < 4) return;
+        bouge = true;
+        const dx = (ev.clientX - cx) / course, dy = (ev.clientY - cy) / course, d = Math.hypot(dx, dy), f = d > 1 ? 1 / d : 1;
+        pousserVers(g, dx * f, dy * f);
+    };
+    const finir = () => {
+        cadreVue().classList.remove('module-tourne');
+        document.removeEventListener('pointermove', bouger);
+        document.removeEventListener('pointerup', finir);
+        document.removeEventListener('pointercancel', finir);
+        if (bouge) { reglerJoystick(512, 512); return; }        // le ressort ramene le manche au centre
+        if (Date.now() - t0 > 600) return;                      // appui long sans bouger : rien
+        appuyerModule(g, true);
+        setTimeout(() => appuyerModule(g, false), 500);
+    };
+    cadreVue().classList.add('module-tourne');
+    document.addEventListener('pointermove', bouger);
+    document.addEventListener('pointerup', finir);
+    document.addEventListener('pointercancel', finir);
+}
+
 function installerAppuis() {
     svgBas.addEventListener('pointerdown', e => {
+        const manche = e.button === 0 && e.target.closest('.mv-manche');
+        if (manche) { pousserJoystick(manche.closest('.montage-module'), e); return; }
+        const potentiometre = e.button === 0 && e.target.closest('.mv-tourner');
+        if (potentiometre) { tournerPotentiometre(potentiometre.closest('.montage-module'), e); return; }
         const g = e.target.closest('.montage-appui');
-        if (!g || e.target.closest('text')) return;   // libelles : on deplace le module (installerDeplacement)
+        if (!g || !zoneAppui(g, e.target)) return;
         e.preventDefault();
         appuyerModule(g, true);
         const relacher = () => { appuyerModule(g, false); document.removeEventListener('pointerup', relacher); document.removeEventListener('pointercancel', relacher); };
@@ -1276,11 +1400,24 @@ function installerAppuis() {
     });
     // Clavier : Espace ou Entree maintenus, comme un vrai bouton.
     svgBas.addEventListener('keydown', e => {
+        const reglable = e.target.closest && e.target.closest('.montage-module[role="slider"]');
+        if (reglable) {
+            const pas = { ArrowUp: 32, ArrowRight: 32, ArrowDown: -32, ArrowLeft: -32, PageUp: 128, PageDown: -128 }[e.key];
+            const v = Number(($('grove-pot') || {}).value) || 0;
+            if (pas) { e.preventDefault(); reglerPotentiometre(v + pas); }
+            else if (e.key === 'Home') { e.preventDefault(); reglerPotentiometre(0); }
+            else if (e.key === 'End') { e.preventDefault(); reglerPotentiometre(1023); }
+            return;
+        }
         const g = e.target.closest && e.target.closest('.montage-appui');
+        // Joystick dessine : les fleches poussent le manche dans leur direction a l'ecran (relache : retour au centre)
+        const fleche = g && g.querySelector('.mv-manche') && { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[e.key];
+        if (fleche) { e.preventDefault(); pousserVers(g, fleche[0], fleche[1]); return; }
         if (g && (e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); appuyerModule(g, true); }
     });
     svgBas.addEventListener('keyup', e => {
         const g = e.target.closest && e.target.closest('.montage-appui');
+        if (g && g.querySelector('.mv-manche') && /^Arrow/.test(e.key)) { e.preventDefault(); reglerJoystick(512, 512); return; }
         if (g && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); appuyerModule(g, false); }
     });
 }
