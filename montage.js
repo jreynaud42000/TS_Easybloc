@@ -18,7 +18,7 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
-import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb, allumerGestes } from './modules-dessins.js';
+import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb, allumerGestes, allumerServo } from './modules-dessins.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -57,7 +57,7 @@ const MODULES = [
     { motif: /^grove_bmp280$/,                nom: 'Capteur de pression',   i2c: true, picto: 'bmp280' },
     { motif: /^grove_sgp30$/,                 nom: 'Capteur COV',           i2c: true, picto: 'sgp30' },
     { motif: /^grove_rtc_/,                   nom: 'Horloge RTC',           i2c: true, picto: 'rtc' },
-    { motif: /^grove_pca_/,                   nom: 'Carte servos PCA9685',  i2c: true, picto: 'pca', large: true },
+    { motif: /^grove_pca_/,                   nom: 'Carte servos PCA9685',  i2c: true, picto: 'servo16', large: true },
     { motif: /^grove_gestes_/,                nom: 'Capteur de gestes',     i2c: true, picto: 'paj7620' },
     { motif: /^grove_th_/,                    nom: 'Température, humidité', i2c: true, picto: 'dht20' },
     { motif: /^grove_couleur_/,               nom: 'Capteur de couleur',    i2c: true, picto: 'couleur' },
@@ -71,7 +71,7 @@ const VIVANT = {
     'Capteur de pression': 'pression', 'Capteur COV': 'cov', 'Capteur de gestes': 'gestes', 'Température, humidité': 'th',
     'DHT11': 'th', 'DHT22': 'th', 'Capteur CO₂ SCD30': 'co2', 'Capteur CO₂ SCD41': 'co2', 'Horloge RTC': 'rtc',
     'Capteur de couleur': 'couleur', 'Capteur de lumière': 'lumiere', 'Ultrason': 'ultrason', 'Potentiomètre': 'pot',
-    'Détecteur de mouvement': 'pir', 'Bouton poussoir': 'bouton', 'Joystick': 'joystick',
+    'Détecteur de mouvement': 'pir', 'Bouton poussoir': 'bouton', 'Joystick': 'joystick', 'Carte servos PCA9685': 'servo16',
 };
 
 // ---------- Cartes d'extension ----------
@@ -264,6 +264,17 @@ function lireMontage() {
         if (def.i2c) {
             ajouter(def.nom, { nom: def.nom, picto: def.picto, large: def.large, etiquette: 'I2C', i2c: true,
                 fils: dfr ? filsI2cDfr() : motorbit ? filsI2cMotorbit() : bitmaker ? filsPortBitmaker('I2C') : filsPort(PORTS_GROVE.I2C) });
+            // Pilote 16 servos : servomoteur dessine sur chaque voie ecrite en nombre (voie 0 = P1 ... 15 = P16)
+            if (def.picto === 'servo16' && /^grove_pca_(angle|continu)$/.test(b.type)) {
+                const cible = b.getInputTargetBlock('VOIE'), voie = cible && cible.type === 'math_number' ? Number(cible.getFieldValue('NUM')) : NaN;
+                const m = modules.get(def.nom);
+                m.sorties = m.sorties || [];
+                if (Number.isInteger(voie) && voie >= 0 && voie <= 15) {
+                    const o = m.sorties.find(s => s.n === voie + 1);
+                    if (o) o.continu = o.continu || b.type === 'grove_pca_continu';
+                    else m.sorties.push({ n: voie + 1, continu: b.type === 'grove_pca_continu' });
+                }
+            }
             continue;
         }
         const pins = broches(b, def.champs);
@@ -275,8 +286,10 @@ function lireMontage() {
             continue;
         }
         const cle = def.nom + '|' + pins.join(',');
-        if (modules.has(cle)) continue;
-        ajouter(cle, Object.assign({ nom: def.nom, picto: def.picto, large: def.large, pins, cle: 'P' + pins[0].slice(3),
+        // Servomoteur a rotation continue (bloc « servo continu ») : dessine avec sa roue (modele R4)
+        const continu = !!def.servo && b.type === 'servo_continu';
+        if (modules.has(cle)) { if (continu) modules.get(cle).continu = true; continue; }
+        ajouter(cle, Object.assign({ nom: def.nom, picto: def.picto, large: def.large, pins, cle: 'P' + pins[0].slice(3), continu,
             nb: def.picto === 'ruban' ? Number(b.getFieldValue('NB')) || 16 : undefined },
             dfr ? branchementDfr(pins, def.servo) : motorbit ? branchementMotorbit(pins, def.servo) :
             bitmaker ? branchementBitmaker(pins) : branchementGrove(pins)));
@@ -1079,9 +1092,16 @@ const LECTEURS = {
     servo(g, cle) {
         const el = $$('#grove-servos .servo').find(x => x.querySelector('.servo-nom').textContent === cle);
         const bras = g.querySelector('.mv-palonnier');
-        if (!el) { bras.classList.remove('mv-tourne', 'inverse'); return ''; }
+        if (!el) { if (bras) bras.classList.remove('mv-tourne', 'inverse'); else allumerServo(g, { angle: 90, tourne: false }); return ''; }
         const cadran = el.querySelector('.servo-cadran'), rotor = el.querySelector('.servo-rotor');
         const continu = cadran.classList.contains('continu');
+        if (!bras) {
+            // Dessin du modele : angle du cadran de « Peripheriques » (bras vers le haut a 90 degres : rotate(angle - 90))
+            const a = /rotate\((-?[\d.]+)deg\)/.exec(rotor.style.transform || '');
+            allumerServo(g, { angle: a ? Number(a[1]) + 90 : undefined, tourne: continu, inverse: cadran.classList.contains('inverse'),
+                              duree: rotor.style.getPropertyValue('--duree') || '2s' });
+            return el.querySelector('.servo-etat').textContent;
+        }
         bras.classList.toggle('mv-tourne', continu);
         bras.classList.toggle('inverse', cadran.classList.contains('inverse'));
         bras.style.setProperty('--duree', rotor.style.getPropertyValue('--duree') || '2s');
@@ -1179,6 +1199,20 @@ const LECTEURS = {
                               ` opacity: ${ecran.style.opacity || 1}">${ecran.innerHTML}</div>`;
         }
         return '';
+    },
+    servo16(g) {
+        // Chaque servomoteur dessine suit son cadran « S0 » ... « S15 » de « Peripheriques » (simulateur : voie -> S + voie)
+        const textes = [];
+        $$('.mv-servo16', g).forEach(sg => {
+            const nom = 'S' + sg.dataset.voie, el = $$('#grove-servos .servo').find(x => x.querySelector('.servo-nom').textContent === nom);
+            if (!el) { allumerServo(sg, { angle: 90, tourne: false }); return; }
+            const cadran = el.querySelector('.servo-cadran'), rotor = el.querySelector('.servo-rotor');
+            const a = /rotate\((-?[\d.]+)deg\)/.exec(rotor.style.transform || '');
+            allumerServo(sg, { angle: a ? Number(a[1]) + 90 : undefined, tourne: cadran.classList.contains('continu'),
+                               inverse: cadran.classList.contains('inverse'), duree: rotor.style.getPropertyValue('--duree') || '2s' });
+            textes.push(nom + ' : ' + el.querySelector('.servo-etat').textContent);
+        });
+        return textes.join(' · ');
     },
     pilote() { const z = $('grove-moteurs'); return z ? z.textContent.trim() : ''; },
 

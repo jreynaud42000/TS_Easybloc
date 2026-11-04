@@ -1180,6 +1180,168 @@ function dessinDht(x, y, modele) {
     return s.join('\n');
 }
 
+/** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
+    cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
+    boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
+    Motor:bit), le cable de la carte arrive directement a l'entree du boitier. */
+const SERVO_AXE = { x: 30.4, y: 10 };
+function corpsServo(X, Y, k, teinte, sansPrise) {
+    const s = [];
+    if (!sansPrise) {
+        s.push(`<rect x="${X(1.0)}" y="${Y(3.2)}" width="${5.7 * k}" height="${13.6 * k}" rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"/>
+                <rect x="${X(1.8)}" y="${Y(4.6)}" width="${3.4 * k}" height="${10.8 * k}" rx="1.5" fill="${C_PRISE.creux}"/>`);
+        [7.0, 9.1, 11.2, 13.3].forEach(v => s.push(`<rect x="${X(3.0)}" y="${Y(v) - 0.35 * k}" width="${0.8 * k}" height="${0.7 * k}" fill="#9aa1a5"/>`));
+        [['#6b3e26', 7.0, 9.0], ['#d63031', 9.1, 10.0], ['#f39c12', 13.3, 11.0]].forEach(([c, a, b]) =>
+            s.push(`<path d="M ${X(6.7)} ${Y(a)} C ${X(8.6)} ${Y(a)} ${X(8.2)} ${Y(b)} ${X(10.2)} ${Y(b)}" fill="none" stroke="${c}" stroke-width="${0.9 * k}" stroke-linecap="round"/>`));
+    }
+    // Pattes de fixation (plus claires), avec leur trou et leur fente
+    s.push(`<rect x="${X(9.0)}" y="${Y(5.6)}" width="${32.2 * k}" height="${8.8 * k}" rx="${0.8 * k}" fill="${teinte.patte}" stroke="${teinte.bord}" stroke-width="1.2"/>`);
+    [11.3, 38.9].forEach(hx => s.push(`<circle cx="${X(hx)}" cy="${Y(10)}" r="${1.0 * k}" class="mod-encoche" stroke="${teinte.bord}" stroke-width="1"/>
+            <rect x="${hx < 20 ? X(9.0) - 1 : X(hx)}" y="${Y(10) - 0.35 * k}" width="${(hx < 20 ? hx - 9.0 : 41.2 - hx) * k + 1}" height="${0.7 * k}" class="mod-encoche"/>`));
+    // Boitier, tourelle de l'axe et bossage du reducteur
+    s.push(`<rect x="${X(13.85)}" y="${Y(4.1)}" width="${22.5 * k}" height="${11.8 * k}" rx="${0.9 * k}" fill="${teinte.corps}" stroke="${teinte.bord}" stroke-width="1.2"/>
+            <circle cx="${X(24.4)}" cy="${Y(10)}" r="${2.6 * k}" fill="${teinte.tour}" stroke="${teinte.bord}" stroke-width="1"/>
+            <circle cx="${X(SERVO_AXE.x)}" cy="${Y(SERVO_AXE.y)}" r="${5.6 * k}" fill="${teinte.tour}" stroke="${teinte.bord}" stroke-width="1"/>
+            <rect x="${X(14.6)}" y="${Y(4.8)}" width="${21.0 * k}" height="${1.2 * k}" rx="2" fill="#ffffff" fill-opacity="0.12"/>`);
+    return s;
+}
+
+/** Servomoteur (dessin du modele, nov. 2026). Angulaire (« dessinServo ») : boitier bleu, palonnier blanc en croix
+    avec un repere orange tourne a l'angle commande (0 a gauche, 90 vers le haut, 180 a droite), graduations 0 / 90 /
+    180. A rotation continue (« dessinServoContinu », si le programme utilise « servo continu » sur la broche) : boitier
+    noir et roue avec un trait jaune qui tourne a la vitesse commandee. Etat en direct : allumerServo. */
+function dessinServo(x, y, m) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k, sansPrise = !!(m && m.fils && m.fils.length === 3);
+    const cx = X(SERVO_AXE.x), cy = Y(SERVO_AXE.y);
+    if (m && m.continu) {
+        const out = corpsServo(X, Y, k, { corps: '#2b2b2b', patte: '#454545', tour: '#383838', bord: '#141414' }, sansPrise);
+        const rayons = [0, 72, 144, 216, 288].map(a => `<rect x="${-0.45 * k}" y="${-6.6 * k}" width="${0.9 * k}" height="${4.2 * k}" fill="#bfc5ca" transform="rotate(${a})"/>`).join('');
+        out.push(`<g transform="translate(${cx} ${cy})"><g class="mv-roue-servo">
+                    <circle cx="0" cy="0" r="${9.6 * k}" fill="#2a2a2a" stroke="#111" stroke-width="1.2"/>
+                    <circle cx="0" cy="0" r="${8.6 * k}" fill="none" stroke="#3d3d3d" stroke-width="${0.6 * k}" stroke-dasharray="3 5"/>
+                    <circle cx="0" cy="0" r="${7.0 * k}" fill="#d9dde0" stroke="#9aa1a5" stroke-width="1"/>
+                    ${rayons}
+                    <rect x="${-0.7 * k}" y="${-9.4 * k}" width="${1.4 * k}" height="${7.2 * k}" rx="2" fill="#f4c20d"/>
+                    <circle cx="0" cy="0" r="${2.4 * k}" fill="#eef0f2" stroke="#8b949b" stroke-width="1"/>
+                    <circle cx="0" cy="0" r="${0.9 * k}" fill="#9aa1a5" stroke="#6b7278" stroke-width="0.8"/>
+                  </g></g>`);
+        return out.join('\n');
+    }
+    const out = corpsServo(X, Y, k, { corps: '#2f6fc4', patte: '#4f8ad6', tour: '#3a7bd0', bord: '#1d4f8f' }, sansPrise);
+    // Graduations : arc pointille de 0 (gauche) a 180 (droite), au-dessus de l'axe
+    const r = 9.4 * k;
+    out.push(`<path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#9aa1a5" stroke-width="1.2" stroke-dasharray="4 4"/>`);
+    [0, 90, 180].forEach(a => {
+        const t = Math.PI - a * Math.PI / 180, c = Math.cos(t), si = Math.sin(t);
+        out.push(`<path d="M ${cx + c * (r - 4)} ${cy - si * (r - 4)} L ${cx + c * (r + 4)} ${cy - si * (r + 4)}" stroke="#6b7278" stroke-width="1.6"/>`);
+    });
+    // Palonnier en croix : 4 bras effiles perces, moyeu, vis ; le repere orange est sur le bras de gauche (0 degre)
+    const bras = (lg, couleur) => `<path d="M 0 ${-1.8 * k} L ${-lg} ${-1.1 * k} A ${1.1 * k} ${1.1 * k} 0 0 0 ${-lg} ${1.1 * k} L 0 ${1.8 * k} Z"
+              fill="${couleur}" stroke="#8b949b" stroke-width="1"/>
+            ${[3.6, 5.2, 6.8].filter(d => d * k < lg - 0.5 * k).map(d => `<circle cx="${-d * k}" cy="0" r="${0.38 * k}" fill="#b5bcc2"/>`).join('')}`;
+    out.push(`<g transform="translate(${cx} ${cy})"><g class="mv-croix-servo" transform="rotate(90)">
+                <g transform="rotate(180)">${bras(7.6 * k, '#f4f4f4')}</g>
+                <g transform="rotate(90)">${bras(6.4 * k, '#f4f4f4')}</g>
+                <g transform="rotate(-90)">${bras(6.4 * k, '#f4f4f4')}</g>
+                ${bras(7.6 * k, '#f4f4f4')}
+                <circle cx="${-6.6 * k}" cy="0" r="${0.75 * k}" fill="#f39c12"/>
+                <circle cx="0" cy="0" r="${2.6 * k}" fill="#f4f4f4" stroke="#8b949b" stroke-width="1"/>
+                <circle cx="0" cy="0" r="${0.9 * k}" fill="#9aa1a5" stroke="#6b7278" stroke-width="0.8"/>
+              </g></g>`);
+    return out.join('\n');
+}
+
+/** Servomoteur dessine en direct : angle (degres, palonnier) ou rotation continue (tourne, duree d'un tour, inverse). */
+export function allumerServo(g, etat) {
+    const croix = g.querySelector('.mv-croix-servo');
+    if (croix && etat.angle !== undefined) croix.setAttribute('transform', `rotate(${Number(etat.angle).toFixed(1)})`);
+    const roue = g.querySelector('.mv-roue-servo');
+    if (roue) {
+        roue.classList.toggle('mv-tourne', !!etat.tourne);
+        roue.classList.toggle('inverse', !!etat.inverse);
+        if (etat.duree) roue.style.setProperty('--duree', etat.duree);
+    }
+}
+
+/* Pilote 16 servomoteurs Grove PCA9685 (TS 277049, photo du modele ; dessin du modele « dessinServo16 », nov. 2026).
+   Mesures du modele (mm depuis le coin haut gauche de la carte 60 x 40) : 8 barrettes doubles 2 x 3 broches ; en haut
+   P16 P15 | P14 P13 | P12 P11 | P10 P9 (lignes GND, 5V, P de haut en bas), en bas P1 P2 | P3 P4 | P5 P6 | P7 P8 ;
+   bornier 5V / GND a gauche ; prise Grove I2C (SCL, SDA, VCC, GND de haut en bas) au bord droit. Les servomoteurs des
+   voies utilisees (voie 0 = P1 ... voie 15 = P16) sont dessines au-dessus (P9 a P16) et au-dessous (P1 a P8). */
+const SERVO16_COLONNES = { 16: 8.93, 15: 11.47, 14: 18.53, 13: 21.07, 12: 38.93, 11: 41.47, 10: 49.03, 9: 51.57,
+                           1: 8.33, 2: 10.87, 3: 18.23, 4: 20.77, 5: 38.23, 6: 40.77, 7: 48.33, 8: 50.87 };
+const SERVO16_LIGNES = { haut: [3.4, 6.1, 8.6], bas: [31.0, 33.5, 36.0] };
+const SERVO16_PAS = 22, SERVO16_BANDE = 44;
+/** Disposition du pilote et de ses servomoteurs ; sorties = [{ n: 1 a 16, continu }]. */
+export function geometrieServo16(sorties) {
+    sorties = sorties || [];
+    const haut = sorties.filter(o => o.n >= 9).sort((a, b) => SERVO16_COLONNES[a.n] - SERVO16_COLONNES[b.n]);
+    const bas = sorties.filter(o => o.n <= 8).sort((a, b) => SERVO16_COLONNES[a.n] - SERVO16_COLONNES[b.n]);
+    const largeur = Math.max(66, haut.length * SERVO16_PAS, bas.length * SERVO16_PAS);
+    const ox = (largeur - 60) / 2, oy = (haut.length ? SERVO16_BANDE : 0) + 3;
+    return { haut, bas, largeur, ox, oy, hauteur: oy + 43 + (bas.length ? SERVO16_BANDE : 0) };
+}
+
+function dessinServo16(x, y, sorties) {
+    const k = K_MODULE, g = geometrieServo16(sorties);
+    const X = v => x + (g.ox + v) * k, Y = v => y + (g.oy + v) * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const s = [oreille(X(30), Y(-1.0), 1.75 * k), oreille(X(-1.0), Y(9.3), 1.75 * k), oreille(X(61), Y(9.3), 1.75 * k),
+               oreille(X(9.6), Y(40.3), 1.75 * k), oreille(X(50.0), Y(40.3), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${60 * k}" height="${40 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Barrettes 2 x 3 et leurs noms (GND 5V Px), sur deux colonnes par barrette
+    const barrette = (col, lignes, nomG, nomD, ty) => {
+        const xa = SERVO16_COLONNES[col];
+        s.push(`<rect x="${X(xa - 1.27)}" y="${Y(lignes[0] - 1.3)}" width="${5.08 * k}" height="${(lignes[2] - lignes[0] + 2.6) * k}" rx="1.5" fill="#1e1e1e"/>`);
+        [xa, xa + 2.54].forEach(px => lignes.forEach(py => s.push(`<rect x="${X(px) - 0.32 * k}" y="${Y(py) - 0.32 * k}" width="${0.64 * k}" height="${0.64 * k}" fill="#c9a227"/>`)));
+        [[xa - 2.0, nomG], [xa + 4.55, nomD]].forEach(([tx, nom]) => s.push(T(tx, ty, 'GND 5V ' + nom, 0.95, 'middle', 90)));
+    };
+    [[16, 'P16', 'P15'], [14, 'P14', 'P13'], [12, 'P12', 'P11'], [10, 'P10', 'P9']].forEach(([c, a, b]) => barrette(c, SERVO16_LIGNES.haut, a, b, 6.0));
+    [[1, 'P1', 'P2'], [3, 'P3', 'P4'], [5, 'P5', 'P6'], [7, 'P7', 'P8']].forEach(([c, a, b]) => barrette(c, SERVO16_LIGNES.bas, a, b, 33.5));
+    // Bornier 5V / GND a gauche (boitier bleu, leviers orange)
+    s.push(`<rect x="${X(-2.2)}" y="${Y(14.4)}" width="${8.6 * k}" height="${11.0 * k}" rx="1.5" fill="#3f8fd6" stroke="#2b6aa6" stroke-width="1"/>`);
+    [15.4, 20.4].forEach(py => s.push(`<rect x="${X(-1.0)}" y="${Y(py)}" width="${4.6 * k}" height="${3.9 * k}" rx="1.5" fill="#f2a76b" stroke="#c97c40" stroke-width="0.8"/>`));
+    s.push(T(4.2, 12.7, '5V', 1.1, 'middle'), T(4.2, 27.0, 'GND', 1.1, 'middle'));
+    // Quartz, circuit PCA9685, condensateurs, petits composants
+    s.push(`<rect x="${X(15.1)}" y="${Y(12.4)}" width="${7.5 * k}" height="${5.5 * k}" rx="2" fill="#c9cfd4" stroke="#8b949b" stroke-width="1"/>
+            <rect x="${X(15.8)}" y="${Y(13.0)}" width="${6.1 * k}" height="${4.3 * k}" rx="1.5" fill="#d8dde1"/>`,
+           `<rect x="${X(25.3)}" y="${Y(16.0)}" width="${9.8 * k}" height="${5.8 * k}" rx="1.5" fill="#262626"/>`);
+    for (let i = 0; i < 14; i++) {
+        const px = 25.8 + i * 0.67;
+        s.push(`<rect x="${X(px)}" y="${Y(15.2)}" width="${0.3 * k}" height="${0.8 * k}" fill="${C_MODULE.metal}"/>
+                <rect x="${X(px)}" y="${Y(21.8)}" width="${0.3 * k}" height="${0.8 * k}" fill="${C_MODULE.metal}"/>`);
+    }
+    [[13.5, 24.2], [20.4, 24.0]].forEach(([cx, cy]) => s.push(
+        `<rect x="${X(cx - 3.1)}" y="${Y(cy - 3.1)}" width="${6.2 * k}" height="${6.2 * k}" fill="#1e1e1e"/>
+         <circle cx="${X(cx)}" cy="${Y(cy)}" r="${2.9 * k}" fill="#c9cfd4" stroke="#8b949b" stroke-width="1"/>
+         <path d="M ${X(cx - 2.9)} ${Y(cy + 1.2)} A ${2.9 * k} ${2.9 * k} 0 0 0 ${X(cx + 2.9)} ${Y(cy + 1.2)} Z" fill="#2a2a2a"/>`));
+    [[42.0, 12.6], [44.0, 14.4], [46.5, 16.0], [44.5, 21.8], [42.5, 24.0], [27.0, 25.5], [31.0, 25.5]].forEach(([cx, cy]) =>
+        s.push(composantCMS(X, Y, k, cx, cy, 1.6, 0.8)));
+    // Prise Grove I2C au bord droit (ouverture vers la droite) et ses contacts
+    s.push(`<rect x="${X(50.6)}" y="${Y(13.7)}" width="${9.4 * k}" height="${12.2 * k}" rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"/>
+            <rect x="${X(52.0)}" y="${Y(15.0)}" width="${6.6 * k}" height="${9.6 * k}" rx="1.5" fill="${C_PRISE.creux}"/>`);
+    [['SCL', 17.0], ['SDA', 18.9], ['VCC', 20.8], ['GND', 22.8]].forEach(([t, v]) => s.push(T(49.6, v, t, 0.95, 'end'),
+        `<rect x="${X(55.0)}" y="${Y(v) - 0.3 * k}" width="${0.7 * k}" height="${0.6 * k}" fill="#9aa1a5"/>`));
+    // Servomoteurs des voies utilisees : fiche noire sur la barrette, 3 fils (marron GND, rouge 5V, orange signal)
+    // jusqu'au servomoteur, debout au-dessus (P9-P16) ou au-dessous (P1-P8)
+    const servo = (o, i, liste, enHaut) => {
+        const xa = SERVO16_COLONNES[o.n], lignes = SERVO16_LIGNES[enHaut ? 'haut' : 'bas'];
+        const yFiche = enHaut ? lignes[0] - 1.6 : lignes[2] + 1.6;
+        const gx = (g.largeur - liste.length * SERVO16_PAS) / 2 + (i + 0.5) * SERVO16_PAS - g.ox;
+        const gy = enHaut ? -g.oy + SERVO16_BANDE - 1 : 40 + 3 + 1;
+        s.push(`<g class="mv-servo16" data-voie="${o.n - 1}">`,
+               `<rect x="${X(xa - 1.4)}" y="${Y(enHaut ? lignes[0] - 1.6 : lignes[0] - 1.3)}" width="${2.8 * k}" height="${(lignes[2] - lignes[0] + 2.9) * k}" rx="1.5" fill="#141414" stroke="#3a3a3a" stroke-width="0.8"/>`);
+        [['#6b3e26', -0.9], ['#d63031', 0], ['#f39c12', 0.9]].forEach(([c, d]) => s.push(
+            `<path d="M ${X(xa + d * 0.6)} ${Y(yFiche)} C ${X(xa + d * 0.6)} ${Y(enHaut ? yFiche - 6 : yFiche + 6)} ${X(gx + d)} ${Y(enHaut ? gy + 6 : gy - 6)} ${X(gx + d)} ${Y(gy)}"
+                   fill="none" stroke="${c}" stroke-width="${0.7 * k}" stroke-linecap="round"/>`));
+        const corps = dessinServo(0, 0, { continu: o.continu, fils: [0, 0, 0] });
+        s.push(`<g transform="translate(${X(gx)} ${Y(gy)}) rotate(${enHaut ? -90 : 90}) translate(${-9.6 * k} ${-10 * k})">${corps}</g></g>`);
+    };
+    g.haut.forEach((o, i) => servo(o, i, g.haut, true));
+    g.bas.forEach((o, i) => servo(o, i, g.bas, false));
+    return s.join('\n');
+}
+
 /** Tourne en direct le bouton du potentiometre dessine : valeur 0 a 1023 -> -150 a +150 degres. */
 export function allumerPotentiometre(g, valeur) {
     const repere = g.querySelector('.mv-repere');
@@ -1284,4 +1446,17 @@ export const DESSINS_MODULES = {
            dessin: (x, y) => dessinDht(x, y, '11') },
     dht22: { largeur: 40, hauteur: 20, connecteur: { x: 0.8, y: 9.9, sens: 'gauche', contacts: [13.05, 10.91, 8.87, 6.72] },
            dessin: (x, y) => dessinDht(x, y, '22') },
+    // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
+    // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
+    servo: { largeur: 42, hauteur: 20,
+           taille: m => (m.fils && m.fils.length === 3
+               ? { connecteur: { x: 9.0, y: 10, sens: 'gauche', contacts: [11.0, 10.0, 9.0] } }
+               : { connecteur: { x: 1.0, y: 10, sens: 'gauche', contacts: [13.3, 11.2, 9.1, 7.0] } }),
+           dessin: (x, y, m) => dessinServo(x, y, m) },
+    // Pilote 16 servos : taille selon les voies utilisees (m.sorties) ; jamais tourne ; prise I2C au bord droit
+    // (SCL, SDA, VCC, GND de haut en bas)
+    servo16: { afficheur: true,
+           taille: m => { const g = geometrieServo16(m.sorties); return { largeur: g.largeur, hauteur: g.hauteur,
+               connecteur: { x: g.ox + 60, y: g.oy + 19.8, sens: 'droite', contacts: [17.0, 18.9, 20.8, 22.8].map(v => g.oy + v) } }; },
+           dessin: (x, y, m) => dessinServo16(x, y, m.sorties) },
 };

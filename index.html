@@ -1077,11 +1077,15 @@
     .mv-palonnier { transform-box: view-box; transition: transform 0.25s ease-out; }
     .mv-palonnier.mv-tourne { animation: servo-tour var(--duree, 2s) linear infinite; transition: none; }
     .mv-palonnier.mv-tourne.inverse { animation-direction: reverse; }
+    /* Servomoteur dessine d'apres le modele : roue du servo continu (meme vitesse que le cadran de « Peripheriques ») */
+    .mv-roue-servo { transform-box: fill-box; transform-origin: center; }
+    .mv-roue-servo.mv-tourne { animation: servo-tour var(--duree, 2s) linear infinite; }
+    .mv-roue-servo.mv-tourne.inverse { animation-direction: reverse; }
     .mv-onde { opacity: 0; }
     .mv-onde.actif { animation: mv-onde 0.9s ease-out infinite; }
     @keyframes mv-onde { 0% { opacity: 0.9; } 100% { opacity: 0; } }
     @media (prefers-reduced-motion: reduce) {
-        #montage-scene .dfr-roue.tourne, .mv-palonnier.mv-tourne { animation: none; }
+        #montage-scene .dfr-roue.tourne, .mv-palonnier.mv-tourne, .mv-roue-servo.mv-tourne { animation: none; }
         .mv-onde.actif { animation: none; opacity: 0.9; }
         .mv-palonnier, #montage-scene .dfr-axe { transition: none !important; }
     }
