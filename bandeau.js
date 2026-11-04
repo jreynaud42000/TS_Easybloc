@@ -619,7 +619,8 @@ if (champNom) {
 // Comme la version Arduino R4 (demanderNomProgramme de blockly-jeulin.html, nov. 2026) : fond grise, titre sur le bandeau
 // de couleur, champ, exemple, Valider (et Annuler si annulable). Renvoie une Promise : le nom saisi, ou null si annule.
 // annulable = false : l'eleve doit donner un nom (premier bloc pose).
-function demanderNomProgramme(titre, texte, valeur, annulable) {
+// options (fenetre « Exporter le modele » de l'IA) : { etiquette, exemple } a la place de ceux du nom du programme
+function demanderNomProgramme(titre, texte, valeur, annulable, options) {
     return new Promise(resolve => {
         const ancien = $('fenetre-nom-voile');
         if (ancien) ancien.remove();
@@ -634,6 +635,8 @@ function demanderNomProgramme(titre, texte, valeur, annulable) {
             + '<button type="button" class="fen-btn principal">Valider</button></div></div>';
         voile.querySelector('h3').textContent = titre;
         voile.querySelector('p').textContent = texte;
+        if (options && options.etiquette) voile.querySelector('input').setAttribute('aria-label', options.etiquette);
+        if (options && options.exemple) voile.querySelector('.fen-exemple').textContent = options.exemple;
         const champ = voile.querySelector('input');
         const ok = voile.querySelector('.principal');
         champ.value = valeur || '';

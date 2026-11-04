@@ -1931,6 +1931,9 @@
     #ia-pied { flex: 0 0 auto; display: flex; align-items: center; flex-wrap: wrap; gap: 12px 20px; padding: 12px 22px;
         border-top: 1px solid var(--ia-trait); background: var(--ia-fond-carte); }
     #ia-pied button { margin: 0; border-radius: 8px; font-size: 14px; }
+    #ia-pied .ia-imm-exporter, #ia-pied .ia-imm-importer { display: inline-flex; align-items: center; gap: 6px; }
+    #ia-panneau button:has(> .ia-icone) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+    #ia-panneau .ia-icone { flex: 0 0 auto; }
     #ia-pied .ia-pied-effacer { padding: 8px 16px; background: transparent; color: var(--texte-code); border: 1px solid var(--ia-trait-fort); }
     #ia-pied .ia-pied-effacer:hover { background: var(--ia-fond-carte); }
     #ia-panneau:not([data-onglet="immediat"]) .ia-pied-effacer { visibility: hidden; transition: none; }
@@ -2109,7 +2112,7 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
       <span id="lib-code" class="tb-libelle">Afficher le code</span>
     </button>
-    <!-- Specifique a ce logiciel (absent du modele) : panneau IA, apres Code -->
+    <!-- Bouton IA (comme le modele R4 : fenetre IA avec ses onglets IA et QR code), apres Code -->
     <button id="btn-vue-ia" class="tb-btn inactif" title="IA : reconnaissance d'images et de sons (caméra, micro)" aria-label="Afficher ou masquer le panneau IA">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z"/></svg>
       <span class="tb-libelle-2">IA</span>
@@ -2752,17 +2755,17 @@
   <section id="ia-panneau" class="replie" data-onglet="immediat" aria-label="Intelligence artificielle">
    <div id="ia-fenetre" role="dialog" aria-modal="true" aria-labelledby="ia-fenetre-titre">
     <div id="ia-entete">
-      <h3 id="ia-fenetre-titre"><span aria-hidden="true">🧠</span> <span id="ia-titre-texte">Entraîner l'IA à reconnaître des objets ou des images</span></h3>
+      <h3 id="ia-fenetre-titre"><span id="ia-titre-texte">Entraîner l'IA à reconnaître des objets ou des images</span></h3>
       <span id="ia-boutons">
         <button id="btn-ia-aide" class="btn-vue" title="Aide : comment utiliser l'IA" aria-label="Aide sur l'IA">?</button>
         <button id="btn-ia-fermer" class="btn-vue" title="Fermer la fenêtre IA (la reconnaissance en cours continue)" aria-label="Fermer la fenêtre IA">✕</button>
       </span>
     </div>
     <div id="ia-onglets" role="tablist" aria-label="Modes de l'IA">
-      <button type="button" class="ia-onglet" role="tab" data-onglet="immediat">⚡ Apprentissage immédiat <span class="ia-onglet-point" aria-hidden="true"></span></button>
-      <button type="button" class="ia-onglet" role="tab" data-onglet="vision">📷 Modèle Teachable Machine (caméra) <span class="ia-onglet-point" aria-hidden="true"></span></button>
-      <button type="button" class="ia-onglet" role="tab" data-onglet="son">🎤 Modèle Teachable Machine (micro) <span class="ia-onglet-point" aria-hidden="true"></span></button>
-      <button type="button" class="ia-onglet" role="tab" data-onglet="qr">🔳 QR codes et codes-barres <span class="ia-onglet-point" aria-hidden="true"></span></button>
+      <button type="button" class="ia-onglet" role="tab" data-onglet="immediat">IA <span class="ia-onglet-point" aria-hidden="true"></span></button>
+      <button type="button" class="ia-onglet" role="tab" data-onglet="vision">Teachable Machine (caméra) <span class="ia-onglet-point" aria-hidden="true"></span></button>
+      <button type="button" class="ia-onglet" role="tab" data-onglet="son">Teachable Machine (micro) <span class="ia-onglet-point" aria-hidden="true"></span></button>
+      <button type="button" class="ia-onglet" role="tab" data-onglet="qr">QR code <span class="ia-onglet-point" aria-hidden="true"></span></button>
     </div>
     <div id="ia-colonnes">
       <!-- Apprentissage immediat (sans entrainement) et QR codes : moteur dans ia-immediat.js.
@@ -2773,10 +2776,10 @@
           <span class="ia-imm-choix-titre">L'IA doit reconnaître :</span>
           <label class="ia-imm-type-label">Reconnaître :
             <select class="ia-imm-type" title="Ce que l'IA apprend à reconnaître">
-              <option value="images">objets et images</option>
-              <option value="mains">gestes de la main</option>
+              <option value="images">objets ou images</option>
+              <option value="mains">signes de la main</option>
               <option value="bras">positions des bras</option>
-              <option value="sons">sons et mots (micro)</option>
+              <option value="sons">sons ou mots (micro)</option>
             </select>
           </label>
         </div>
@@ -2786,9 +2789,7 @@
             <button class="btn-vue ia-ajouter-classe">+ Ajouter une classe</button>
             <p class="ia-imm-note">Évitez les accents et les caractères spéciaux dans les noms des classes : ils peuvent s'afficher sur un écran Grove, qui ne sait pas les montrer.</p>
             <div class="ia-creer-actions">
-              <button class="btn-vue ia-imm-exporter" title="Télécharger l'apprentissage dans un fichier .json (il est aussi rangé dans le .py téléchargé)">💾 Exporter</button>
-              <button class="btn-vue ia-imm-importer" title="Ouvrir un apprentissage enregistré (.json)">📂 Importer</button>
-              <button class="btn-vue ia-tout-effacer" hidden title="Supprimer toutes les classes et leurs exemples">🗑 Tout effacer</button>
+              <button class="btn-vue ia-tout-effacer" hidden title="Supprimer toutes les classes et leurs exemples">Tout effacer</button>
             </div>
             <input type="file" class="ia-imm-fichiers" accept="image/png,image/jpeg,image/webp" multiple style="display:none;">
             <input type="file" class="ia-imm-import-fichier" accept=".json,application/json" style="display:none;">
@@ -2797,7 +2798,7 @@
             <div class="ia-imm-cadre eteint" data-toujours="1"><video class="ia-imm-video" autoplay muted playsinline></video><canvas class="ia-imm-calque"></canvas><span class="ia-imm-cadre-vide">Caméra éteinte</span></div>
             <div class="ia-imm-niveau replie" title="Volume du micro au-dessus du bruit de fond (vert : son détecté)"><i></i></div>
             <div class="ia-imm-capteur">
-              <button class="btn-vue ia-imm-camera" title="Allumer la caméra pour ajouter des exemples">📷 Caméra</button>
+              <button class="btn-vue ia-imm-camera" title="Allumer la caméra pour ajouter des exemples"><svg class="ia-icone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/></svg><span>Allumer la caméra</span></button>
               <span class="ia-creer-statut" aria-live="polite"></span>
             </div>
             <div class="ia-imm-test">
@@ -2827,7 +2828,7 @@
         </div>
         <video id="ia-video" class="ia-apercu replie" autoplay muted playsinline></video>
         <div class="ia-classes"></div>
-        <p class="ia-creer-aide">Pour créer vos propres classes d'images, utilisez l'onglet « ⚡ Apprentissage immédiat ».</p>
+        <p class="ia-creer-aide">Pour créer vos propres classes d'images, utilisez l'onglet « IA ».</p>
       </div>
       <div class="ia-colonne" data-genre="son" role="tabpanel">
         <h4>Son <small class="ia-sous-titre">modèle Teachable Machine · micro</small></h4>
@@ -2843,7 +2844,7 @@
           <span class="ia-statut">Aucun modèle chargé.</span>
         </div>
         <div class="ia-classes"></div>
-        <p class="ia-creer-aide">Pour créer vos propres classes de sons, utilisez l'onglet « ⚡ Apprentissage immédiat » (des sons ou des mots).</p>
+        <p class="ia-creer-aide">Pour créer vos propres classes de sons, utilisez l'onglet « IA » (des sons ou des mots).</p>
       </div>
       <div class="ia-colonne" data-genre="qr" role="tabpanel">
         <h4>QR codes <small class="ia-sous-titre">et codes-barres · caméra</small></h4>
@@ -2855,16 +2856,16 @@
         <div class="ia-imm-cadre replie"><video class="ia-imm-video" autoplay muted playsinline></video></div>
         <div class="ia-qr-texte"></div>
         <details class="ia-creer" open>
-          <summary>✚ Créer un QR code à imprimer</summary>
+          <summary>Créer un QR code à imprimer</summary>
           <div class="ia-modele">
             <input type="text" class="ia-url ia-qr-a-creer" maxlength="200" placeholder="Texte du QR code (ex. : avancer)" spellcheck="false">
             <button class="btn-vue ia-qr-creer">Créer</button>
-            <button class="btn-vue ia-qr-telecharger" disabled title="Télécharger l'image (.png)">💾 PNG</button>
+            <button class="btn-vue ia-qr-telecharger" disabled title="Télécharger l'image (.png)"><svg class="ia-icone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>PNG</span></button>
           </div>
           <canvas class="ia-qr-image replie"></canvas>
         </details>
         <details class="ia-creer ia-qr-planche">
-          <summary>🖨 Planche de QR codes à imprimer (A4)</summary>
+          <summary>Planche de QR codes à imprimer (A4)</summary>
           <p class="ia-intro">Un texte par ligne : chaque ligne donne un QR code. Une ligne écrite deux fois donne deux exemplaires.</p>
           <textarea class="ia-qr-liste" rows="5" spellcheck="false" placeholder="avancer&#10;reculer&#10;gauche&#10;droite&#10;stop"></textarea>
           <div class="ia-modele ia-qr-planche-options">
@@ -2876,7 +2877,7 @@
               </select>
             </label>
             <label class="ia-qr-avec-texte"><input type="checkbox" class="ia-qr-legende" checked> Texte sous chaque code</label>
-            <button class="btn-vue ia-qr-imprimer">🖨 Imprimer la planche</button>
+            <button class="btn-vue ia-qr-imprimer"><svg class="ia-icone" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg><span>Imprimer la planche</span></button>
           </div>
           <span class="ia-qr-planche-statut" aria-live="polite"></span>
         </details>
@@ -2884,6 +2885,10 @@
     </div>
     <div id="ia-pied">
       <button type="button" class="btn-vue ia-pied-effacer" title="Supprimer toutes les classes et leurs exemples">Tout effacer</button>
+      <!-- Comme le modele R4 : « Exporter le modele » / « Importer un modele » dans le pied (fichier .json : noms des classes
+           et resumes chiffres des exemples, jamais d'image ni de son) -->
+      <button type="button" class="btn-vue ia-pied-effacer ia-imm-exporter" title="Télécharger le modèle IA dans un fichier .json (il est aussi rangé dans le .py téléchargé)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg><span>Exporter le modèle</span></button>
+      <button type="button" class="btn-vue ia-pied-effacer ia-imm-importer" title="Ouvrir un modèle IA enregistré (.json)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><span>Importer un modèle</span></button>
       <span id="ia-seuil-groupe">
         <label for="ia-seuil">Seuil de confiance</label>
         <input type="range" id="ia-seuil" min="30" max="99" value="80">

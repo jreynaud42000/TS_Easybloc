@@ -9358,8 +9358,8 @@ try {
         "sons (micro) et des QR codes. « Terminé » la ferme : une reconnaissance en cours continue (bouton IA souligné en vert). " +
         "Le résultat pilote le programme par les blocs de la catégorie « IA », au choix dans le simulateur ou sur la " +
         "vraie carte. L'image et le son restent dans le navigateur : seul le nom de la classe est transmis.\n\n" +
-        "1. APPRENDRE SES CLASSES : onglet « ⚡ Apprentissage immédiat » (sans entraînement, sans Internet)\n" +
-        "• Choisissez ce que l'IA doit reconnaître : des objets ou des images, des gestes de la main, des positions des bras " +
+        "1. APPRENDRE SES CLASSES : onglet « IA » (sans entraînement, sans Internet)\n" +
+        "• Choisissez ce que l'IA doit reconnaître : des objets ou des images, des signes de la main, des positions des bras " +
         "(caméra), ou des sons ou des mots (micro).\n" +
         "• La caméra s'allume à l'ouverture de la fenêtre. Sur la carte d'une classe : « 📸 Une photo » ajoute un exemple à " +
         "chaque clic, « 🎞 Plusieurs photos » en ajoute en rafale jusqu'à « ■ Arrêter », « 📁 Ajouter des images » prend des " +
@@ -9373,7 +9373,7 @@ try {
         "• Images, gestes et positions pilotent les blocs « vision » ; les sons pilotent les blocs « son ». Un son reconnu " +
         "le reste 1 seconde.\n" +
         "• L'apprentissage (des nombres, jamais d'images ni de sons) est rangé dans le .py téléchargé et relu à son " +
-        "ouverture ; « 💾 Exporter » le met dans un fichier .json à part. Il n'est pas dans le .hex. Les photos des " +
+        "ouverture ; « Exporter le modèle » le met dans un fichier .json à part. Il n'est pas dans le .hex. Les photos des " +
         "vignettes ne sont pas enregistrées (▣ après réouverture) ; squelettes et timbres se redessinent.\n\n" +
         "2. OU CHARGER UN MODÈLE TEACHABLE MACHINE (onglets « Modèle Teachable Machine », caméra et micro)\n" +
         "• Sur teachablemachine.withgoogle.com : « Exporter le modèle », onglet Tensorflow.js. Collez l'adresse puis " +
@@ -9395,7 +9395,7 @@ try {
         "• Le résultat est renvoyé deux fois par seconde ; la carte oublie un résultat de plus de 1,5 s " +
         "(navigateur fermé, câble débranché).\n\n" +
         "5. QR CODES ET CODES-BARRES\n" +
-        "• Onglet « 🔳 QR codes et codes-barres » : « ▶ Lire les codes », puis les blocs « lorsqu'un code QR est lu », " +
+        "• Onglet « QR code » : « ▶ Lire les codes », puis les blocs « lorsqu'un code QR est lu », " +
         "« un code QR est visible », « texte du dernier code QR lu ». « Créer un QR code » en fabrique un à imprimer.\n\n" +
         "LIMITES\n" +
         "• Chrome ou Edge conseillé. La caméra et le micro demandent une page en localhost ou en HTTPS.\n" +

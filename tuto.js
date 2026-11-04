@@ -117,7 +117,7 @@ const ETAPES_GENERAL = [
     {
         titre: '10. L\'intelligence artificielle',
         texte: 'La fenêtre IA reconnaît des images (caméra) ou des sons (micro). Vous pouvez y apprendre vos propres classes ' +
-            '(onglet « Apprentissage immédiat » : quelques photos ou quelques sons par classe, sans entraînement), ou charger un ' +
+            '(onglet « IA » : quelques photos ou quelques sons par classe, sans entraînement), ou charger un ' +
             'modèle Teachable Machine. Les classes reconnues déclenchent vos blocs.',
         cible: '#ia-fenetre',
         avant: () => { if (window.ouvrirPanneauIA) window.ouvrirPanneauIA(); },
@@ -167,18 +167,18 @@ const ETAPES_IA = [
     },
     {
         titre: '2. Quatre onglets',
-        texte: '« ⚡ Apprentissage immédiat » crée vos propres classes avec la caméra (objets, gestes de la main, positions des bras) ' +
+        texte: '« IA » crée vos propres classes avec la caméra (objets, signes de la main, positions des bras) ' +
             'ou le micro (sons et mots). « Vision » et « Son » chargent un modèle déjà fait sur Teachable Machine. ' +
-            '« QR codes » lit les QR codes et codes-barres. Toutes envoient leur résultat aux blocs de la catégorie « IA ».',
+            '« QR code » lit les QR codes et codes-barres. Toutes envoient leur résultat aux blocs de la catégorie « IA ».',
         cible: '#ia-onglets',
         avant: panneauIA,
     },
     {
         titre: '3. Créer ses classes : caméra ou micro',
         texte: 'L\'apprentissage immédiat n\'a pas besoin d\'entraînement : chaque exemple compte aussitôt. Choisissez d\'abord ' +
-            'ce que l\'IA doit reconnaître (« objets et images », « gestes de la main », « positions des bras » avec la caméra, ' +
-            'ou « sons et mots » avec le micro). La caméra s\'allume toute seule à l\'ouverture de la fenêtre ; le micro, au premier ' +
-            '« Enregistrer ». Le navigateur demande l\'autorisation.',
+            'ce que l\'IA doit reconnaître (« Des objets ou des images », « Des signes de la main », « Des positions des bras » avec la caméra, ' +
+            'ou « Des sons ou des mots » avec le micro). La caméra et le micro ne s\'allument que si vous cliquez (« Allumer la caméra », ' +
+            'une photo, « Enregistrer »). Le navigateur demande l\'autorisation.',
         cible: colImm + ' .ia-imm-camera',
         avant: () => { panneauIA(); ouvrirCreation('immediat'); },
         consigne: 'Autorisez la caméra (ou cliquez « 🎤 Allumer le micro »).',
@@ -219,9 +219,9 @@ const ETAPES_IA = [
     {
         titre: '7. Enregistrer l\'apprentissage',
         texte: 'L\'apprentissage est rangé automatiquement dans le fichier .py quand vous téléchargez le programme (menu « Fichier »), ' +
-            'et rechargé quand vous rouvrez ce .py. « 💾 Exporter » le met aussi dans un fichier .json à part, à rouvrir avec ' +
-            '« 📂 Importer ». Seuls des nombres sont gardés, jamais les images. Il n\'est pas dans le .hex.',
-        cible: colImm + ' .ia-imm-exporter',
+            'et rechargé quand vous rouvrez ce .py. « Exporter le modèle » le met aussi dans un fichier .json à part, à rouvrir avec ' +
+            '« Importer un modèle ». Seuls des nombres sont gardés, jamais les images. Il n\'est pas dans le .hex.',
+        cible: '#ia-pied .ia-imm-exporter',
         avant: () => { panneauIA(); ouvrirCreation('immediat'); },
     },
     {
@@ -235,7 +235,7 @@ const ETAPES_IA = [
     },
     {
         titre: '9. Les sons',
-        texte: 'Les sons et les mots s\'apprennent aussi dans « ⚡ Apprentissage immédiat » : choisissez « sons et mots », allumez ' +
+        texte: 'Les sons et les mots s\'apprennent aussi dans « IA » : choisissez « sons et mots », allumez ' +
             'le micro, puis maintenez le bouton d\'une classe et faites le son plusieurs fois. Pas besoin de classe « bruit de fond » : ' +
             'le silence ne déclenche rien. Un son reconnu le reste 1 seconde ; il pilote les blocs « son ». Rien n\'est enregistré, ' +
             'seul un dessin du timbre est gardé.',
@@ -273,7 +273,7 @@ const ETAPES_IA = [
     },
     {
         titre: '13. Essayer dans le simulateur',
-        texte: 'Lancez la simulation, puis démarrez la reconnaissance (« ⚡ Apprentissage immédiat » ou « Vision ») : quand la classe est reconnue, vos blocs s\'exécutent ' +
+        texte: 'Lancez la simulation, puis démarrez la reconnaissance (« IA » ou « Vision ») : quand la classe est reconnue, vos blocs s\'exécutent ' +
             'sur la carte virtuelle. Le simulateur doit être en marche, sinon les résultats ne lui sont pas transmis.',
         cible: '#tb-lancer',
         avant: () => ouvrir('btn-vue-simu'),
