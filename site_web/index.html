@@ -1162,6 +1162,8 @@
     /* Fleches en croix = deplacer un module (montage.js) ; bouton et joystick se deplacent par leurs libelles. */
     .montage-cadre-echelle .montage-module { cursor: move; }
     .montage-cadre-echelle .montage-module.montage-appui { cursor: pointer; }
+    /* Ruban de LED : fixe au-dessus de la carte, il ne se deplace pas */
+    .montage-cadre-echelle .montage-module[data-fixe] { cursor: default; }
     /* Modules dessines d'apres le modele (bouton) : doigt sur la touche seulement, fleches ailleurs. */
     .montage-cadre-echelle .montage-module.montage-appui:has(.mv-appui),
     .montage-cadre-echelle .montage-module.montage-appui:has(.mv-manche) { cursor: move; }
@@ -1470,13 +1472,14 @@
     #grove-4digit-ecran { display: flex; align-items: center; justify-content: center; gap: 6px;
                           transform: skewX(-8deg); }
     .digit7 { width: 26px; height: 46px; display: block; }
-    .digit7 .seg { fill: #1b2f2c; transition: fill 0.08s; }
-    .digit7 .seg.on { fill: #24e8c6; filter: drop-shadow(0 0 3px rgba(36, 232, 198, 0.85)); }
+    .digit7 .seg { fill: #383838; transition: fill 0.08s; }
+    /* Rouge comme le vrai afficheur et le modele R4 (choix du professeur, nov. 2026) */
+    .digit7 .seg.on { fill: #ff2a1a; filter: drop-shadow(0 0 3px rgba(255, 42, 26, 0.85)); }
     .digit7-points { display: flex; flex-direction: column; justify-content: center; gap: 11px;
                      height: 46px; padding: 0 1px; }
-    .digit7-points span { width: 5px; height: 5px; border-radius: 50%; background: #1b2f2c;
+    .digit7-points span { width: 5px; height: 5px; border-radius: 50%; background: #383838;
                           transition: background 0.08s; }
-    .digit7-points.on span { background: #24e8c6; box-shadow: 0 0 4px rgba(36, 232, 198, 0.9); }
+    .digit7-points.on span { background: #ff2a1a; box-shadow: 0 0 4px rgba(255, 42, 26, 0.9); }
 
     /* LED simples : une pastille par broche pilotee. L'eclat suit la valeur
        ecrite ; la pastille eteinte reste visible, comme une LED au repos. */
@@ -1510,7 +1513,7 @@
                 background: rgba(255,255,255,0.055);
                 font-family: Consolas, "DejaVu Sans Mono", monospace;
                 font-size: 14px; line-height: 16px; text-align: center;
-                color: var(--lcd-texte, #f4f8ff); text-shadow: 0 0 3px rgba(215,232,255,0.8); }
+                color: var(--lcd-texte, #f4f8ff); text-shadow: var(--lcd-ombre, 0 0 3px rgba(215,232,255,0.8)); }
     /* La trame est une grille sombre au pas du point, posee PAR-DESSUS le
        texte : elle decoupe les jambages en points et donne l'aspect matriciel
        sans avoir a redessiner une fonte 5x8 caractere par caractere. */

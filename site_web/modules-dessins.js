@@ -528,6 +528,285 @@ function dessinUltrason(x, y) {
     return s.join('\n');
 }
 
+/** Barre de LED Grove (TS 275781 « LED Bar v2.0 », puce MY9221 ; dessin du modele « dessinBargraphe », nov. 2026) :
+    circuit 20 x 40 mm debout, oreilles a gauche, a droite et en bas, encoches sur les cotes ; barre de 10 LED dans un
+    bloc noir ; pastilles de la prise soudee dessous en bas (GND VCC DCKI DI, DI carree), le bout blanc de la prise
+    depasse sous le circuit. Couleurs du modele (essai sur la vraie barre, choix du professeur nov. 2026) : LED 1 a 8
+    vertes, 9 orange, 10 rouge ; la LED 1 est en bas, cote prise. Allumage en direct : allumerBarreLed. */
+export const COULEUR_BARRE = n => n <= 8 ? '#3ddc6a' : n === 9 ? '#ff9f1a' : '#ff3b30';
+function dessinBarreLed(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const texte = (tx, ty, t, taille, ancre) => `<text x="${X(tx)}" y="${Y(ty)}" font-family="Consolas, 'Courier New', monospace"
+              font-size="${taille * k}" fill="#e8f1f8" text-anchor="${ancre || 'start'}" dominant-baseline="central">${t}</text>`;
+    // Bout de la prise soudee dessous : il depasse sous le bord bas (le cable y arrive)
+    const s = [oreille(X(-0.6), Y(10.0), 1.75 * k), oreille(X(20.6), Y(10.0), 1.75 * k), oreille(X(10.0), Y(40.6), 1.75 * k),
+        `<rect x="${X(4.7)}" y="${Y(39.0)}" width="${10.8 * k}" height="${4.4 * k}" rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"/>`,
+        `<rect x="${X(0)}" y="${Y(0)}" width="${20 * k}" height="${40 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches des cotes
+    const re = 1.9 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(0) - 2} ${Y(28.6) - re} H ${X(0)} A ${re} ${re} 0 0 1 ${X(0)} ${Y(28.6) + re} H ${X(0) - 2} Z"/>
+            <path d="M ${X(0)} ${Y(28.6) - re} A ${re} ${re} 0 0 1 ${X(0)} ${Y(28.6) + re}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(20) + 2} ${Y(28.6) - re} H ${X(20)} A ${re} ${re} 0 0 0 ${X(20)} ${Y(28.6) + re} H ${X(20) + 2} Z"/>
+            <path d="M ${X(20)} ${Y(28.6) - re} A ${re} ${re} 0 0 0 ${X(20)} ${Y(28.6) + re}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Pastilles des connecteurs lateraux (non utilises), la premiere et la derniere carrees
+    [[2.1, 14.2], [2.1, 16.2], [2.1, 18.2], [2.1, 20.2], [17.9, 14.2], [17.9, 16.2], [17.9, 18.2], [17.9, 20.2]].forEach(([px, py], i) =>
+        s.push((i === 0 || i === 7)
+            ? `<rect x="${X(px) - 0.6 * k}" y="${Y(py) - 0.6 * k}" width="${1.2 * k}" height="${1.2 * k}" rx="1" fill="#d9d9d9" stroke="#8b949b" stroke-width="0.8"/>`
+            : `<circle cx="${X(px)}" cy="${Y(py)}" r="${0.6 * k}" fill="#d9d9d9" stroke="#8b949b" stroke-width="0.8"/>`));
+    // Bloc noir de la barre, cadre argente, puis les 10 LED (LED 1 en bas) avec leur lueur (eteintes au depart)
+    s.push(`<rect x="${X(3.0)}" y="${Y(1.0)}" width="${12.2 * k}" height="${25.2 * k}" rx="${0.3 * k}" fill="#1b1b1b" stroke="#b9bec2" stroke-width="1.6"/>`);
+    for (let n = 1; n <= 10; n++) {
+        const ly = 24.0 - (n - 1) * 2.4;
+        s.push(`<rect class="mv-lueur" data-n="${n}" x="${X(6.5)}" y="${Y(ly)}" width="${5.6 * k}" height="${1.5 * k}" rx="1.5" fill="${COULEUR_BARRE(n)}" opacity="0" filter="url(#mod-halo)"/>
+                <rect class="mv-segment" data-n="${n}" x="${X(6.5)}" y="${Y(ly)}" width="${5.6 * k}" height="${1.5 * k}" rx="1.5" fill="#3a3a3a"/>`);
+    }
+    // Roue dentee, logo Grove et inscription
+    const gx = X(8.4), gy = Y(28.7);
+    for (let i = 0; i < 8; i++) s.push(`<rect x="${gx - 0.4 * k}" y="${gy - 1.7 * k}" width="${0.8 * k}" height="${0.9 * k}" fill="#e8f1f8" transform="rotate(${i * 45} ${gx} ${gy})"/>`);
+    s.push(`<circle cx="${gx}" cy="${gy}" r="${1.2 * k}" fill="#e8f1f8"/><circle cx="${gx}" cy="${gy}" r="${0.5 * k}" fill="${C_MODULE.pcb}"/>`);
+    const lx = X(13.0), ly = Y(28.6);
+    [[-1.0, -0.9], [1.0, -0.9], [-1.0, 0.9], [1.0, 0.9], [0, 1.9]].forEach(([dx, dy]) => s.push(
+        `<path d="M ${lx} ${ly} L ${lx + dx * k} ${ly + dy * k}" stroke="#e8f1f8" stroke-width="1.4"/>
+         <circle cx="${lx + dx * k}" cy="${ly + dy * k}" r="${0.4 * k}" fill="${C_MODULE.pcb}" stroke="#e8f1f8" stroke-width="1.1"/>`));
+    s.push(`<circle cx="${lx}" cy="${ly}" r="${0.5 * k}" fill="#e8f1f8"/>`, texte(10.6, 32.4, 'LED Bar v2.0', 1.5, 'middle'));
+    // Pastilles de la prise (soudee dessous) et noms des contacts
+    [8.3, 9.9, 11.5, 13.1].forEach((px, i) => s.push(i === 3
+        ? `<rect x="${X(px) - 0.6 * k}" y="${Y(35.8) - 0.6 * k}" width="${1.2 * k}" height="${1.2 * k}" rx="1" fill="#d9d9d9" stroke="#8b949b" stroke-width="0.8"/>`
+        : `<circle cx="${X(px)}" cy="${Y(35.8)}" r="${0.6 * k}" fill="#d9d9d9" stroke="#8b949b" stroke-width="0.8"/>`));
+    s.push(texte(4.0, 35.8, 'GND', 1.0, 'middle'), texte(6.2, 35.8, 'VCC', 1.0, 'middle'),
+           texte(15.8, 35.8, 'DCKI', 1.0, 'middle'), texte(17.9, 35.8, 'DI', 1.0, 'middle'));
+    return s.join('\n');
+}
+
+/** Allume en direct les LED de la barre dessinee : allumees[i] vrai = LED i+1 allumee. */
+export function allumerBarreLed(g, allumees) {
+    g.querySelectorAll('.mv-segment').forEach(seg => {
+        const n = Number(seg.dataset.n), on = !!allumees[n - 1];
+        seg.setAttribute('fill', on ? COULEUR_BARRE(n) : '#3a3a3a');
+        const lueur = g.querySelector(`.mv-lueur[data-n="${n}"]`);
+        if (lueur) lueur.setAttribute('opacity', on ? '0.5' : '0');
+    });
+}
+
+/** Afficheur 4 digits Grove (TS 275761 « 4-Digit Display V1.0 », puce TM1637 ; dessin du modele « dessinQuatreDigits »,
+    nov. 2026) : circuit 40 x 20 mm, oreilles en haut et en bas a droite et au milieu a gauche, encoches en haut, en bas
+    et a droite ; bloc noir de 4 chiffres a 7 segments et deux-points central ; prise J1 sous le circuit au bord droit,
+    son bout blanc depasse a droite (GND en haut ... CLK en bas). Segments rouges allumes, gris fonce eteints (rouge
+    partout, choix du professeur nov. 2026). Afficheur : jamais tourne. Allumage en direct : allumerQuatreDigits. */
+const ROUGE_4D = '#ff2a1a', ETEINT_4D = '#383838';
+function dessinQuatreDigits(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    // Bout de la prise soudee dessous : il depasse a droite (le cable y arrive)
+    const s = [`<rect x="${X(39.2)}" y="${Y(4.1)}" width="${4.4 * k}" height="${10.8 * k}" rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"/>`,
+        oreille(X(30.1), Y(-0.6), 1.75 * k), oreille(X(30.1), Y(20.6), 1.75 * k), oreille(X(-0.6), Y(9.6), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Encoches
+    const re = 2.0 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(9.8) - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${X(9.8) + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${X(9.8) - re} ${Y(0)} A ${re} ${re} 0 0 0 ${X(9.8) + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(7.8) - re} ${Y(20) + 2} V ${Y(20)} A ${re} ${re} 0 0 1 ${X(7.8) + re} ${Y(20)} V ${Y(20) + 2} Z"/>
+            <path d="M ${X(7.8) - re} ${Y(20)} A ${re} ${re} 0 0 1 ${X(7.8) + re} ${Y(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Logos serigraphies a gauche : roue dentee et logo Grove (simplifies)
+    const gx = X(3.9), gy = Y(6.4);
+    for (let i = 0; i < 8; i++) s.push(`<rect x="${gx - 0.45 * k}" y="${gy - 2.0 * k}" width="${0.9 * k}" height="${1.0 * k}" fill="#e8f1f8" transform="rotate(${i * 45} ${gx} ${gy})"/>`);
+    s.push(`<circle cx="${gx}" cy="${gy}" r="${1.45 * k}" fill="#e8f1f8"/><circle cx="${gx}" cy="${gy}" r="${0.6 * k}" fill="${C_MODULE.pcb}"/>`);
+    const lx = X(3.9), ly = Y(13.6);
+    [[-1.2, -1.0], [1.2, -1.0], [-1.2, 1.0], [1.2, 1.0], [0, 2.2]].forEach(([dx, dy]) => s.push(
+        `<path d="M ${lx} ${ly} L ${lx + dx * k} ${ly + dy * k}" stroke="#e8f1f8" stroke-width="1.6"/>
+         <circle cx="${lx + dx * k}" cy="${ly + dy * k}" r="${0.45 * k}" fill="${C_MODULE.pcb}" stroke="#e8f1f8" stroke-width="1.2"/>`));
+    s.push(`<circle cx="${lx}" cy="${ly}" r="${0.55 * k}" fill="#e8f1f8"/>`);
+    // Bloc noir des chiffres, cadre argente
+    s.push(`<rect x="${X(7.0)}" y="${Y(2.0)}" width="${31.1 * k}" height="${14.5 * k}" rx="${0.3 * k}" fill="#1b1b1b" stroke="#b9bec2" stroke-width="1.6"/>`);
+    // Les 4 chiffres : segments A a G (bits 0 a 6, comme le TM1637), chacun avec sa lueur ; deux-points central
+    const t = 0.8, haut = 4.6, bas = 14.1, mil = (haut + bas) / 2, jeu = 0.18;
+    const hor = (x0, x1, yy) => `${X(x0)},${Y(yy)} ${X(x0 + t / 2)},${Y(yy - t / 2)} ${X(x1 - t / 2)},${Y(yy - t / 2)} ${X(x1)},${Y(yy)} ${X(x1 - t / 2)},${Y(yy + t / 2)} ${X(x0 + t / 2)},${Y(yy + t / 2)}`;
+    const ver = (xx, y0, y1) => `${X(xx)},${Y(y0)} ${X(xx + t / 2)},${Y(y0 + t / 2)} ${X(xx + t / 2)},${Y(y1 - t / 2)} ${X(xx)},${Y(y1)} ${X(xx - t / 2)},${Y(y1 - t / 2)} ${X(xx - t / 2)},${Y(y0 + t / 2)}`;
+    s.push('<g class="mv-4d-affichage">');
+    [11.0, 18.7, 26.7, 34.3].forEach((cx, n) => {
+        const g = cx - 2.0, d = cx + 2.0, T = haut + t / 2, B = bas - t / 2;
+        [hor(g + jeu, d - jeu, T), ver(d, T + jeu, mil - jeu), ver(d, mil + jeu, B - jeu), hor(g + jeu, d - jeu, B),
+         ver(g, mil + jeu, B - jeu), ver(g, T + jeu, mil - jeu), hor(g + jeu, d - jeu, mil)].forEach((pts, bit) => s.push(
+            `<polygon class="mv-seg-lueur" data-c="${n}" data-b="${bit}" points="${pts}" fill="${ROUGE_4D}" opacity="0" filter="url(#mod-halo)"/>
+             <polygon class="mv-seg" data-c="${n}" data-b="${bit}" points="${pts}" fill="${ETEINT_4D}"/>`));
+    });
+    [7.2, 11.4].forEach(py => s.push(`<circle class="mv-points" cx="${X(22.7)}" cy="${Y(py)}" r="${0.5 * k}" fill="${ETEINT_4D}"/>`));
+    s.push('</g>');
+    // Inscriptions
+    s.push(`<text x="${X(12.9)}" y="${Y(18.3)}" textLength="${15.6 * k}" lengthAdjust="spacingAndGlyphs" font-family="Consolas, 'Courier New', monospace"
+              font-size="${1.7 * k}" fill="#e8f1f8" dominant-baseline="central">4-Digit Display</text>
+            <text x="${X(32.0)}" y="${Y(18.3)}" font-family="Consolas, 'Courier New', monospace" font-size="${1.3 * k}" font-weight="700"
+              fill="#e8f1f8" dominant-baseline="central">V1.0</text>`);
+    return s.join('\n');
+}
+
+/** Allume en direct l'afficheur 4 digits dessine : codes[n] = segments du chiffre n (bits 0 a 6 = a a g), points =
+    deux-points, eclat = luminosite reglee par le programme (0 a 1). */
+export function allumerQuatreDigits(g, codes, points, eclat) {
+    g.querySelectorAll('.mv-seg').forEach(p => {
+        const on = ((codes[Number(p.dataset.c)] || 0) >> Number(p.dataset.b)) & 1;
+        p.setAttribute('fill', on ? ROUGE_4D : ETEINT_4D);
+        const lueur = p.previousElementSibling;
+        if (lueur && lueur.classList.contains('mv-seg-lueur')) lueur.setAttribute('opacity', on ? '0.5' : '0');
+    });
+    g.querySelectorAll('.mv-points').forEach(c => c.setAttribute('fill', points ? ROUGE_4D : ETEINT_4D));
+    const zone = g.querySelector('.mv-4d-affichage');
+    if (zone) zone.setAttribute('opacity', String(eclat === undefined ? 1 : eclat));
+}
+
+/* Ruban de LED Grove WS2813 etanche (TS 277437, photos du modele, debut et fin ; dessin du modele « dessinRubanLed »,
+   nov. 2026) : 30 mm entre deux LED, ruban de 12,5 mm de large ; 5 LED par rang, les rangs se replient en demi-cercle
+   (serpentin), le rang 0 en bas, pres de la carte. Place : au-dessus de la carte, fixe (choix du professeur, nov. 2026). */
+const RUBAN = { pas: 30, largeur: 12.5, rangee: 21, parRang: 5, marge: 18 };
+const COULEURS_FILS_RUBAN = ['#1b1b1b', '#d63a2f', '#f4f4f4', '#f2c230'];   // GND, VCC, NC, signal (noir a gauche)
+/** Geometrie du ruban de nb LED (mm) : nombre de rangs, taille, centre de chaque rang. */
+export function geometrieRuban(nb) {
+    nb = Math.max(1, Math.min(120, Number(nb) || 16));
+    const rangs = Math.ceil(nb / RUBAN.parRang), W = RUBAN.largeur;
+    const yRang = r => 1 + W / 2 + (rangs - 1 - r) * RUBAN.rangee;   // rang 0 en bas
+    return { nb, rangs, yRang, hauteur: yRang(0) + W / 2 + 12, largeur: 2 * RUBAN.marge + RUBAN.parRang * RUBAN.pas };
+}
+
+/** Ruban dessine : gaine blanche translucide, bouchons de silicone aux deux bouts, au debut 4 fils (noir, rouge, blanc,
+    jaune) jusqu'a une prise Grove ; LED 5050 (boitier blanc, 6 pattes, lentille ronde, fleche du sens des donnees),
+    4 pastilles cuivrees et trait de coupe entre deux LED. La LED n0 est la premiere apres le cable. Allumage en direct :
+    allumerRuban. */
+function dessinRuban(x, y, nb) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const g = geometrieRuban(nb), N = g.nb;
+    const P = RUBAN.pas, W = RUBAN.largeur, M = RUBAN.marge, fin = M + RUBAN.parRang * P, rv = RUBAN.rangee / 2;
+    // Trace du ruban : rangs pairs vers la droite, impairs vers la gauche, demi-tours entre deux
+    let d = `M ${X(M)} ${Y(g.yRang(0))}`, xFin = M, yFin = g.yRang(0);
+    for (let rg = 0; rg < g.rangs; rg++) {
+        const yc = g.yRang(rg), dansRang = Math.min(RUBAN.parRang, N - rg * RUBAN.parRang), droite = rg % 2 === 0;
+        const plein = dansRang === RUBAN.parRang && rg < g.rangs - 1;
+        const long = plein ? RUBAN.parRang * P : dansRang * P;
+        xFin = droite ? M + long : fin - long; yFin = yc;
+        d += ` H ${X(xFin)}`;
+        if (rg < g.rangs - 1) d += ` A ${rv * k} ${rv * k} 0 0 ${droite ? 0 : 1} ${X(xFin)} ${Y(g.yRang(rg + 1))}`;
+    }
+    const s = [`<path d="${d}" fill="none" stroke="#c4cacd" stroke-width="${W * k + 3}"/>`,
+               `<path d="${d}" fill="none" stroke="#eef0ef" stroke-width="${W * k}"/>`,
+               `<path d="${d}" fill="none" stroke="#fbfbf8" stroke-width="${(W - 2.5) * k}"/>`];
+    // Bouchons de silicone : au debut (a gauche du rang 0) et a la fin
+    const bouchon = (bx, by) => rect(bx, by - W / 2 - 0.5, bx + 6, by + W / 2 + 0.5, 'rx="3" fill="#f3f1ea" stroke="#c9c4b5" stroke-width="1" opacity="0.95"');
+    const finVersDroite = (g.rangs - 1) % 2 === 0;
+    s.push(bouchon(M - 6, g.yRang(0)), bouchon(finVersDroite ? xFin : xFin - 6, yFin));
+    // Queue de cable : du bouchon de debut jusqu'a la prise Grove, en bas a gauche (noir a gauche)
+    const y0 = g.yRang(0), yp = g.hauteur - 5.5;
+    for (let i = 0; i < 4; i++) {
+        const ya = y0 + (i - 1.5) * 1.6, xb = 7 + (i - 1.5) * 1.9;
+        s.push(`<path d="M ${X(M - 6)} ${Y(ya)} C ${X(xb + 2)} ${Y(ya)}, ${X(xb)} ${Y(ya + 2)}, ${X(xb)} ${Y(yp)}" fill="none" stroke="${COULEURS_FILS_RUBAN[i]}" stroke-width="${0.9 * k}" stroke-linecap="round"/>`);
+    }
+    s.push(rect(2, yp, 12, g.hauteur, 'rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"'));
+    // LED et pastilles
+    for (let n = 0; n < N; n++) {
+        const rg = Math.floor(n / RUBAN.parRang), j = n % RUBAN.parRang, droite = rg % 2 === 0;
+        const cx = droite ? M + P / 2 + j * P : fin - P / 2 - j * P, cy = g.yRang(rg), sens = droite ? 1 : -1;
+        if (n < N - 1 && j < RUBAN.parRang - 1) {
+            const px = cx + sens * P / 2;
+            [-2.7, -0.9, 0.9, 2.7].forEach(py => s.push(rect(px - 1.6, cy + py - 0.6, px + 1.6, cy + py + 0.6, 'rx="1.5" fill="#d39d78"')));
+            s.push(`<path d="M ${X(px)} ${Y(cy - 3.6)} V ${Y(cy + 3.6)}" stroke="#b9a99a" stroke-width="0.8" stroke-dasharray="2 2"/>`);
+        }
+        const fx = cx - sens * 3.6;
+        s.push(`<path d="M ${X(fx - sens * 0.7)} ${Y(cy - 0.9)} L ${X(fx + sens * 0.7)} ${Y(cy)} L ${X(fx - sens * 0.7)} ${Y(cy + 0.9)} Z" fill="#2f3b48"/>`);
+        [-1.6, 0, 1.6].forEach(dx => s.push(rect(cx + dx - 0.4, cy - 3.1, cx + dx + 0.4, cy - 2.4, `fill="${C_MODULE.metal}"`),
+                                            rect(cx + dx - 0.4, cy + 2.4, cx + dx + 0.4, cy + 3.1, `fill="${C_MODULE.metal}"`)));
+        s.push(rect(cx - 2.5, cy - 2.5, cx + 2.5, cy + 2.5, 'rx="1.5" fill="#f7f7f5" stroke="#bfc4c7" stroke-width="0.8"'),
+               `<circle class="mv-ruban-halo" data-i="${n}" cx="${X(cx)}" cy="${Y(cy)}" r="${5.2 * k}" fill="#000" opacity="0" filter="url(#mod-halo)"/>`,
+               `<circle class="mv-ruban-led" data-i="${n}" cx="${X(cx)}" cy="${Y(cy)}" r="${1.85 * k}" fill="#e8e2d6" stroke="#bdb6a8" stroke-width="0.8"/>`,
+               rect(cx - 0.45, cy - 0.45, cx + 0.45, cy + 0.45, 'class="mv-ruban-puce" fill="#8a7f6a"'));
+    }
+    return s.join('\n');
+}
+
+/** Allume en direct les LED du ruban dessine : couleurs[i] = couleur CSS de la LED i, ou '' si eteinte. */
+export function allumerRuban(g, couleurs) {
+    g.querySelectorAll('.mv-ruban-led').forEach(led => {
+        const c = couleurs[Number(led.dataset.i)] || '';
+        led.setAttribute('fill', c || '#e8e2d6');
+        led.setAttribute('stroke', c ? '#ffffff' : '#bdb6a8');
+        const halo = led.previousElementSibling;
+        if (halo && halo.classList.contains('mv-ruban-halo')) { halo.setAttribute('fill', c || '#000'); halo.setAttribute('opacity', c ? '0.45' : '0'); }
+        const puce = led.nextElementSibling;
+        if (puce) puce.setAttribute('opacity', c ? '0' : '1');
+    });
+}
+
+/** Ecran LCD RGB Grove (TS 275759 « Grove-LCD RGB Backlight V5.0 », photo du modele ; dessin du modele « dessinLcd »,
+    nov. 2026) : 80 x 40 mm, contour alternant oreilles percees et encoches ; ecran de 16 caracteres sur 2 lignes ;
+    prise J1 au bord bas, ouverture vers la gauche (GND VCC SDA SCL de haut en bas). Comme le vrai ecran (modele) : les
+    caracteres restent fonces, seul le fond prend la couleur du retroeclairage ; eteint, la vitre est vert-gris.
+    Afficheur : jamais tourne. Allumage en direct : allumerLcdRgb. */
+export const LCD_RGB = { encre: '#1a1a1a', eteint: '#5b7650' };
+function dessinLcdRgb(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k, f = 3.7 / 7;   // tailles de police du modele (7 unites/mm)
+    const r = 2.4 * k;
+    const trous = [[30, 0], [70, 0], [0, 10], [10, 40], [50, 40], [80, 30]];
+    const s = trous.map(([hx, hy]) => `<circle cx="${X(hx)}" cy="${Y(hy)}" r="${r}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`);
+    s.push(`<rect x="${X(0)}" y="${Y(0)}" width="${80 * k}" height="${40 * k}" rx="${0.6 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`);
+    trous.forEach(([hx, hy]) => s.push(`<circle cx="${X(hx)}" cy="${Y(hy)}" r="${r - 1}" fill="${C_MODULE.pcb}"/>
+            <circle cx="${X(hx)}" cy="${Y(hy)}" r="${1.4 * k}" fill="#d9b85c" stroke="#a8862f" stroke-width="0.8"/>
+            <circle cx="${X(hx)}" cy="${Y(hy)}" r="${0.85 * k}" class="mod-encoche"/>`));
+    // Encoches en demi-cercle, en face des oreilles
+    [[10, 0, 1], [50, 0, 1], [30, 40, -1], [70, 40, -1]].forEach(([ex, ey, sens]) => s.push(
+        `<path class="mod-encoche" d="M ${X(ex) - r} ${Y(ey) - sens * 2} V ${Y(ey)} A ${r} ${r} 0 0 ${sens > 0 ? 0 : 1} ${X(ex) + r} ${Y(ey)} V ${Y(ey) - sens * 2} Z"/>
+         <path d="M ${X(ex) - r} ${Y(ey)} A ${r} ${r} 0 0 ${sens > 0 ? 0 : 1} ${X(ex) + r} ${Y(ey)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`));
+    [[0, 30, 1], [80, 10, -1]].forEach(([ex, ey, sens]) => s.push(
+        `<path class="mod-encoche" d="M ${X(ex) - sens * 2} ${Y(ey) - r} H ${X(ex)} A ${r} ${r} 0 0 ${sens > 0 ? 1 : 0} ${X(ex)} ${Y(ey) + r} H ${X(ex) - sens * 2} Z"/>
+         <path d="M ${X(ex)} ${Y(ey) - r} A ${r} ${r} 0 0 ${sens > 0 ? 1 : 0} ${X(ex)} ${Y(ey) + r}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`));
+    // Languette metallique du retroeclairage, a droite de l'ecran
+    s.push(`<rect x="${X(74.0)}" y="${Y(7.2)}" width="${3.8 * k}" height="${18.4 * k}" rx="1.5" fill="#d3d7da" stroke="#9aa1a5" stroke-width="0.8"/>
+            <path d="M ${X(76.6)} ${Y(8.4)} V ${Y(24.4)}" stroke="#b7bcc0" stroke-width="2"/>`);
+    // Cadre noir de l'ecran, doubles filets en haut et en bas
+    s.push(`<rect x="${X(2.4)}" y="${Y(3.9)}" width="${71.8 * k}" height="${24.8 * k}" rx="${0.4 * k}" fill="#1b1b1b" stroke="#000" stroke-width="1.2"/>`);
+    [5.6, 6.5, 25.9, 26.8].forEach(v => s.push(`<path d="M ${X(3.4)} ${Y(v)} H ${X(73.2)}" stroke="#3c3c3c" stroke-width="1.4"/>`));
+    // Vitre (vert-gris eteinte), sa lueur, 16 x 2 cases et les caracteres (vides au depart)
+    s.push(`<rect class="mv-lcd-lueur" x="${X(5.0)}" y="${Y(8.9)}" width="${66.1 * k}" height="${14.7 * k}" fill="${LCD_RGB.eteint}" opacity="0" filter="url(#mod-halo)"/>
+            <rect class="mv-lcd-vitre" x="${X(5.0)}" y="${Y(8.9)}" width="${66.1 * k}" height="${14.7 * k}" fill="${LCD_RGB.eteint}"/>`);
+    const pas = 3.95, x0 = 6.4;
+    [10.1, 16.6].forEach((ly, l) => {
+        for (let i = 0; i < 16; i++) {
+            s.push(`<rect class="mv-lcd-case" x="${X(x0 + i * pas + 0.25)}" y="${Y(ly)}" width="${3.4 * k}" height="${5.6 * k}" fill="#000000" opacity="0.14"/>
+                    <text class="mv-lcd-car" data-l="${l}" data-i="${i}" x="${X(x0 + i * pas + 1.95)}" y="${Y(ly + 2.9)}" font-family="Consolas, 'Courier New', monospace"
+                      font-size="${5.2 * k}" font-weight="600" fill="${LCD_RGB.encre}" text-anchor="middle" dominant-baseline="central"></text>`);
+        }
+    });
+    // Prise Grove J1 au bord bas (ouverture vers la gauche), reperes et inscriptions
+    s.push(`<rect x="${X(15.6)}" y="${Y(29.4)}" width="${10.0 * k}" height="${10.6 * k}" rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"/>
+            <rect x="${X(16.4)}" y="${Y(31.0)}" width="${5.6 * k}" height="${7.4 * k}" rx="1.5" fill="${C_PRISE.creux}"/>
+            <rect x="${X(16.4)}" y="${Y(33.0)}" width="${1.6 * k}" height="${3.4 * k}" rx="1" fill="${C_PRISE.fond}"/>`);
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => {
+        const py = 30.8 + i * 1.97;
+        s.push(`<circle cx="${X(24.2)}" cy="${Y(py)}" r="${0.45 * k}" fill="#c9a84a"/>
+                <text x="${X(25.9)}" y="${Y(py)}" font-family="Inter, Segoe UI, Arial" font-size="${11 * f}" font-weight="700" fill="#ffffff" dominant-baseline="central">${t}</text>`);
+    });
+    s.push(`<text x="${X(13.9)}" y="${Y(34.4)}" font-family="Inter, Segoe UI, Arial" font-size="${13 * f}" font-weight="700" fill="#ffffff"
+              text-anchor="middle" dominant-baseline="central">J1</text>
+            <text x="${X(35.0)}" y="${Y(33.7)}" textLength="${32.6 * k}" lengthAdjust="spacingAndGlyphs" font-family="Consolas, 'Segoe UI', monospace"
+              font-size="${18 * f}" font-weight="700" fill="#ffffff" dominant-baseline="central">Grove-LCD RGB Backlight</text>
+            <text x="${X(67.6)}" y="${Y(36.8)}" font-family="Consolas, 'Segoe UI', monospace" font-size="${15 * f}" font-weight="700" fill="#ffffff"
+              text-anchor="end" dominant-baseline="central">V5.0</text>`);
+    return s.join('\n');
+}
+
+/** Ecran LCD RGB dessine en direct : rgb = [r, v, b] du retroeclairage allume (null = eteint, vitre vert-gris),
+    lignes = 2 textes de 16 caracteres, affiche = caracteres visibles (faux : « eteindre l'affichage »). */
+export function allumerLcdRgb(g, rgb, lignes, affiche) {
+    const fond = rgb ? `rgb(${rgb[0]},${rgb[1]},${rgb[2]})` : LCD_RGB.eteint;
+    const vitre = g.querySelector('.mv-lcd-vitre'), lueur = g.querySelector('.mv-lcd-lueur');
+    if (vitre) vitre.setAttribute('fill', fond);
+    if (lueur) { lueur.setAttribute('fill', fond); lueur.setAttribute('opacity', rgb ? '0.35' : '0'); }
+    // Cases foncees, sauf sur un fond tres sombre ou elles ne se verraient pas (comme le modele)
+    const lum = rgb ? (rgb[0] * 299 + rgb[1] * 587 + rgb[2] * 114) / 1000 : 255;
+    g.querySelectorAll('.mv-lcd-case').forEach(c => { c.setAttribute('fill', lum >= 40 ? '#000000' : '#ffffff'); c.setAttribute('opacity', lum >= 40 ? '0.14' : '0.10'); });
+    g.querySelectorAll('.mv-lcd-car').forEach(t => {
+        const ch = affiche ? ((lignes[Number(t.dataset.l)] || '')[Number(t.dataset.i)] || '') : '';
+        const texte = ch === ' ' ? '' : ch;
+        if (t.textContent !== texte) t.textContent = texte;
+    });
+}
+
 /** Tourne en direct le bouton du potentiometre dessine : valeur 0 a 1023 -> -150 a +150 degres. */
 export function allumerPotentiometre(g, valeur) {
     const repere = g.querySelector('.mv-repere');
@@ -595,4 +874,20 @@ export const DESSINS_MODULES = {
     // Prise au bord bas : GND VCC NC SIG de gauche a droite, donc contacts dans l'ordre des fils (SIG, NC, VCC, GND)
     ultrason: { largeur: 50, hauteur: 25, deborde: 0.8, connecteur: { x: 25.2, y: 25.8, sens: 'bas', contacts: [28.0, 26.2, 24.3, 22.4] },
            dessin: (x, y) => dessinUltrason(x, y) },
+    // Prise soudee dessous au bord bas : GND VCC DCKI DI de gauche a droite, fils dans l'ordre DI, DCKI, VCC, GND
+    barre: { largeur: 20, hauteur: 40, deborde: 3.4, connecteur: { x: 10.1, y: 43.4, sens: 'bas', contacts: [13.1, 11.5, 9.9, 8.3] },
+           dessin: (x, y) => dessinBarreLed(x, y) },
+    // Afficheur (jamais tourne) : prise sous le circuit au bord droit, GND en haut ... CLK en bas (fils CLK, DIO, VCC, GND)
+    '4d': { largeur: 40, hauteur: 20, afficheur: true, connecteur: { x: 43.6, y: 9.5, sens: 'droite', contacts: [12.5, 10.5, 8.5, 6.5] },
+           dessin: (x, y) => dessinQuatreDigits(x, y) },
+    // Ruban : taille selon son nombre de LED (m.nb) ; jamais tourne, fixe au-dessus de la carte ; prise Grove au bout
+    // de sa queue de cable, en bas a gauche (fils noir, rouge, blanc, jaune de gauche a droite)
+    ruban: { afficheur: true, fixe: true,
+           taille: m => { const g = geometrieRuban(m.nb); return { largeur: g.largeur, hauteur: g.hauteur,
+               connecteur: { x: 7, y: g.hauteur, sens: 'bas', contacts: [9.85, 7.95, 6.05, 4.15] } }; },
+           dessin: (x, y, m) => dessinRuban(x, y, m.nb) },
+    // Afficheur (jamais tourne) : prise J1 au bord bas, ouverture vers la gauche, GND VCC SDA SCL de haut en bas
+    // (fils SCL, SDA, VCC, GND)
+    lcdrgb: { largeur: 80, hauteur: 40, afficheur: true, filsDessus: true, connecteur: { x: 15.6, y: 34.7, sens: 'gauche', contacts: [36.7, 34.7, 32.8, 30.8] },
+           dessin: (x, y) => dessinLcdRgb(x, y) },
 };

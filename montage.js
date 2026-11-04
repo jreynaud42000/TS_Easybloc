@@ -18,7 +18,7 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
-import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick } from './modules-dessins.js';
+import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb } from './modules-dessins.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -276,7 +276,8 @@ function lireMontage() {
         }
         const cle = def.nom + '|' + pins.join(',');
         if (modules.has(cle)) continue;
-        ajouter(cle, Object.assign({ nom: def.nom, picto: def.picto, large: def.large, pins, cle: 'P' + pins[0].slice(3) },
+        ajouter(cle, Object.assign({ nom: def.nom, picto: def.picto, large: def.large, pins, cle: 'P' + pins[0].slice(3),
+            nb: def.picto === 'ruban' ? Number(b.getFieldValue('NB')) || 16 : undefined },
             dfr ? branchementDfr(pins, def.servo) : motorbit ? branchementMotorbit(pins, def.servo) :
             bitmaker ? branchementBitmaker(pins) : branchementGrove(pins)));
     }
@@ -344,6 +345,13 @@ function disposer(modules, basCarte) {
     const cotes = { g: [], d: [], b: [] };
     for (const m of modules) {
         if (m.surCarte) continue;
+        if (dimensions(m) && dimensions(m).fixe) {
+            // Ruban de LED (modele R4) : fixe, au-dessus de la carte, centre ; son cable descend jusqu'au port.
+            m.fixe = true;
+            m.x = LARGEUR / 2 - MODULE.l / 2;
+            m.y = CARTE.y - 50 - hauteurModule(m);
+            continue;
+        }
         if (!m.fils.length) { m.cote = 'b'; m.ancre = [LARGEUR / 2, basCarte]; cotes.b.push(m); continue; }
         const [dx] = m.fils[0].d;
         m.cote = dx < 0 ? 'g' : dx > 0 ? 'd' : 'b';
@@ -362,18 +370,25 @@ function disposer(modules, basCarte) {
     }
     // Rangee du bas (les ports Grove v2.0 sont tous en bas) : chaque module sous son port, a la ligne si elle deborde.
     // Chaque ligne est centree sous ses ports, sans sortir de la scene.
-    const [xMin, xMax, pas] = [30, LARGEUR - 30, MODULE.l + 20];
-    const parLigne = Math.floor((xMax - xMin + 20) / pas);
+    // Chaque module prend sa largeur reelle (au moins une case) : l'ecran LCD RGB (80 mm) ne chevauche pas ses voisins.
+    const [xMin, xMax, ecart] = [30, LARGEUR - 30, 20];
     const tries = cotes.b.sort((a, b) => a.ancre[0] - b.ancre[0]);
+    const lignes = [];
+    for (const m of tries) {
+        const l = largeurModule(m, 'haut'), ligne = lignes[lignes.length - 1];
+        if (ligne && ligne.largeur + ecart + l <= xMax - xMin) { ligne.modules.push(m); ligne.largeur += ecart + l; }
+        else lignes.push({ modules: [m], largeur: l });
+    }
     let yLigne = basCarte + 90;
-    for (let i = 0; i < tries.length; i += parLigne) {
-        const ligne = tries.slice(i, i + parLigne), largeur = ligne.length * pas - 20;
+    for (const { modules: ligne, largeur } of lignes) {
         const centre = ligne.reduce((s, m) => s + m.ancre[0], 0) / ligne.length;
-        const x0 = Math.max(xMin, Math.min(centre - largeur / 2, xMax - largeur));
+        let x = Math.max(xMin, Math.min(centre - largeur / 2, xMax - largeur));
         const hLigne = Math.max(...ligne.map(m => hauteurModule(m, 'haut')));   // le module le plus haut de la ligne
-        ligne.forEach((m, k) => {
-            m.x = x0 + k * pas;
+        ligne.forEach(m => {
+            const l = largeurModule(m, 'haut');
+            m.x = x + (l - MODULE.l) / 2;   // m.x : bord gauche de la case, le dessin est centre dessus
             m.y = yLigne;
+            x += l + ecart;
             bas = Math.max(bas, m.y + hLigne + 96);
         });
         yLigne += hLigne + 110;
@@ -399,17 +414,29 @@ function coteVoulu(m) {
     }
     return { g: 'droite', d: 'gauche', b: 'haut' }[m.cote] || 'haut';
 }
+/** Dessin d'un module avec sa taille du moment (le ruban depend de son nombre de LED : def.taille). */
+function dimensions(m) {
+    const def = DESSINS_MODULES[m.picto];
+    return def && def.taille ? Object.assign({}, def, def.taille(m)) : def;
+}
 /** Hauteur occupee par un module (au moins la case MODULE.h), pour le rangement et les libelles. */
 function hauteurModule(m, cote) {
-    const def = DESSINS_MODULES[m.picto];
+    const def = dimensions(m);
     if (!def) return MODULE.h;
     const rot = rotationVers(def, cote || coteVoulu(m));
     // deborde : ce qui depasse du circuit (oreilles, lentille du PIR), en mm de chaque cote, pour ne pas toucher les libelles
     return Math.max(MODULE.h, ((rot % 180 ? def.largeur : def.hauteur) + 2 * (def.deborde || 0)) * K_MODULE);
 }
+/** Largeur occupee par un module (au moins la case MODULE.l), pour le rangement. */
+function largeurModule(m, cote) {
+    const def = dimensions(m);
+    if (!def) return MODULE.l;
+    const rot = rotationVers(def, cote || coteVoulu(m));
+    return Math.max(MODULE.l, ((rot % 180 ? def.hauteur : def.largeur) + 2 * (def.deborde || 0)) * K_MODULE);
+}
 /** Geometrie d'un module dessine : rotation, centre, et passage d'un point du dessin (mm) a la scene. */
 function geometrie(m) {
-    const def = DESSINS_MODULES[m.picto];
+    const def = dimensions(m);
     if (!def || m.x === undefined) return null;
     const rot = rotationVers(def, coteVoulu(m));
     const w0 = def.largeur * K_MODULE, h0 = def.hauteur * K_MODULE, haut = hauteurModule(m);
@@ -687,6 +714,17 @@ function dessinModule(m, cx, cy) {
     return s;
 }
 
+/** Cable du ruban (fixe au-dessus de la carte) : il sort du port, contourne la carte par la gauche puis monte jusqu'a
+    la prise du ruban (un fil par contact, ecartes pour ne pas se croiser). */
+function routeRuban(f, i, p, basCarte) {
+    const ecart = i * 7, xMontee = p.x;
+    if (f.d[1] > 0) return Object.assign({}, f, { passage: [[f.x, basCarte + 24 + ecart], [xMontee, basCarte + 24 + ecart]] });
+    if (f.d[0] < 0) return Object.assign({}, f, { passage: [[Math.min(f.x - 20 - ecart, xMontee + 40), f.y], [xMontee, f.y]] });
+    // Port tourne vers la droite : on monte par la droite, puis on passe au-dessus de la carte
+    const xDroite = LARGEUR - 200 + ecart, yHaut = CARTE.y - 20 + ecart;
+    return Object.assign({}, f, { passage: [[xDroite, f.y], [xDroite, yHaut], [xMontee + 30, yHaut]] });
+}
+
 function dessinFil(f, fin, o) {
     // Courbe de Bezier : chaque extremite part dans sa direction de sortie, decalee le long du connecteur.
     // Un fil peut d'abord suivre des points de passage (le 3V3 de la Grove contourne la carte par le bas).
@@ -717,7 +755,7 @@ function dessinerScene(etat) {
     for (const m of etat.modules) m.couleur = COULEURS_MODULES[m.id] || 'rouge';
     // Modules deplaces par l'eleve (PLACES) : a leur place ; le cable arrive par le cote tourne vers la carte.
     for (const m of etat.modules) {
-        const p = !m.surCarte && PLACES[m.id];
+        const p = !m.surCarte && !m.fixe && PLACES[m.id];
         if (!p) continue;
         [m.x, m.y] = p;
         m.cote = m.y + MODULE.h / 2 > basCarte ? 'b' : m.x + MODULE.l / 2 < LARGEUR / 2 ? 'g' : 'd';
@@ -730,6 +768,7 @@ function dessinerScene(etat) {
     if (surCarte) hauteur = Math.max(hauteur, basCarte + 50);
     if (surCarte) bas += texte(LARGEUR / 2, basCarte + 30, echap(surCarte.nom + ' · ' + surCarte.etiquette +
                                (surCarte.note ? ' · ' + surCarte.note : '')), 'class="montage-note" text-anchor="middle"');
+    let filsDessus = '';
     for (const m of etat.modules) {
         if (m.x === undefined) continue;
         const fin = arrivee(m), n = m.fils.length;
@@ -739,7 +778,13 @@ function dessinerScene(etat) {
             const conn = geo.def.connecteur, vertical = conn.sens === 'haut' || conn.sens === 'bas';
             m.fils.forEach((f, i) => {
                 const p = vertical ? geo.point(contacts[i], conn.y) : geo.point(conn.x, contacts[i]);
-                bas += dessinFil(f, { x: p.x, y: p.y, d: fin.d }, 0);
+                // Prise au milieu du circuit (ecran LCD RGB) : le cable contourne l'ecran par la gauche, puis passe
+                // par-dessus le bord du circuit jusqu'a elle (le fil du contact le plus bas a l'exterieur)
+                const xc = geo.cx - geo.w0 / 2 - 24 - (n - 1 - i) * 7;
+                const yDessus = geo.cy - geo.h0 / 2 - 28 - (n - 1 - i) * 7;   // au-dessus du module, avant de descendre
+                const contour = geo.def.filsDessus && Object.assign({}, f, { passage: [[f.x, yDessus], [xc, yDessus], [xc, p.y - 14], [xc + 14, p.y]] });
+                const fil = dessinFil(m.fixe ? routeRuban(f, i, p, basCarte) : contour || f, { x: p.x, y: p.y, d: fin.d }, 0);
+                if (geo.def.filsDessus) filsDessus += fil; else bas += fil;
             });
             continue;
         }
@@ -760,14 +805,17 @@ function dessinerScene(etat) {
         // Potentiometre dessine : bouton noir tourne a la souris, fleches du clavier (role slider)
         const reglable = vivant === 'pot' && DESSINS_MODULES[m.picto]
             ? ` role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="1023" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : tourner le bouton (flèches du clavier)"` : '';
-        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}${reglable}>${dessinModule(m, cx, cy)}` +
-               texte(cx, m.y + hMod + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
-               texte(cx, m.y + hMod + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
-        bas += texte(cx, m.y + hMod + 62, '', 'class="montage-valeur" text-anchor="middle"');
+        // Ruban fixe au-dessus de la carte : ses libelles au-dessus de lui (sous lui, il y a la carte)
+        const yLib = m.fixe ? m.y - 92 : m.y + hMod;
+        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${m.fixe ? ' data-fixe="1"' : ''}${appui}${reglable}>${dessinModule(m, cx, cy)}` +
+               texte(cx, yLib + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
+               texte(cx, yLib + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
+        bas += texte(cx, yLib + 62, '', 'class="montage-valeur" text-anchor="middle"');
         const note = [m.alerte, m.note].filter(Boolean).join(' · ');
-        if (note) bas += texte(cx, m.y + hMod + 82, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
+        if (note) bas += texte(cx, yLib + 82, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
         bas += '</g>';
     }
+    bas += filsDessus;
     return { bas, hauteur };
 }
 
@@ -1050,6 +1098,7 @@ const LECTEURS = {
     },
     ruban(g) {
         const leds = $$('#grove-ruban .grove-led');
+        if (g.querySelector('.mv-ruban-led')) allumerRuban(g, leds.map(l => l.style.background && !/42, 42, 42/.test(l.style.background) ? l.style.background : ''));
         $$('.mv-ruban', g).forEach(c => {
             const fond = leds[Number(c.dataset.i)] ? leds[Number(c.dataset.i)].style.background : '';
             c.style.fill = fond && !/42, 42, 42/.test(fond) ? fond : '';
@@ -1060,6 +1109,7 @@ const LECTEURS = {
     },
     barre(g) {
         const leds = $$('#grove-barreled .barre-led');
+        if (g.querySelector('.mv-segment')) allumerBarreLed(g, leds.map(l => l.classList.contains('on')));   // dessin du modele
         $$('.mv-barre', g).forEach(c => {
             const on = leds[Number(c.dataset.i)] && leds[Number(c.dataset.i)].classList.contains('on');
             c.setAttribute('fill', on ? c.dataset.couleur : '#2e3a2e');
@@ -1103,9 +1153,23 @@ const LECTEURS = {
         });
         return '';
     },
-    lcdrgb: g => LECTEURS.lcd(g),
+    lcdrgb(g) {
+        if (!g.querySelector('.mv-lcd-vitre')) return LECTEURS.lcd(g);
+        // Dessin du modele : meme texte et meme retroeclairage que le tableau de « Peripheriques » (un.js)
+        const etat = window.etatLcdRgb ? window.etatLcdRgb() : null, ecran = $('grove-lcd');
+        const lignes = [0, 1].map(l => { const z = $('grove-lcd-l' + l); return z ? $$('.lcd-cell', z).map(c => c.textContent || ' ').join('') : ''; });
+        allumerLcdRgb(g, etat && etat.retro && etat.rgb ? etat.rgb : null, lignes, !(ecran && ecran.classList.contains('eteint')));
+        return '';
+    },
     '4d'(g) {
         const ecran = $('grove-4digit-ecran'), cible = g.querySelector('.mv-4d');
+        if (ecran && g.querySelector('.mv-seg')) {
+            // Dessin du modele : memes segments que le tableau de « Peripheriques » (a a g = bits 0 a 6)
+            const codes = $$('svg.digit7', ecran).map(c => $$('.seg', c).reduce((v, p, bit) => v | (p.classList.contains('on') ? 1 << bit : 0), 0));
+            const points = !!ecran.querySelector('.digit7-points.on');
+            allumerQuatreDigits(g, codes, points, ecran.style.opacity === '' ? 1 : Number(ecran.style.opacity));
+            return '';
+        }
         if (!ecran || !cible) return '';
         const allume = !!ecran.querySelector('svg');
         g.querySelector('.mv-4d-repos').style.display = allume ? 'none' : '';
@@ -1239,7 +1303,7 @@ function installerDeplacement() {
         if (g.classList.contains('montage-appui') && zoneAppui(g, e.target)) return;   // appui (installerAppuis)
         if (e.target.closest('.mv-tourner')) return;   // bouton du potentiometre : on le tourne (installerAppuis)
         const id = g.dataset.id, m = dernierEtat && dernierEtat.modules.find(x => x.id === id);
-        if (!m || m.x === undefined) return;
+        if (!m || m.x === undefined || m.fixe) return;   // ruban : fixe au-dessus de la carte
         e.preventDefault();
         e.stopPropagation();
         const x0 = e.clientX, y0 = e.clientY, depart = [m.x, m.y];

@@ -11375,18 +11375,20 @@ try {
         if (!fondLcdRgb) {
             zoneLcd.style.background = '';
             zoneLcd.style.removeProperty('--lcd-texte');
+            zoneLcd.style.removeProperty('--lcd-ombre');
             return;
         }
-        const [r, v, b] = retroLcdAllume ? fondLcdRgb : [38, 42, 41];
+        // Comme le vrai ecran et le modele R4 (choix du professeur, nov. 2026) : retroeclairage eteint = vitre
+        // vert-gris ; les caracteres restent fonces, seul le fond prend la couleur du retroeclairage.
+        const [r, v, b] = retroLcdAllume ? fondLcdRgb : [91, 118, 80];
         const haut = 'rgb(' + Math.min(255, Math.round(r * 1.08)) + ',' + Math.min(255, Math.round(v * 1.08)) + ',' + Math.min(255, Math.round(b * 1.08)) + ')';
         const bas = 'rgb(' + Math.round(r * 0.85) + ',' + Math.round(v * 0.85) + ',' + Math.round(b * 0.85) + ')';
         zoneLcd.style.background = 'linear-gradient(180deg, ' + haut + ' 0%, ' + bas + ' 100%)';
-        // Caracteres sombres sur un fond clair, clairs sur un fond sombre :
-        // sinon un fond blanc (couleur d'initialisation) rendrait le texte
-        // invisible.
-        const luminance = 0.299 * r + 0.587 * v + 0.114 * b;
-        zoneLcd.style.setProperty('--lcd-texte', retroLcdAllume && luminance > 140 ? '#0d1b2a' : '#f4f8ff');
+        zoneLcd.style.setProperty('--lcd-texte', '#1a1a1a');
+        zoneLcd.style.setProperty('--lcd-ombre', 'none');
     }
+    // Etat du retroeclairage RGB, lu par le montage (montage.js) pour dessiner l'ecran comme le tableau.
+    window.etatLcdRgb = () => ({ rgb: fondLcdRgb, retro: retroLcdAllume });
     let etatMoteurs = { 1: 'arrêt', 2: 'arrêt' };
     const zoneServos = document.getElementById('grove-servos');
     let etatServos = {};
@@ -13250,9 +13252,10 @@ try {
     function dessinerBarreLed(leds) {
         if (!zoneBarreLed) return;
         const etats = String(leds || '').split(',').map(Number);
-        // Couleurs du module : LED 1 rouge, 2 orange, 3 a 10 vertes.
+        // Couleurs du module, comme le modele R4 (essai sur la vraie barre, choix du professeur nov. 2026) :
+        // LED 1 a 8 vertes, 9 orange, 10 rouge.
         zoneBarreLed.innerHTML = Array.from({ length: 10 }, (_, i) =>
-            '<span class="barre-led' + (i === 0 ? ' rouge' : i === 1 ? ' orange' : '') + (etats[i] ? ' on' : '') + '"></span>').join('');
+            '<span class="barre-led' + (i === 9 ? ' rouge' : i === 8 ? ' orange' : '') + (etats[i] ? ' on' : '') + '"></span>').join('');
     }
 
     /** Premier lot Grove : entrees lues a l'instant ou le programme les demande. */
