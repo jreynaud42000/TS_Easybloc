@@ -3,10 +3,9 @@
 // les modules du programme
 // disposes autour et relies par leurs cables.
 //
-// Ou s'affiche le montage : dans la colonne du simulateur, a la place de la carte seule, des qu'un bloc
-// d'extension est pose et que la colonne fait au moins 480 px (en dessous, modules et etiquettes seraient
-// illisibles : la carte seule reste, avec le bouton « Voir le montage ») ; « Agrandir » ouvre la meme scene
-// par-dessus la zone de blocs. Une seule scene, deplacee d'un endroit a l'autre.
+// Ou s'affiche le montage : toujours dans la colonne du simulateur (micro:bit seule sans bloc d'extension), dans une
+// vue qu'on zoome et deplace comme la zone des blocs (echelle fixe, molette, Recentrer / + / −, nov. 2026) ;
+// « Agrandir » ouvre la meme scene par-dessus la zone de blocs. Une seule scene, deplacee d'un endroit a l'autre.
 //
 // Le montage montre OU chaque module est branche, d'apres les blocs poses, et ce que font les
 // actionneurs pendant la simulation (moteurs, servos, LED, buzzer, relais, ecrans) : il recopie ce
@@ -223,7 +222,7 @@ function lireMontage() {
     const bitmaker = !dfr && !motorbit && choixCarte() === 'bitmaker';
     const utile = types.some(t => BLOC_EXTENSION.test(t));
     const modules = new Map();
-    const ajouter = (cle, m) => { if (!modules.has(cle)) modules.set(cle, m); };
+    const ajouter = (cle, m) => { if (!modules.has(cle)) { m.id = cle; modules.set(cle, m); } };
 
     for (const b of blocs) {
         if (dfr && /^dfr_(moteur|moteur_arreter)$/.test(b.type)) {
@@ -287,7 +286,9 @@ function lireMontage() {
     const i2c = [...modules.values()].filter(m => m.i2c);
     if (i2c.length > 1) i2c.forEach(m => { m.note = 'bus I2C partagé'; });
 
-    return { utile, imposee, carte: dfr ? 'dfr' : motorbit ? 'motorbit' : bitmaker ? 'bitmaker' : 'grove', modules: [...modules.values()] };
+    // Sans bloc d'extension : la micro:bit seule dans la scene (carte « aucune »), comme la simulation du modele.
+    const carte = !utile ? 'aucune' : dfr ? 'dfr' : motorbit ? 'motorbit' : bitmaker ? 'bitmaker' : 'grove';
+    return { utile, imposee, carte, modules: [...modules.values()] };
 }
 
 function filsPort(p) {
@@ -653,8 +654,17 @@ function dessinFil(f, fin, o) {
 }
 
 function dessinerScene(etat) {
+    if (etat.carte === 'aucune') return { bas: '', hauteur: CARTE.y + CARTE.h + 20 };   // micro:bit seule
     const basCarte = etat.carte === 'dfr' ? DFR_BAS + 18 : etat.carte === 'motorbit' ? MB_BAS : etat.carte === 'bitmaker' ? BM_BAS : GROVE_PCB.y + GROVE_PCB.l;
     let hauteur = disposer(etat.modules, basCarte);
+    // Modules deplaces par l'eleve (PLACES) : a leur place ; le cable arrive par le cote tourne vers la carte.
+    for (const m of etat.modules) {
+        const p = !m.surCarte && PLACES[m.id];
+        if (!p) continue;
+        [m.x, m.y] = p;
+        m.cote = m.y + MODULE.h / 2 > basCarte ? 'b' : m.x + MODULE.l / 2 < LARGEUR / 2 ? 'g' : 'd';
+        hauteur = Math.max(hauteur, m.y + MODULE.h + 96);
+    }
     let bas = { dfr: dessinCarteDfr, motorbit: dessinCarteMotorbit, bitmaker: dessinCarteBitmaker, grove: dessinCarteGrove }[etat.carte]();
     // Ruban sur les LED de la BitMaker : legende sous la carte, a la place du module et de son cable.
     const surCarte = etat.modules.find(m => m.surCarte);
@@ -673,7 +683,7 @@ function dessinerScene(etat) {
         // Bouton poussoir et joystick : on appuie directement dessus (meme effet que dans « Peripheriques »).
         const appui = vivant === 'bouton' || vivant === 'joystick'
             ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : maintenir pour appuyer"` : '';
-        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}>${dessinModule(m, cx, cy)}` +
+        bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}>${dessinModule(m, cx, cy)}` +
                texte(cx, m.y + MODULE.h + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
                texte(cx, m.y + MODULE.h + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
         bas += texte(cx, m.y + MODULE.h + 62, '', 'class="montage-valeur" text-anchor="middle"');
@@ -688,16 +698,21 @@ function dessinerScene(etat) {
 const panneau = $('montage-panneau'), scene = $('montage-scene'), bouton = $('btn-montage');
 const svgBas = $('montage-svg-bas'), svgHaut = $('montage-svg-haut'), place = $('montage-carte');
 const titre = $('montage-sous-titre'), resume = $('montage-resume'), fermer = $('montage-fermer');
-const choix = $('montage-choix'), choixAuto = $('montage-choix-auto');
-const colonne = $('montage-colonne'), zoneColonne = $('montage-colonne-zone'), outilsColonne = $('montage-colonne-outils');
-// « Agrandir » : case a cocher dans son etiquette ; l'etiquette sert de repere pour ranger le choix de la carte.
-const caseAgrandir = $('montage-agrandir'), agrandir = caseAgrandir ? caseAgrandir.closest('label') || caseAgrandir : null;
+// Barre de la simulation (index.html, nov. 2026) : menu « Carte d'extension » et bouton « Agrandir » / « Fermer ».
+const choix = $('sim-carte'), choixAuto = $('montage-choix-auto'), nomCarteMenu = $('sim-carte-nom');
+const colonne = $('montage-colonne'), zoneColonne = $('montage-colonne-zone');
+const boutonAgrandir = $('sim-agrandir');
+const NOMS_CARTES = { grove: 'Grove Shield v2.0', bitmaker: 'BitMaker V2', motorbit: 'Motor:bit V1.6', dfr: 'DFR0548' };
+const ICONE_AGRANDIR = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+    + 'stroke-linejoin="round" aria-hidden="true"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>'
+    + '<line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>';
+const ICONE_FERMER = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" '
+    + 'aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
 const console_ = $('simulateur-console'), conteneur = $('simulator-container');
 const zoneGrand = panneau ? panneau.querySelector('.montage-zone') : null;
 const enteteGrand = panneau ? panneau.querySelector('.montage-entete') : null;
 // mode : 'carte' (carte seule), 'colonne' (montage dans la colonne) ou 'grand' (par-dessus les blocs).
 let mode = 'carte', grandDemande = false, utile = false, hauteurScene = 600, emplacement = null, attente = null;
-const LARGEUR_COLONNE = 480, MARGE_COLONNE = 24;   // hysteresis : la barre de defilement ne fait pas osciller l'affichage
 
 // Carte Grove ou BitMaker, memorisee dans le navigateur (Grove par defaut, ou si le stockage est indisponible).
 const CLE_CARTE = 'montageCarte';
@@ -705,94 +720,168 @@ function choixCarte() {
     try { const c = localStorage.getItem(CLE_CARTE); return c === 'bitmaker' || c === 'motorbit' ? c : 'grove'; } catch (erreur) { return 'grove'; }
 }
 
-// Zoom de la simulation (demande de l'utilisateur) : Ctrl + molette sur la carte ou le montage, comme la molette dans
-// la zone de blocs ; la molette seule fait toujours defiler la colonne. Le bouton « 100 % » remet l'echelle d'origine.
-// Dans la barre du montage (colonne), une pastille a cote d'« Agrandir » (demande de l'utilisateur, nov. 2026) : a 100 %
-// elle indique « Ctrl + molette pour zoomer », une fois zoome elle devient le bouton de retour. Ailleurs (carte seule,
-// montage agrandi), le bouton n'apparait qu'une fois zoome, en haut de la colonne, comme avant.
-const ZOOM_MIN = 0.5, ZOOM_MAX = 3;
-let zoomSim = 1, boutonZoom = null, texteZoom = null;
-function placerZoom() {
-    if (!boutonZoom) return;
-    // Deplacer un element lui fait perdre le focus clavier : seulement s'il n'est pas deja a sa place.
-    if (mode === 'colonne') { if (boutonZoom.nextSibling !== agrandir) outilsColonne.insertBefore(boutonZoom, agrandir); }
-    else if (boutonZoom.parentNode !== console_ || console_.firstChild !== boutonZoom) console_.insertBefore(boutonZoom, console_.firstChild);
-    const indication = zoomSim === 1;
-    boutonZoom.hidden = indication && mode !== 'colonne';
-    boutonZoom.classList.toggle('indication', indication);
-    // A 100 % la pastille n'est qu'une aide : hors de l'ordre de tabulation, et annoncee comme inactive.
-    boutonZoom.tabIndex = indication ? -1 : 0;
-    boutonZoom.setAttribute('aria-disabled', String(indication));
-    texteZoom.textContent = indication ? 'Ctrl + molette pour zoomer' : 'Zoom ' + Math.round(zoomSim * 100) + ' % · revenir à 100 %';
-}
-function appliquerZoom() {
-    const cadreCarte = $('carte-cadre');
-    if (cadreCarte) cadreCarte.style.zoom = zoomSim === 1 ? '' : String(zoomSim);
-    // Montage agrandi au-dela de la place : on le fait defiler depuis son bord gauche.
-    for (const zone of [zoneColonne, zoneGrand]) if (zone) {
-        zone.style.overflow = zoomSim > 1 ? 'auto' : '';
-        zone.style.justifyContent = zoomSim > 1 ? 'flex-start' : '';
-    }
-    placerZoom();
-    ajusterEchelle();
-}
-function installerZoom() {
-    boutonZoom = document.createElement('button');
-    boutonZoom.type = 'button';
-    boutonZoom.className = 'sim-zoom';
-    boutonZoom.title = 'Ctrl + molette pour zoomer sur la simulation';
-    // Loupe dessinee (pas d'emoji) ; le texte vit dans son propre span pour ne pas effacer l'icone.
-    boutonZoom.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor"'
-        + ' stroke-width="2" stroke-linecap="round"><circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20M10 7.5v5M7.5 10h5"/></svg><span></span>';
-    texteZoom = boutonZoom.lastChild;
-    boutonZoom.addEventListener('click', () => { if (zoomSim !== 1) { zoomSim = 1; appliquerZoom(); } });
-    placerZoom();
-    const molette = e => {
-        if (!e.ctrlKey || !e.deltaY) return;   // molette seule : defilement normal ; Ctrl : zoom (et pas celui du navigateur)
-        e.preventDefault();
-        zoomSim = Math.round(Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, zoomSim * (e.deltaY < 0 ? 1.1 : 1 / 1.1))) * 100) / 100;
-        if (Math.abs(zoomSim - 1) < 0.05) zoomSim = 1;
-        appliquerZoom();
-    };
-    console_.addEventListener('wheel', molette, { passive: false });
-    if (zoneGrand) zoneGrand.addEventListener('wheel', molette, { passive: false });
+// ---------- Vue de la simulation : un espace de travail, comme la zone des blocs ----------
+// Comme la version Arduino R4 (VUE, zoomer, recentrerVue de r4-board-svg.js, nov. 2026) : ECHELLE FIXE (elargir la
+// colonne donne de la place autour, la carte ne grossit pas) ; molette = zoom autour du pointeur (x 1,2 par cran, de
+// 0,3 a 3 fois la taille normale) ; glisser le fond = se deplacer ; boutons Recentrer / + / − en bas a droite. Tant que
+// l'eleve n'a ni zoome ni deplace la vue, elle se recentre seule (nouveau module, autre zone, autre taille).
+// (VUE.cx, VUE.cy) = point de la scene (en unites, 1000 de large) affiche au centre du cadre ; VUE.s = pixels par unite.
+const ECHELLE_NORMALE = 0.75;   // la micro:bit (280 unites) a la taille de l'ancienne carte seule (210 px)
+const ZOOM_MINI = 0.3, ZOOM_MAXI = 3, PAS_ZOOM = 1.2;
+const VUE = { s: ECHELLE_NORMALE, cx: LARGEUR / 2, cy: 300, touchee: false };
+function cadreVue() { return scene.parentElement; }
+
+function appliquerVue() {
+    const cadre = cadreVue();
+    if (!cadre) return;
+    const l = cadre.clientWidth, h = cadre.clientHeight;
+    scene.style.transform = `translate(${l / 2 - VUE.cx * VUE.s}px, ${h / 2 - VUE.cy * VUE.s}px) scale(${VUE.s})`;
 }
 
-function ajusterEchelle() {
-    if (mode === 'carte') return;
-    // La scene garde ses unites (1000 de large) ; le cadre porte la place reellement occupee.
-    const cadre = scene.parentElement, zone = cadre.parentElement;
-    // Ajuste a la largeur (defilement vertical si besoin) : ajuster aussi a la hauteur rendait tout illisible.
-    // Le zoom de l'utilisateur s'applique ensuite (Ctrl + molette).
-    const k = Math.max(0.35, Math.min(1.1, (zone.clientWidth - 24) / LARGEUR)) * zoomSim;
-    scene.style.transform = 'scale(' + k + ')';
-    cadre.style.width = Math.round(LARGEUR * k) + 'px';
-    cadre.style.height = Math.round(hauteurScene * k) + 'px';
+/** Zoome d'un facteur f autour du point (px, py) du cadre, en pixels (le point sous le pointeur y reste). */
+function zoomer(f, px, py) {
+    const cadre = cadreVue();
+    if (!cadre) return;
+    if (px === undefined) { px = cadre.clientWidth / 2; py = cadre.clientHeight / 2; }
+    const s0 = VUE.s, s1 = Math.max(ECHELLE_NORMALE * ZOOM_MINI, Math.min(ECHELLE_NORMALE * ZOOM_MAXI, s0 * f));
+    const dx = px - cadre.clientWidth / 2, dy = py - cadre.clientHeight / 2;
+    VUE.cx += dx / s0 - dx / s1;
+    VUE.cy += dy / s0 - dy / s1;
+    VUE.s = s1;
+    VUE.touchee = true;
+    appliquerVue();
+}
+
+/** Bornes du contenu de la scene (carte d'extension, modules, cables, etiquettes, micro:bit), en unites. */
+function bornesContenu() {
+    let x0 = CARTE.x, y0 = CARTE.y, x1 = CARTE.x + CARTE.l, y1 = CARTE.y + CARTE.h;
+    try {
+        const b = svgBas.getBBox();
+        if (b && b.width) { x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); }
+    } catch (erreur) { /* scene pas encore affichee */ }
+    return { x0, y0, x1, y1 };
+}
+
+/** Recentrer : toute la simulation dans le cadre, sans depasser la taille normale. */
+function recentrerVue() {
+    const cadre = cadreVue();
+    // Cadre pas encore affiche (taille nulle) : on ne calcule rien, sinon le zoom tomberait au minimum
+    if (!cadre || cadre.clientWidth < 50 || cadre.clientHeight < 50) return;
+    const b = bornesContenu(), marge = 20;
+    const s = Math.min((cadre.clientWidth - 2 * marge) / (b.x1 - b.x0), (cadre.clientHeight - 2 * marge) / (b.y1 - b.y0));
+    VUE.s = Math.max(ECHELLE_NORMALE * ZOOM_MINI, Math.min(ECHELLE_NORMALE, s));
+    VUE.cx = (b.x0 + b.x1) / 2;
+    VUE.cy = (b.y0 + b.y1) / 2;
+    VUE.touchee = false;
+    appliquerVue();
+}
+
+// Taille du cadre changee (colonne elargie, fenetre, vue agrandie) : meme echelle, recentrage si la vue n'a pas ete touchee.
+function cadreRedimensionne() { if (!VUE.touchee) recentrerVue(); else appliquerVue(); }
+
+const ICONES_VUE = {
+    recentrer: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">'
+        + '<circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>',
+    plus: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    moins: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
+};
+function installerVue() {
+    const cadre = cadreVue();
+    // Boutons Recentrer / + / − : dans le cadre, ils le suivent (colonne ou vue agrandie).
+    const boutons = document.createElement('div');
+    boutons.className = 'vue-boutons';
+    [['recentrer', 'Recentrer la simulation', recentrerVue], ['plus', 'Zoomer', () => zoomer(PAS_ZOOM)],
+     ['moins', 'Dézoomer', () => zoomer(1 / PAS_ZOOM)]].forEach(([nom, titreBouton, action]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.title = titreBouton;
+        b.setAttribute('aria-label', titreBouton);
+        b.innerHTML = ICONES_VUE[nom];
+        b.addEventListener('click', action);
+        boutons.appendChild(b);
+    });
+    cadre.appendChild(boutons);
+    // Molette = zoom (pas le defilement de la colonne), autour du pointeur.
+    cadre.addEventListener('wheel', e => {
+        if (!e.deltaY) return;
+        e.preventDefault();
+        const r = cadre.getBoundingClientRect();
+        zoomer(e.deltaY < 0 ? PAS_ZOOM : 1 / PAS_ZOOM, e.clientX - r.left, e.clientY - r.top);
+    }, { passive: false });
+    // Glisser le fond = se deplacer. La carte (boutons, logo, broches), les modules qu'on appuie et les boutons gardent
+    // leur propre geste.
+    cadre.addEventListener('pointerdown', e => {
+        if (e.button !== 0 || e.target.closest('#microbit-board, .montage-module, .vue-boutons, button, input, select')) return;
+        const x0 = e.clientX, y0 = e.clientY, cx0 = VUE.cx, cy0 = VUE.cy;
+        let bouge = false;
+        const bouger = ev => {
+            if (!bouge && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) < 4) return;   // simple clic tremble
+            if (!bouge) { bouge = true; cadre.classList.add('vue-deplacee'); }
+            VUE.cx = cx0 - (ev.clientX - x0) / VUE.s;
+            VUE.cy = cy0 - (ev.clientY - y0) / VUE.s;
+            VUE.touchee = true;
+            appliquerVue();
+        };
+        const finir = () => {
+            cadre.classList.remove('vue-deplacee');
+            cadre.removeEventListener('pointermove', bouger);
+            cadre.removeEventListener('pointerup', finir);
+            cadre.removeEventListener('pointercancel', finir);
+        };
+        cadre.setPointerCapture(e.pointerId);
+        cadre.addEventListener('pointermove', bouger);
+        cadre.addEventListener('pointerup', finir);
+        cadre.addEventListener('pointercancel', finir);
+    });
+    new ResizeObserver(cadreRedimensionne).observe(cadre);
 }
 
 function redessiner() {
     const etat = lireMontage();
     utile = etat.utile;
-    if (!utile) grandDemande = false;
     appliquerMode();
     if (mode === 'carte') return;
+    dessinerSvg(etat);
+    titre.textContent = { dfr: 'Carte moteurs DFRobot DFR0548', motorbit: 'Carte moteurs ELECFREAKS Motor:bit V1.6',
+                          bitmaker: 'Carte BitMaker V2 (Seeed)', grove: 'Carte Grove Shield for micro:bit v2.0 (Seeed)',
+                          aucune: 'Carte micro:bit V2' }[etat.carte];
+    finirRedessin(etat);
+}
+
+/** Dessine la scene (carte d'extension, modules, cables) ; sert aussi pendant le deplacement d'un module. */
+let dernierEtat = null;
+function dessinerSvg(etat) {
+    dernierEtat = etat;
     const { bas, hauteur } = dessinerScene(etat);
     hauteurScene = hauteur;
     scene.style.height = hauteur + 'px';
     for (const svg of [svgBas, svgHaut]) svg.setAttribute('viewBox', `0 0 ${LARGEUR} ${hauteur}`);
     svgBas.innerHTML = bas;
     const fente = { dfr: FENTE, motorbit: FENTE_MOTORBIT, bitmaker: FENTE_BITMAKER, grove: FENTE_GROVE }[etat.carte];
-    // Connecteur en plastique gris fonce sur la BitMaker et la Motor:bit, noir sur les deux autres cartes.
-    const plastique = etat.carte === 'bitmaker' || etat.carte === 'motorbit' ? 'fill="#3a3c42" stroke="#55585f"' : 'fill="#0b0b0b" stroke="#2b2b2b"';
-    svgHaut.innerHTML = r(fente.x, fente.y, fente.l, fente.h, `rx="4" ${plastique} stroke-width="2"`) +
-                        r(fente.x + 6, fente.y + 4, fente.l - 12, 3, 'fill="#2a2a2a"') +
-                        // Pattes cuivrees du connecteur, visibles sous le boitier sur la Grove v2.0.
-                        (etat.carte === 'dfr' ? '' : Array.from({ length: 40 }, (_, i) =>
-                            r(fente.x + 10 + i * 7.3, fente.y + fente.h - 2, 3, 7, 'fill="#b87333"')).join(''));
-    titre.textContent = { dfr: 'Carte moteurs DFRobot DFR0548', motorbit: 'Carte moteurs ELECFREAKS Motor:bit V1.6',
-                          bitmaker: 'Carte BitMaker V2 (Seeed)', grove: 'Carte Grove Shield for micro:bit v2.0 (Seeed)' }[etat.carte];
-    // Choix de la carte : sans objet quand les blocs du programme imposent la DFR0548 ou la Motor:bit.
-    if (choix) choix.hidden = !!etat.imposee;
+    if (!fente) {
+        svgHaut.innerHTML = '';   // micro:bit seule : pas de connecteur
+    } else {
+        // Connecteur en plastique gris fonce sur la BitMaker et la Motor:bit, noir sur les deux autres cartes.
+        const plastique = etat.carte === 'bitmaker' || etat.carte === 'motorbit' ? 'fill="#3a3c42" stroke="#55585f"' : 'fill="#0b0b0b" stroke="#2b2b2b"';
+        svgHaut.innerHTML = r(fente.x, fente.y, fente.l, fente.h, `rx="4" ${plastique} stroke-width="2"`) +
+                            r(fente.x + 6, fente.y + 4, fente.l - 12, 3, 'fill="#2a2a2a"') +
+                            // Pattes cuivrees du connecteur, visibles sous le boitier sur la Grove v2.0.
+                            (etat.carte === 'dfr' ? '' : Array.from({ length: 40 }, (_, i) =>
+                                r(fente.x + 10 + i * 7.3, fente.y + fente.h - 2, 3, 7, 'fill="#b87333"')).join(''));
+    }
+}
+
+function finirRedessin(etat) {
+    // Menu « Carte d'extension » : seulement avec un montage ; carte imposee par les blocs (DFR0548, Motor:bit) :
+    // les autres choix sont grises et une phrase dit pourquoi.
+    if (choix) {
+        choix.hidden = !etat.utile;
+        if (nomCarteMenu) nomCarteMenu.textContent = NOMS_CARTES[etat.carte] || 'Carte';
+        choix.querySelectorAll('[data-carte]').forEach(b => {
+            b.classList.toggle('choisi', b.dataset.carte === etat.carte);
+            b.disabled = !!etat.imposee && b.dataset.carte !== etat.carte;
+        });
+    }
     if (choixAuto) {
         choixAuto.hidden = !etat.imposee;
         choixAuto.textContent = (etat.imposee === 'motorbit' ? 'Carte Motor:bit' : 'Carte DFR0548') + ' : choisie car le programme utilise ses blocs.';
@@ -805,7 +894,9 @@ function redessiner() {
     rubanSurCarte = !!etat.modules.find(m => m.surCarte);
     copierLedsCarte();
     majVivant();
-    ajusterEchelle();
+    // Echelle fixe : la vue garde son zoom et sa position ; tant que l'eleve n'y a pas touche, elle se recentre sur le
+    // nouveau contenu (modules ajoutes ou retires).
+    if (!VUE.touchee) recentrerVue(); else appliquerVue();
 }
 
 // LED de la BitMaker : elles reprennent les couleurs que « Peripheriques » donne au ruban (#grove-ruban, un.js),
@@ -994,10 +1085,73 @@ function appuyerModule(g, enfonce) {
     }
     majVivant();
 }
+// ---------- Modules deplacables (comme la version Arduino R4, glisserModule, nov. 2026) ----------
+// On deplace un module a la souris, son cable suit. Au premier deplacement, les autres modules restent a la place ou
+// ils sont affiches (sinon le rangement automatique les reorganiserait). Les places sont enregistrees dans le programme
+// .py / .hex (ligne « # montage : ... », un.js) et relues a l'import ; sans place, rangement automatique.
+// Bouton et joystick : on appuie sur leur dessin, on les deplace par leurs libelles.
+const PLACES = {};   // id du module -> [x, y] dans la scene
+function figerLesAutres(id) {
+    if (!dernierEtat) return;
+    for (const m of dernierEtat.modules) {
+        if (m.id === id || m.surCarte || PLACES[m.id] || m.x === undefined) continue;
+        PLACES[m.id] = [Math.round(m.x), Math.round(m.y)];
+    }
+}
+function installerDeplacement() {
+    svgBas.addEventListener('pointerdown', e => {
+        const g = e.target.closest('.montage-module');
+        if (!g || e.button !== 0 || !g.dataset.id) return;
+        if (g.classList.contains('montage-appui') && !e.target.closest('text')) return;   // appui (installerAppuis)
+        const id = g.dataset.id, m = dernierEtat && dernierEtat.modules.find(x => x.id === id);
+        if (!m || m.x === undefined) return;
+        e.preventDefault();
+        e.stopPropagation();
+        const x0 = e.clientX, y0 = e.clientY, depart = [m.x, m.y];
+        let bouge = false;
+        const bouger = ev => {
+            // 5 px a l'ecran : un clic un peu tremble n'est pas un deplacement
+            if (!bouge && Math.abs(ev.clientX - x0) + Math.abs(ev.clientY - y0) < 5) return;
+            if (!bouge) { bouge = true; figerLesAutres(id); cadreVue().classList.add('module-deplace'); }
+            VUE.touchee = true;   // pas de recentrage pendant qu'on deplace un module
+            PLACES[id] = [Math.round(depart[0] + (ev.clientX - x0) / VUE.s), Math.round(depart[1] + (ev.clientY - y0) / VUE.s)];
+            dessinerSvg(dernierEtat);
+            majVivant();
+        };
+        const finir = () => {
+            cadreVue().classList.remove('module-deplace');
+            document.removeEventListener('pointermove', bouger);
+            document.removeEventListener('pointerup', finir);
+            document.removeEventListener('pointercancel', finir);
+        };
+        document.addEventListener('pointermove', bouger);
+        document.addEventListener('pointerup', finir);
+        document.addEventListener('pointercancel', finir);
+    });
+}
+// Ligne ajoutee au programme exporte (.py, .hex) quand des modules ont ete deplaces ; la carte choisie voyage avec.
+window.montageCommentaire = () => Object.keys(PLACES).length
+    ? '# montage : ' + JSON.stringify({ carte: choixCarte(), places: PLACES }) + '\n' : '';
+// Import d'un programme (ou nouveau projet) : places relues dans la ligne « # montage », ou effacees (null).
+window.montageRestaurer = donnees => {
+    for (const k of Object.keys(PLACES)) delete PLACES[k];
+    if (donnees && donnees.places && typeof donnees.places === 'object') {
+        for (const [k, p] of Object.entries(donnees.places)) {
+            if (Array.isArray(p) && p.length >= 2 && p.every(Number.isFinite)) PLACES[k] = [Math.round(p[0]), Math.round(p[1])];
+        }
+    }
+    if (donnees && ['grove', 'bitmaker', 'motorbit'].includes(donnees.carte)) {
+        try { localStorage.setItem(CLE_CARTE, donnees.carte); } catch (erreur) { /* choix oublie au rechargement */ }
+    }
+    VUE.touchee = false;
+    clearTimeout(attente);
+    attente = setTimeout(redessiner, 150);
+};
+
 function installerAppuis() {
     svgBas.addEventListener('pointerdown', e => {
         const g = e.target.closest('.montage-appui');
-        if (!g) return;
+        if (!g || e.target.closest('text')) return;   // libelles : on deplace le module (installerDeplacement)
         e.preventDefault();
         appuyerModule(g, true);
         const relacher = () => { appuyerModule(g, false); document.removeEventListener('pointerup', relacher); document.removeEventListener('pointercancel', relacher); };
@@ -1064,19 +1218,148 @@ function majReglages() {
     basculeReglages.textContent = (replie ? '▸ ' : '▾ ') + 'Réglages des capteurs';
 }
 
-function colonneAssezLarge() {
-    if (!conteneur) return false;
-    const st = getComputedStyle(conteneur);
-    const largeur = conteneur.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight);
-    return largeur >= LARGEUR_COLONNE - (mode === 'colonne' ? MARGE_COLONNE : 0);
+// ---------- Capture de la simulation agrandie (comme la version Arduino R4, capturerSimulation, nov. 2026) ----------
+// Le bouton « Capture » du bandeau (un.js), simulation agrandie : image de la simulation TELLE QU'ON LA VOIT (zoom et
+// position du moment ; carte, carte d'extension, modules, cables, etiquettes, dans leur etat du moment), sans le tableau
+// ni les boutons poses dessus. La micro:bit etant dessinee en HTML, la scene est recopiee dans un <foreignObject>, avec
+// les styles de la page et la police Inter rangee dans l'image. Fichier « <nom du programme> - simulation.png ».
+window.simulationAgrandie = () => mode === 'grand';
+window.capturerSimulation = async function () {
+    const cadre = cadreVue();
+    if (!cadre || cadre.clientWidth < 2 || cadre.clientHeight < 2) return false;
+    try {
+        const largeur = cadre.clientWidth, hauteur = cadre.clientHeight, finesse = 2;
+        let fond = 'rgb(247, 247, 247)';
+        for (let e = cadre; e; e = e.parentElement) {
+            const c = getComputedStyle(e).backgroundColor;
+            if (c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent') { fond = c; break; }
+        }
+        const copie = scene.cloneNode(true);   // garde ses id : les regles de la page (#montage-scene, #microbit-board...) s'appliquent
+        // Les toiles (ecran OLED...) ne se recopient pas : leur image du moment les remplace.
+        const toiles = scene.querySelectorAll('canvas'), copies = copie.querySelectorAll('canvas');
+        toiles.forEach((t, i) => {
+            try {
+                const img = document.createElement('img');
+                img.src = t.toDataURL();
+                img.style.cssText = getComputedStyle(t).cssText || '';
+                img.width = t.width; img.height = t.height;
+                img.className = t.className;
+                copies[i].replaceWith(img);
+            } catch (erreur) { /* toile illisible : laissee vide */ }
+        });
+        const racineHtml = document.documentElement;
+        const html = new XMLSerializer().serializeToString(copie);
+        // Masque de la carte (trous du connecteur, image data: dans le CSS) : il ne se charge pas dans une image SVG et
+        // rendait la micro:bit invisible ; sur la capture, la carte est donc pleine (trous non decoupes).
+        const css = (typeof window.policeInterCss === 'function' ? await window.policeInterCss() : '') +
+                    (typeof window.collecterCssCapture === 'function' ? window.collecterCssCapture() : '') +
+                    '#microbit-board { -webkit-mask-image: none !important; mask-image: none !important; }\n';
+        const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + largeur + '" height="' + hauteur + '"' +
+            ' data-theme="' + (racineHtml.dataset.theme || '') + '" data-contrast="' + (racineHtml.dataset.contrast || '') + '"' +
+            (racineHtml.dataset.saison ? ' data-saison="' + racineHtml.dataset.saison + '"' : '') + '>' +
+            '<style>' + css.replace(/<\/style/gi, '<\\/style') + '</style>' +
+            '<rect width="100%" height="100%" fill="' + fond + '"/>' +
+            '<foreignObject x="0" y="0" width="' + largeur + '" height="' + hauteur + '">' +
+            '<div xmlns="http://www.w3.org/1999/xhtml" class="montage-cadre-echelle" style="position:relative;width:' + largeur +
+            'px;height:' + hauteur + 'px;overflow:hidden;font-family:var(--font);">' + html + '</div></foreignObject></svg>';
+        // Adresse data: et non blob: : Chrome considere une image SVG a <foreignObject> chargee depuis un blob comme non sure
+        // (toile « teintee », export PNG refuse).
+        const source = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        const image = new Image();
+        await new Promise((ok, ko) => { image.onload = ok; image.onerror = () => ko(new Error('image SVG illisible')); image.src = source; });
+        const toile = document.createElement('canvas');
+        toile.width = Math.ceil(largeur * finesse);
+        toile.height = Math.ceil(hauteur * finesse);
+        const ctx = toile.getContext('2d');
+        ctx.fillStyle = fond;
+        ctx.fillRect(0, 0, toile.width, toile.height);
+        ctx.drawImage(image, 0, 0, toile.width, toile.height);
+        const png = await new Promise(ok => toile.toBlob(ok, 'image/png'));
+        if (!png) throw new Error('conversion en PNG impossible');
+        const base = (typeof window.nomFichierPour === 'function' ? window.nomFichierPour('programme.png') : 'programme.png').replace(/\.png$/i, '');
+        const lien = document.createElement('a');
+        lien.href = URL.createObjectURL(png);
+        lien.download = base + ' - simulation.png';
+        document.body.appendChild(lien);
+        lien.click();
+        lien.remove();
+        setTimeout(() => URL.revokeObjectURL(lien.href), 1000);
+        return true;
+    } catch (erreur) {
+        console.error('Capture de la simulation :', erreur);
+        return false;
+    }
+};
+
+// ---------- Tableau range en colonnes (comme la version Arduino R4, r4RangerTableau, nov. 2026) ----------
+// Autant de colonnes (190 px au moins) que la largeur du panneau le permet ; les panneaux visibles, du plus haut au plus
+// petit, vont chacun dans la colonne la moins haute ; chaque colonne garde l'ordre habituel des panneaux, et la colonne
+// du premier est a gauche. Rien ne bouge tant que la liste des panneaux visibles et le nombre de colonnes restent les
+// memes, ni pendant que l'eleve modifie un champ (curseur tenu, texte en cours de saisie) : on range des qu'il a fini.
+const LARGEUR_PANNEAU = 190, ECART_PANNEAUX = 18;
+let ordrePanneaux = null, signatureTableau = '';
+function enSaisie(liste) {
+    const champ = document.activeElement;
+    return !!champ && liste.contains(champ) && /^(INPUT|SELECT|TEXTAREA)$/.test(champ.tagName) && champ.type !== 'checkbox' && champ.type !== 'radio';
+}
+function rangerTableau() {
+    const liste = $('grove-panneau');
+    if (!liste) return;
+    if (!ordrePanneaux) ordrePanneaux = [...liste.querySelectorAll('.grove-bloc')];
+    const largeur = liste.clientWidth;
+    const visible = p => getComputedStyle(p).display !== 'none';
+    if (!largeur) { signatureTableau = ''; return; }   // tableau cache : rien a mesurer
+    const n = Math.max(1, Math.floor((largeur + ECART_PANNEAUX) / (LARGEUR_PANNEAU + ECART_PANNEAUX)));
+    const pleins = ordrePanneaux.filter(visible);
+    const signature = n + '|' + pleins.map(p => p.id).join(',');
+    if (signature === signatureTableau && liste.querySelector(':scope > .tab-colonnes')) return;
+    if (enSaisie(liste)) return;   // champ en cours de modification : on rangera quand il sera quitte (focusout)
+    signatureTableau = signature;
+    const hauteur = new Map(pleins.map(p => [p, p.offsetHeight]));   // mesurees avant de deplacer quoi que ce soit
+    const cols = Array.from({ length: n }, () => ({ h: 0, panneaux: [] }));
+    pleins.slice().sort((a, b) => hauteur.get(b) - hauteur.get(a)).forEach(p => {
+        const c = cols.reduce((m, x) => (x.h < m.h ? x : m), cols[0]);
+        c.panneaux.push(p);
+        c.h += hauteur.get(p) + 12;
+    });
+    const rang = p => ordrePanneaux.indexOf(p);
+    cols.forEach(c => c.panneaux.sort((a, b) => rang(a) - rang(b)));
+    cols.sort((a, b) => (a.panneaux.length ? rang(a.panneaux[0]) : 1e6) - (b.panneaux.length ? rang(b.panneaux[0]) : 1e6));
+    ordrePanneaux.filter(p => !visible(p)).forEach(p => cols[0].panneaux.push(p));   // panneaux caches : premiere colonne
+    const bloc = document.createElement('div');
+    bloc.className = 'tab-colonnes';
+    cols.forEach(c => {
+        const d = document.createElement('div');
+        d.className = 'tab-col';
+        c.panneaux.forEach(p => d.appendChild(p));
+        bloc.appendChild(d);
+    });
+    const ancien = liste.querySelector(':scope > .tab-colonnes');
+    if (ancien) ancien.remove();
+    liste.appendChild(bloc);
+}
+// Minuterie courte (comme le modele) plutot que requestAnimationFrame, suspendu quand l'onglet n'est pas affiche.
+let minuterieTableau = null;
+function rangerBientot() { clearTimeout(minuterieTableau); minuterieTableau = setTimeout(rangerTableau, 30); }
+function installerTableau() {
+    const liste = $('grove-panneau');
+    if (!liste) return;
+    rangerTableau();
+    new ResizeObserver(rangerBientot).observe(liste);
+    window.addEventListener('resize', rangerBientot);
+    liste.addEventListener('focusout', rangerBientot);   // rangement retenu pendant une saisie : fait des qu'elle est finie
+    // Un panneau apparait ou disparait (blocs poses ou retires, reglages replies...) : classes qui changent.
+    new MutationObserver(rangerBientot).observe(liste, { subtree: true, attributes: true, attributeFilter: ['class', 'hidden', 'style'] });
 }
 
 /** Place la carte, la scene et le choix de la carte d'extension selon le mode voulu. */
 function appliquerMode() {
     const carte = $('microbit-board'), cadreCarte = $('carte-cadre'), cadreScene = scene.parentElement;
     if (!carte) return;
-    const enColonne = utile && colonneAssezLarge();
-    const voulu = utile && grandDemande ? 'grand' : enColonne ? 'colonne' : 'carte';
+    // Simulation comme espace de travail (nov. 2026) : la scene (micro:bit seule ou montage) est TOUJOURS affichee,
+    // dans la colonne ou agrandie ; plus de seuil de largeur (on zoome et on se deplace dans la vue).
+    const enColonne = true;
+    const voulu = grandDemande ? 'grand' : 'colonne';
     const ancien = mode;
     if (voulu !== ancien) {
         mode = voulu;
@@ -1087,33 +1370,31 @@ function appliquerMode() {
             emplacement = { parent: carte.parentNode, suivant: carte.nextSibling };
             place.appendChild(carte);
         }
-        // Scene et choix de la carte : dans la colonne, ou dans l'en-tete de la vue agrandie.
-        if (voulu === 'grand') {
-            zoneGrand.appendChild(cadreScene);
-            enteteGrand.insertBefore(choixAuto, fermer);
-            enteteGrand.insertBefore(choix, choixAuto);
-        } else if (voulu === 'colonne') {
-            zoneColonne.appendChild(cadreScene);
-            outilsColonne.insertBefore(choix, agrandir);
-            outilsColonne.insertBefore(choixAuto, agrandir);
-        }
+        // Scene : dans la colonne, ou dans la vue agrandie (par-dessus les colonnes de categories et de blocs).
+        if (voulu === 'grand') zoneGrand.appendChild(cadreScene);
+        else if (voulu === 'colonne') zoneColonne.appendChild(cadreScene);
     }
-    // Ce que montre la colonne : la carte seule, le montage, ou un rappel quand il est agrandi.
+    // Vue agrandie (comme le modele) : la simulation passe par-dessus les blocs ; la colonne ne garde que la barre, les
+    // boutons d'action et le tableau, qui prend toute la hauteur.
     panneau.hidden = mode !== 'grand';
-    colonne.hidden = !(mode === 'colonne' || (mode === 'grand' && enColonne));
+    colonne.hidden = mode === 'grand';
+    conteneur.classList.toggle('simulation-agrandie', mode === 'grand');
     colonne.classList.toggle('agrandi', mode === 'grand');
     console_.classList.toggle('montage-en-colonne', !colonne.hidden);
     cadreCarte.classList.toggle('montage-carte-absente', mode === 'grand' && !enColonne);
-    bouton.hidden = !(utile && !enColonne);
+    bouton.hidden = true;   // « Voir le montage » : la scene est toujours visible dans la colonne
     bouton.setAttribute('aria-expanded', String(mode === 'grand'));
     bouton.textContent = mode === 'grand' ? '🔌 Fermer le montage' : '🔌 Voir le montage';
-    caseAgrandir.checked = mode === 'grand';
-    placerZoom();
+    if (boutonAgrandir) {
+        const grand = mode === 'grand';
+        boutonAgrandir.innerHTML = (grand ? ICONE_FERMER : ICONE_AGRANDIR) + '<span class="sim-lib">' + (grand ? 'Fermer' : 'Agrandir') + '</span>';
+        boutonAgrandir.title = grand ? 'Fermer la simulation agrandie (Échap)' : 'Agrandir la simulation';
+        boutonAgrandir.setAttribute('aria-expanded', String(grand));
+    }
     majReglages();
     if (voulu !== ancien) {
-        if (voulu === 'grand') fermer.focus();
-        else if (ancien === 'grand') (voulu === 'colonne' ? caseAgrandir : bouton).focus();
-        if (voulu !== 'carte') { Blockly.svgResize(window.workspace); requestAnimationFrame(() => redessiner()); }
+        if (boutonAgrandir && (voulu === 'grand' || ancien === 'grand')) boutonAgrandir.focus();
+        if (voulu !== 'carte') { Blockly.svgResize(window.workspace); requestAnimationFrame(() => { redessiner(); recentrerVue(); }); }
         else Blockly.svgResize(window.workspace);
     }
 }
@@ -1124,28 +1405,29 @@ function ouvrirGrand(ouvrir) {
 }
 
 function installer() {
-    if (!panneau || !bouton || !colonne || !caseAgrandir || !window.workspace) return false;
+    if (!panneau || !bouton || !colonne || !boutonAgrandir || !window.workspace) return false;
     bouton.addEventListener('click', () => ouvrirGrand(mode !== 'grand'));
     fermer.addEventListener('click', () => ouvrirGrand(false));
-    caseAgrandir.addEventListener('change', () => ouvrirGrand(caseAgrandir.checked));
-    installerZoom();
+    boutonAgrandir.addEventListener('click', () => ouvrirGrand(mode !== 'grand'));
+    installerVue();
     if (choix) {
-        const radio = choix.querySelector(`input[value="${choixCarte()}"]`);
-        if (radio) radio.checked = true;
-        choix.addEventListener('change', e => {
-            try { localStorage.setItem(CLE_CARTE, e.target.value); } catch (erreur) { /* choix oublie au rechargement */ }
+        choix.querySelectorAll('[data-carte]').forEach(b => b.addEventListener('click', () => {
+            try { localStorage.setItem(CLE_CARTE, b.dataset.carte); } catch (erreur) { /* choix oublie au rechargement */ }
             redessiner();
-        });
+        }));
     }
-    document.addEventListener('keydown', e => { if (mode === 'grand' && e.key === 'Escape') { e.preventDefault(); ouvrirGrand(false); } });
+    // Echap ferme la vue agrandie, sauf si une fenetre (nom du programme...) est ouverte par-dessus : elle se ferme d'abord.
+    document.addEventListener('keydown', e => {
+        if (mode !== 'grand' || e.key !== 'Escape' || e.defaultPrevented || document.querySelector('.fen-voile')) return;
+        e.preventDefault();
+        ouvrirGrand(false);
+    });
     window.workspace.addChangeListener(e => {
         if (e.isUiEvent) return;
         clearTimeout(attente);
         attente = setTimeout(redessiner, 150);
     });
-    // Colonne redimensionnee (poignee, fenetre) : montage sur place ou carte seule, puis mise a l'echelle.
-    new ResizeObserver(() => { appliquerMode(); ajusterEchelle(); }).observe(conteneur);
-    new ResizeObserver(ajusterEchelle).observe(zoneGrand);
+    // Taille du cadre de la vue : surveillee par installerVue (meme echelle, recentrage tant que la vue n'est pas touchee).
     const ruban = $('grove-ruban');
     if (ruban) new MutationObserver(() => { if (mode !== 'carte' && rubanSurCarte) copierLedsCarte(); })
         .observe(ruban, { childList: true, subtree: true, attributes: true, attributeFilter: ['style'] });
@@ -1153,6 +1435,8 @@ function installer() {
     // mutation a observer).
     setInterval(() => { if (mode !== 'carte' && document.visibilityState === 'visible') majVivant(); }, 200);
     installerAppuis();
+    installerDeplacement();
+    installerTableau();
     redessiner();
     return true;
 }

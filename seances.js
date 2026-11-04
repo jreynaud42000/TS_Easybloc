@@ -74,7 +74,7 @@ async function ouvrirSeance() {
 
 function choisirEleves(def) {
     const groupes = (def.groupes && def.groupes.length) ? def.groupes : [{ nom: 'Groupe', eleves: [] }];
-    const v = voile('<div class="ex-haut"><h2>📂 ' + esc(def.titre) + '</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
+    const v = voile('<div class="ex-haut"><h2>' + esc(def.titre) + '</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
         '<p>' + esc(def.classe ? def.classe + ' · ' : '') + def.exercices.length + ' exercice' + (def.exercices.length > 1 ? 's' : '') +
         (def.mode === 'eval' ? ' · <b>évaluation</b>' + (def.minutes ? ' (' + def.minutes + ' min)' : '') : ' · entraînement') + '</p>' +
         '<div class="se-form"><label>Ton groupe <select id="se-groupe">' + groupes.map((g, i) => '<option value="' + i + '">' + esc(g.nom) + '</option>').join('') + '</select></label></div>' +
@@ -122,7 +122,7 @@ window.seanceRendre = function () {
     const nom = nomRendu(r);
     telecharger(nom, JSON.stringify(r));
     const faits = r.exercices.filter(e => e.statut !== 'non fait').length;
-    voile('<div class="ex-haut"><h2>📤 Travail rendu</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
+    voile('<div class="ex-haut"><h2>Travail rendu</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
         '<p>Le fichier <b>' + esc(nom) + '</b> vient d\'être téléchargé (dossier « Téléchargements »).</p>' +
         '<p><b>Dépose-le maintenant</b> là où ton professeur l\'a demandé : casier de l\'ENT, devoir Moodle, dossier partagé…</p>' +
         '<p class="ex-note">' + faits + ' exercice' + (faits > 1 ? 's' : '') + ' sur ' + r.exercices.length + ' commencé' + (faits > 1 ? 's' : '') +
@@ -177,7 +177,7 @@ function regleDepuisEspace() {
 
 async function fenetreEnseignant(onglet = 'creer') {
     if (moteur().active()) { alert('Une séance d\'élève est ouverte sur ce poste : quittez-la d\'abord (Fichier > Quitter la séance).'); return; }
-    const v = voile('<div class="ex-haut"><h2>👩‍🏫 Espace enseignant</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
+    const v = voile('<div class="ex-haut"><h2>Espace enseignant</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>' +
         '<div class="ex-onglets"><button data-onglet="creer">Préparer une séance</button><button data-onglet="ramasser">Ramasser les travaux</button></div>' +
         '<div id="se-contenu"></div>', 'se-fenetre');
     let courant = onglet;

@@ -467,7 +467,7 @@ async function ouvrirFenetre(onglet = 'exercices') {
     if (evalSeance() && onglet === 'exercices') onglet = 'evaluation';
     const nomActuel = donnees.profil;
     const noms = Object.keys(donnees.profils);
-    let contenu = '<div class="ex-haut"><h2>🎓 ' + esc(defs.titre || 'Exercices') + '</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>';
+    let contenu = '<div class="ex-haut"><h2>' + esc(defs.titre || 'Exercices') + '</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>';
     if (seance) {
         contenu += '<div class="ex-seance">' + esc(seance.def.classe ? seance.def.classe + ' · ' : '') + esc(seance.groupe) + ' · <b>' + esc(seance.eleves.join(', ')) + '</b>' +
             '<span class="ex-boutons"><button class="ex-primaire" data-a="rendre">📤 Rendre mon travail</button><button data-a="quitter-seance">Quitter la séance</button></span></div>';
@@ -601,7 +601,7 @@ function ouvrirRapport(r) {
     if (!r) return;
     const lignes = r.details.map(d => '<tr><td>' + esc(d.id) + '</td><td>' + esc(d.titre) + '</td><td>' + (d.nonFait ? 'non traité' : d.aCorriger ? '✎ à corriger' : d.ok ? '✔ réussi' : d.essais === 0 ? '↷ passé' : '✘ échec') +
         '</td><td>' + d.essais + '</td><td>' + fmt(d.secondes) + '</td><td>' + d.points + ' / ' + d.sur + '</td></tr>').join('');
-    const v = voile('<div class="ex-haut"><h2>📝 Rapport d\'évaluation</h2><button class="ex-x ex-noprint" data-f="fermer" title="Fermer">✕</button></div>' +
+    const v = voile('<div class="ex-haut"><h2>Rapport d\'évaluation</h2><button class="ex-x ex-noprint" data-f="fermer" title="Fermer">✕</button></div>' +
         '<p><b>' + esc(r.nom) + '</b> — ' + esc(new Date(r.date).toLocaleString('fr-FR')) + ' — durée ' + fmt(r.secondes) + (r.motif ? ' (' + esc(r.motif) + ')' : '') + '</p>' +
         '<p class="ex-grand">Note : <b>' + r.note + ' / 20</b> <small>(' + r.points + ' point' + (r.points > 1 ? 's' : '') + ' sur ' + r.total + ')</small></p>' +
         '<table class="ex-table"><tr><th>N°</th><th>Exercice</th><th>Résultat</th><th>Essais</th><th>Temps</th><th>Points</th></tr>' + lignes + '</table>' +
@@ -699,22 +699,31 @@ style.textContent = `
 #ex-panneau button:not(#ex-entete button), #ex-voile button { font-family: inherit; font-size: 12px; padding: 5px 10px; margin: 0; border-radius: 5px; border: 1px solid var(--bordure-chrome, #555);
   background: var(--fond-saisie, #202020); color: var(--texte-saisie, #e6e6e6); cursor: pointer; }
 #ex-panneau button:not(#ex-entete button):hover, #ex-voile button:hover { filter: brightness(1.25); }
-#ex-panneau .ex-primaire, #ex-voile .ex-primaire { background: #ff5501; border-color: #ff5501; color: #fff; font-weight: 700; }
+#ex-panneau .ex-primaire, #ex-voile .ex-primaire { background: var(--couleur-bandeau, #6a2c91); border-color: var(--couleur-bandeau, #6a2c91); color: #fff; font-weight: 700; }
 #ex-voile .ex-danger { color: #e74c3c; border-color: #e74c3c; }
-#ex-voile { position: fixed; inset: 0; z-index: 9100; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 12px; }
+/* Fenetres d'exercices et de seances : aspect commun de la version Arduino R4 (nov. 2026) : fond grise, titre sur le
+   bandeau de couleur (--couleur-bandeau), coins de 10 px, ombre douce, fond clair ou sombre selon le theme. */
+#ex-voile { position: fixed; inset: 0; z-index: 9100; background: rgba(0,0,0,.4); display: flex; align-items: center; justify-content: center; padding: 12px; }
 .ex-fenetre { width: min(900px, 100%); max-height: calc(100vh - 24px); overflow: auto; box-sizing: border-box; padding: 14px 18px 18px;
-  background: var(--fond-code, #1e1e1e); color: var(--texte-code, #d4d4d4); border: 2px solid #ff5501; border-radius: 10px; font-family: var(--font, 'Segoe UI', Arial, sans-serif); font-size: 13px; }
-.ex-haut { display: flex; align-items: center; justify-content: space-between; }
-.ex-haut h2 { margin: 0; font-size: 18px; color: #ff7a33; }
-.ex-x { width: 28px; height: 28px; padding: 0 !important; }
+  background: #303237; color: #e6e6e6; border: none; border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.25);
+  font-family: var(--font, 'Segoe UI', Arial, sans-serif); font-size: 13px; }
+:root[data-theme="light"] .ex-fenetre { background: #fff; color: #222; }
+:root[data-contrast="high"] .ex-fenetre { background: #000; color: #fff; border: 2px solid #fff; box-shadow: none; }
+:root[data-theme="light"][data-contrast="high"] .ex-fenetre { background: #fff; color: #000; border-color: #000; }
+.ex-haut { display: flex; align-items: center; justify-content: space-between; position: sticky; top: -14px; z-index: 1;
+  margin: -14px -18px 12px; padding: 10px 12px 10px 16px; background: var(--couleur-bandeau, #6a2c91); color: #fff; }
+.ex-haut h2 { margin: 0; font-size: 16px; font-weight: 600; color: #fff; }
+:root[data-contrast="high"] .ex-haut { border-bottom: 2px solid #fff; }
+#ex-voile .ex-haut .ex-x { width: 28px; height: 28px; padding: 0 !important; background: transparent; border: none; color: #fff; font-size: 14px; }
+#ex-voile .ex-haut .ex-x:hover { background: rgba(255,255,255,.15); filter: none; }
 .ex-seance { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin: 10px 0; padding: 8px 10px;
-  border-radius: 6px; background: rgba(255, 85, 1, .12); border: 1px solid #ff5501; }
+  border-radius: 6px; background: rgba(106, 44, 145, .12); border: 1px solid var(--couleur-bandeau, #6a2c91); }
 .ex-seance .ex-boutons { margin: 0; }
 .ex-profil { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; margin: 10px 0; }
 .ex-profil input[type=text] { padding: 4px 8px; border-radius: 4px; border: 1px solid var(--bordure-chrome, #555); background: var(--fond-saisie, #202020); color: var(--texte-saisie, #e6e6e6); }
-.ex-onglets { display: flex; gap: 4px; border-bottom: 2px solid #ff5501; margin-bottom: 10px; }
+.ex-onglets { display: flex; gap: 4px; border-bottom: 2px solid var(--couleur-bandeau, #6a2c91); margin-bottom: 10px; }
 .ex-onglets button { border-radius: 6px 6px 0 0 !important; border-bottom: none !important; }
-.ex-onglets button.actif { background: #ff5501 !important; color: #fff !important; border-color: #ff5501 !important; font-weight: 700; }
+.ex-onglets button.actif { background: var(--couleur-bandeau, #6a2c91) !important; color: #fff !important; border-color: var(--couleur-bandeau, #6a2c91) !important; font-weight: 700; }
 .ex-fenetre h3 { margin: 14px 0 6px; font-size: 15px; } .ex-fenetre h3 small, .ex-fenetre h4 small { font-weight: normal; opacity: .7; font-size: 12px; }
 .ex-fenetre h4 { margin: 14px 0 6px; }
 .ex-cartes { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 8px; }

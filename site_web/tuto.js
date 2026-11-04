@@ -54,11 +54,11 @@ const ETAPES_GENERAL = [
     },
     {
         titre: '2. Votre premier programme',
-        texte: 'Un programme commence toujours par un bloc « Au démarrage » (exécuté une fois) ou « Répéter ' +
+        texte: 'Un programme commence toujours par un bloc « au démarrage » (exécuté une fois) ou « répéter ' +
             'indéfiniment » (catégorie Boucles). Les autres blocs s\'emboîtent dedans, comme des pièces de puzzle. ' +
             'Un bloc posé seul, hors de ces blocs, est grisé et n\'est pas exécuté.',
         cible: '#blocklyDiv',
-        consigne: 'Posez « Au démarrage », puis glissez « afficher icône » (catégorie Matrice LED) à l\'intérieur.',
+        consigne: 'Posez « au démarrage », puis glissez « afficher icône » (catégorie Matrice LED) à l\'intérieur.',
         attendre: () => blocs().some(b => b.type === 'afficher_icone' && racineEst(b, ['au_demarrage', 'boucle_infinie'])),
     },
     {
@@ -337,7 +337,7 @@ const ETAPES_CONSOLE = [
     },
     {
         titre: '3. Poser le bloc',
-        texte: 'Glissez « afficher dans la console » dans « Répéter indéfiniment » (ou « Au démarrage »). Emboîtez-y un bloc de texte ' +
+        texte: 'Glissez « afficher dans la console » dans « répéter indéfiniment » (ou « au démarrage »). Emboîtez-y un bloc de texte ' +
             '(catégorie Texte) ou un capteur, par exemple « température » (catégorie Capteurs). Ajoutez un bloc « attendre » d\'une ' +
             'seconde en dessous : sans pause, le programme écrirait des centaines de lignes à la seconde.',
         cible: '#blocklyDiv',
@@ -430,9 +430,9 @@ const ETAPES_CLIC_DROIT = [
             'Dupliquer : copie le bloc et son contenu. Aide sur ce bloc : explication, code MicroPython et exemple. Ajouter un ' +
             'commentaire : une note attachée au bloc. Entrées en ligne : change la forme du bloc. Réduire : replie le bloc sur une ' +
             'ligne. Désactiver : le bloc est ignoré. Supprimer : retire le bloc et son contenu. Une entrée grisée est impossible ' +
-            'ici : « Au démarrage » ne se duplique pas, il n\'en faut qu\'un.',
+            'ici : « au démarrage » ne se duplique pas, il n\'en faut qu\'un.',
         cible: '#blocklyDiv',
-        consigne: 'Faites un clic droit sur un bloc (par exemple « Au démarrage »).',
+        consigne: 'Faites un clic droit sur un bloc (par exemple « au démarrage »).',
         attendre: () => !!menuContextuel() && menuContient('Aide sur ce bloc'),
     },
     {
@@ -449,7 +449,7 @@ const ETAPES_CLIC_DROIT = [
             'La copie apparaît juste à côté, à déplacer ensuite.',
         cible: '#blocklyDiv',
         avant: () => { const v = $('#voile-aide'); if (v && v.classList.contains('ouvert')) { const f = $('#aide-fermer'); if (f) f.click(); } nbBlocsDepart = blocs().length; },
-        consigne: 'Clic droit sur un bloc autre que « Au démarrage » (par exemple « Répéter indéfiniment ») → « Dupliquer ».',
+        consigne: 'Clic droit sur un bloc autre que « au démarrage » (par exemple « répéter indéfiniment ») → « Dupliquer ».',
         attendre: () => blocs().length > nbBlocsDepart,
     },
     {
