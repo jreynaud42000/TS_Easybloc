@@ -18,6 +18,8 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
+import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais } from './modules-dessins.js';
+
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
 const LARGEUR = 1000;                                   // largeur de la scene, en unites
@@ -354,7 +356,7 @@ function disposer(modules, basCarte) {
         cotes[c].sort((a, b) => a.ancre[1] - b.ancre[1]).forEach(m => {
             m.y = Math.max(y, m.ancre[1] - 60);
             m.x = c === 'g' ? 30 : LARGEUR - 30 - MODULE.l;
-            y = m.y + MODULE.h + 96;
+            y = m.y + hauteurModule(m, c === 'g' ? 'droite' : 'gauche') + 96;
             bas = Math.max(bas, y);
         });
     }
@@ -363,21 +365,70 @@ function disposer(modules, basCarte) {
     const [xMin, xMax, pas] = [30, LARGEUR - 30, MODULE.l + 20];
     const parLigne = Math.floor((xMax - xMin + 20) / pas);
     const tries = cotes.b.sort((a, b) => a.ancre[0] - b.ancre[0]);
+    let yLigne = basCarte + 90;
     for (let i = 0; i < tries.length; i += parLigne) {
         const ligne = tries.slice(i, i + parLigne), largeur = ligne.length * pas - 20;
         const centre = ligne.reduce((s, m) => s + m.ancre[0], 0) / ligne.length;
         const x0 = Math.max(xMin, Math.min(centre - largeur / 2, xMax - largeur));
+        const hLigne = Math.max(...ligne.map(m => hauteurModule(m, 'haut')));   // le module le plus haut de la ligne
         ligne.forEach((m, k) => {
             m.x = x0 + k * pas;
-            m.y = basCarte + 90 + (i / parLigne) * (MODULE.h + 110);
-            bas = Math.max(bas, m.y + MODULE.h + 96);
+            m.y = yLigne;
+            bas = Math.max(bas, m.y + hLigne + 96);
         });
+        yLigne += hLigne + 110;
     }
     return bas + 10;
 }
 
+// Modules dessines d'apres le modele (modules-dessins.js) : comme le modele (rotationVers, r4-board-svg.js), chaque module
+// est tourne par quart de tour pour que sa prise regarde le port d'ou part son cable (afficheurs : jamais tournes). Sa
+// taille reelle (une fois tourne) compte pour le rangement et la place des libelles.
+const COTES = ['haut', 'droite', 'bas', 'gauche'];   // dans le sens des aiguilles d'une montre
+const ARRIVEE = { haut: [0, 1], droite: [-1, 0], bas: [0, -1], gauche: [1, 0] };   // sens du cable qui arrive sur une prise
+function rotationVers(def, cote) {
+    if (def.afficheur) return 0;
+    return ((COTES.indexOf(cote) - COTES.indexOf(def.connecteur.sens)) * 90 + 360) % 360;
+}
+/** Cote ou doit se trouver la prise : vers le port de la carte d'extension (depart des fils), ou celui du rangement. */
+function coteVoulu(m) {
+    if (m.x !== undefined && m.fils && m.fils.length) {
+        const px = m.fils.reduce((s, f) => s + f.x, 0) / m.fils.length, py = m.fils.reduce((s, f) => s + f.y, 0) / m.fils.length;
+        const dx = px - (m.x + MODULE.l / 2), dy = py - (m.y + MODULE.h / 2);
+        return Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 'bas' : 'haut') : (dx > 0 ? 'droite' : 'gauche');
+    }
+    return { g: 'droite', d: 'gauche', b: 'haut' }[m.cote] || 'haut';
+}
+/** Hauteur occupee par un module (au moins la case MODULE.h), pour le rangement et les libelles. */
+function hauteurModule(m, cote) {
+    const def = DESSINS_MODULES[m.picto];
+    if (!def) return MODULE.h;
+    const rot = rotationVers(def, cote || coteVoulu(m));
+    return Math.max(MODULE.h, (rot % 180 ? def.largeur : def.hauteur) * K_MODULE);
+}
+/** Geometrie d'un module dessine : rotation, centre, et passage d'un point du dessin (mm) a la scene. */
+function geometrie(m) {
+    const def = DESSINS_MODULES[m.picto];
+    if (!def || m.x === undefined) return null;
+    const rot = rotationVers(def, coteVoulu(m));
+    const w0 = def.largeur * K_MODULE, h0 = def.hauteur * K_MODULE, haut = hauteurModule(m);
+    const cx = m.x + MODULE.l / 2, cy = m.y + haut / 2, a = rot * Math.PI / 180;
+    const point = (px, py) => {
+        const x = px * K_MODULE - w0 / 2, y = py * K_MODULE - h0 / 2;
+        return { x: cx + x * Math.cos(a) - y * Math.sin(a), y: cy + x * Math.sin(a) + y * Math.cos(a) };
+    };
+    const cote = COTES[(COTES.indexOf(def.connecteur.sens) + rot / 90) % 4];
+    return { def, rot, cx, cy, w0, h0, haut, point, cote };
+}
+
 /** Point d'arrivee du cable sur le module (cote tourne vers la carte) et direction d'arrivee. */
 function arrivee(m) {
+    const geo = geometrie(m);
+    if (geo) {
+        // Module dessine (modele R4) : sur sa prise (tournee vers le port), le cable y arrive en sens inverse de sa sortie.
+        const p = geo.point(geo.def.connecteur.x, geo.def.connecteur.y);
+        return { x: p.x, y: p.y, d: ARRIVEE[geo.cote] };
+    }
     if (m.cote === 'g') return { x: m.x + MODULE.l / 2 + largeurPcb(m) / 2 + 8, y: m.y + MODULE.h / 2, d: [-1, 0] };
     if (m.cote === 'd') return { x: m.x + MODULE.l / 2 - largeurPcb(m) / 2 - 8, y: m.y + MODULE.h / 2, d: [1, 0] };
     return { x: m.x + MODULE.l / 2, y: m.y - 6, d: [0, 1] };
@@ -570,6 +621,11 @@ function dessinCarteDfr() {
 
 /** Dessin d'un module, centre sur (cx, cy), connecteur tourne vers la carte. */
 function dessinModule(m, cx, cy) {
+    const geo = geometrie(m);
+    if (geo) {
+        const dessin = geo.def.dessin(geo.cx - geo.w0 / 2, geo.cy - geo.h0 / 2, m);
+        return geo.rot ? `<g transform="rotate(${geo.rot} ${geo.cx} ${geo.cy})">${dessin}</g>` : dessin;
+    }
     const dessins = window.dessinsMoteursDfr;
     const imbrique = (svg, l, h) => svg.replace('<svg ', `<svg x="${cx - l / 2}" y="${cy - h / 2}" width="${l}" height="${h}" `);
     if (m.picto === 'moteur' && dessins) return imbrique(dessins.tt, 150, 80);
@@ -657,15 +713,17 @@ function dessinerScene(etat) {
     if (etat.carte === 'aucune') return { bas: '', hauteur: CARTE.y + CARTE.h + 20 };   // micro:bit seule
     const basCarte = etat.carte === 'dfr' ? DFR_BAS + 18 : etat.carte === 'motorbit' ? MB_BAS : etat.carte === 'bitmaker' ? BM_BAS : GROVE_PCB.y + GROVE_PCB.l;
     let hauteur = disposer(etat.modules, basCarte);
+    for (const m of etat.modules) m.couleur = COULEURS_MODULES[m.id] || 'rouge';
     // Modules deplaces par l'eleve (PLACES) : a leur place ; le cable arrive par le cote tourne vers la carte.
     for (const m of etat.modules) {
         const p = !m.surCarte && PLACES[m.id];
         if (!p) continue;
         [m.x, m.y] = p;
         m.cote = m.y + MODULE.h / 2 > basCarte ? 'b' : m.x + MODULE.l / 2 < LARGEUR / 2 ? 'g' : 'd';
-        hauteur = Math.max(hauteur, m.y + MODULE.h + 96);
+        hauteur = Math.max(hauteur, m.y + hauteurModule(m) + 96);
     }
-    let bas = { dfr: dessinCarteDfr, motorbit: dessinCarteMotorbit, bitmaker: dessinCarteBitmaker, grove: dessinCarteGrove }[etat.carte]();
+    // Effets communs des modules dessines (halo des LED), en tete de la scene
+    let bas = defsModules() + { dfr: dessinCarteDfr, motorbit: dessinCarteMotorbit, bitmaker: dessinCarteBitmaker, grove: dessinCarteGrove }[etat.carte]();
     // Ruban sur les LED de la BitMaker : legende sous la carte, a la place du module et de son cable.
     const surCarte = etat.modules.find(m => m.surCarte);
     if (surCarte) hauteur = Math.max(hauteur, basCarte + 50);
@@ -674,21 +732,31 @@ function dessinerScene(etat) {
     for (const m of etat.modules) {
         if (m.x === undefined) continue;
         const fin = arrivee(m), n = m.fils.length;
+        // Module dessine (modele R4) : chaque fil arrive sur son contact de la prise (SIG, NC, VCC, GND), d'apres la serigraphie.
+        const geo = geometrie(m), contacts = geo && geo.def.connecteur.contacts;
+        if (contacts && contacts.length === n) {
+            const conn = geo.def.connecteur, vertical = conn.sens === 'haut' || conn.sens === 'bas';
+            m.fils.forEach((f, i) => {
+                const p = vertical ? geo.point(contacts[i], conn.y) : geo.point(conn.x, contacts[i]);
+                bas += dessinFil(f, { x: p.x, y: p.y, d: fin.d }, 0);
+            });
+            continue;
+        }
         m.fils.forEach((f, i) => { bas += dessinFil(f, fin, (i - (n - 1) / 2) * 6); });
     }
     for (const m of etat.modules) {
         if (m.x === undefined) continue;
-        const cx = m.x + MODULE.l / 2, cy = m.y + MODULE.h / 2;
+        const hMod = hauteurModule(m), cx = m.x + MODULE.l / 2, cy = m.y + MODULE.h / 2;
         const vivant = VIVANT[m.nom] || m.picto;
         // Bouton poussoir et joystick : on appuie directement dessus (meme effet que dans « Peripheriques »).
         const appui = vivant === 'bouton' || vivant === 'joystick'
             ? ` role="button" tabindex="0" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : maintenir pour appuyer"` : '';
         bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${appui}>${dessinModule(m, cx, cy)}` +
-               texte(cx, m.y + MODULE.h + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
-               texte(cx, m.y + MODULE.h + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
-        bas += texte(cx, m.y + MODULE.h + 62, '', 'class="montage-valeur" text-anchor="middle"');
+               texte(cx, m.y + hMod + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
+               texte(cx, m.y + hMod + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
+        bas += texte(cx, m.y + hMod + 62, '', 'class="montage-valeur" text-anchor="middle"');
         const note = [m.alerte, m.note].filter(Boolean).join(' · ');
-        if (note) bas += texte(cx, m.y + MODULE.h + 82, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
+        if (note) bas += texte(cx, m.y + hMod + 82, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
         bas += '</g>';
     }
     return { bas, hauteur };
@@ -850,8 +918,21 @@ function redessiner() {
 
 /** Dessine la scene (carte d'extension, modules, cables) ; sert aussi pendant le deplacement d'un module. */
 let dernierEtat = null;
+// Tableau synchronise avec le montage : la pastille de « LED sur broche » prend la couleur de sa LED (rouge par defaut,
+// comme le dessin). Regle de style par broche (data-broche, un.js) : elle survit a la reconstruction de la liste.
+function couleursLedsTableau(etat) {
+    let feuille = document.getElementById('couleurs-leds-tableau');
+    if (!feuille) { feuille = document.createElement('style'); feuille.id = 'couleurs-leds-tableau'; document.head.appendChild(feuille); }
+    feuille.textContent = etat.modules.filter(m => m.picto === 'led' && m.pins).map(m => {
+        const c = COULEURS_LED[COULEURS_MODULES[m.id]] || COULEURS_LED.rouge;
+        return `#grove-leds .led-broche[data-broche="${m.pins[0].replace('pin', '')}"] .led-pastille { ` +
+               `background: radial-gradient(circle at 35% 30%, #ffffff, ${c.allumee} 45%, ${c.eteinte}); box-shadow: 0 0 7px ${c.halo}; }`;
+    }).join('\n');
+}
+
 function dessinerSvg(etat) {
     dernierEtat = etat;
+    couleursLedsTableau(etat);
     const { bas, hauteur } = dessinerScene(etat);
     hauteurScene = hauteur;
     scene.style.height = hauteur + 'px';
@@ -953,8 +1034,7 @@ const LECTEURS = {
     led(g, cle) {
         const el = $$('#grove-leds .led-broche').find(x => x.querySelector('.led-nom').textContent === cle);
         const eclat = el ? Number(el.querySelector('.led-pastille').style.opacity) || 0 : 0;
-        g.querySelector('.mv-led').setAttribute('fill', eclat ? '#ff3b30' : '#8e2f2c');
-        g.querySelector('.mv-halo').setAttribute('opacity', (eclat * 0.45).toFixed(2));
+        allumerLed(g, eclat);
         if (!el) return '';
         const niveau = Number(el.querySelector('.led-val').textContent);
         return niveau === 0 ? 'éteinte' : niveau >= 1023 ? 'allumée' : 'luminosité ' + niveau;
@@ -987,7 +1067,8 @@ const LECTEURS = {
         // Le texte du dessin (« RELAY ») precede celui de l'etat : seule l'etiquette compte.
         const el = $$('#grove-relais .relais-module').find(x => (x.querySelector('span') || x).textContent.startsWith(cle + ' :'));
         const ferme = !!el && el.classList.contains('actif');
-        g.querySelector('.mv-voyant').setAttribute('fill', ferme ? '#ff3b30' : '#5a1d1d');
+        if (g.querySelector('.mv-lame')) allumerRelais(g, ferme);   // dessin du modele : contact, voyant D3 et halo
+        else g.querySelector('.mv-voyant').setAttribute('fill', ferme ? '#ff3b30' : '#5a1d1d');
         return el ? (ferme ? 'fermé (marche)' : 'ouvert (arrêt)') : '';
     },
     oled(g) {
@@ -1098,6 +1179,35 @@ function figerLesAutres(id) {
         PLACES[m.id] = [Math.round(m.x), Math.round(m.y)];
     }
 }
+// Couleur d'un module (LED) : un clic sur le module, sans le deplacer, ouvre la liste des couleurs (comme le modele).
+// Choix retenu par module et enregistre avec les places (ligne « # montage »).
+const COULEURS_MODULES = {};   // id du module -> nom de couleur (COULEURS_LED)
+function choisirCouleur(id, x, y) {
+    const ancien = document.getElementById('menu-couleur-module');
+    if (ancien) ancien.remove();
+    const menu = document.createElement('div');
+    menu.id = 'menu-couleur-module';
+    menu.className = 'tb-dropdown-menu visible';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = '<div class="menu-titre">Couleur de la LED</div>' + Object.values(COULEURS_LED).map(c =>
+        `<button type="button" role="menuitemradio" data-couleur="${c.nom}" class="${(COULEURS_MODULES[id] || 'rouge') === c.nom ? 'choisi' : ''}">` +
+        `<span class="menu-pastille" style="background:${c.allumee}"></span>${c.nom}</button>`).join('');
+    menu.style.cssText = `position:fixed;left:${Math.min(x, window.innerWidth - 180)}px;top:${Math.min(y, window.innerHeight - 220)}px;z-index:200200;`;
+    document.body.appendChild(menu);
+    const fermer = () => { menu.remove(); document.removeEventListener('pointerdown', dehors, true); document.removeEventListener('keydown', clavier, true); };
+    const dehors = e => { if (!menu.contains(e.target)) fermer(); };
+    const clavier = e => { if (e.key === 'Escape') { e.stopPropagation(); fermer(); } };
+    menu.addEventListener('click', e => {
+        const b = e.target.closest('[data-couleur]');
+        if (!b) return;
+        COULEURS_MODULES[id] = b.dataset.couleur;
+        fermer();
+        if (dernierEtat) { dessinerSvg(dernierEtat); majVivant(); }
+    });
+    setTimeout(() => { document.addEventListener('pointerdown', dehors, true); document.addEventListener('keydown', clavier, true); }, 0);
+    const premier = menu.querySelector('button.choisi') || menu.querySelector('button');
+    if (premier) premier.focus();
+}
 function installerDeplacement() {
     svgBas.addEventListener('pointerdown', e => {
         const g = e.target.closest('.montage-module');
@@ -1118,8 +1228,10 @@ function installerDeplacement() {
             dessinerSvg(dernierEtat);
             majVivant();
         };
-        const finir = () => {
+        const finir = ev => {
             cadreVue().classList.remove('module-deplace');
+            const def = DESSINS_MODULES[m.picto];
+            if (!bouge && ev.type === 'pointerup' && def && def.couleurs) choisirCouleur(id, ev.clientX, ev.clientY);
             document.removeEventListener('pointermove', bouger);
             document.removeEventListener('pointerup', finir);
             document.removeEventListener('pointercancel', finir);
@@ -1130,11 +1242,15 @@ function installerDeplacement() {
     });
 }
 // Ligne ajoutee au programme exporte (.py, .hex) quand des modules ont ete deplaces ; la carte choisie voyage avec.
-window.montageCommentaire = () => Object.keys(PLACES).length
-    ? '# montage : ' + JSON.stringify({ carte: choixCarte(), places: PLACES }) + '\n' : '';
+window.montageCommentaire = () => (Object.keys(PLACES).length || Object.keys(COULEURS_MODULES).length)
+    ? '# montage : ' + JSON.stringify({ carte: choixCarte(), places: PLACES, couleurs: COULEURS_MODULES }) + '\n' : '';
 // Import d'un programme (ou nouveau projet) : places relues dans la ligne « # montage », ou effacees (null).
 window.montageRestaurer = donnees => {
     for (const k of Object.keys(PLACES)) delete PLACES[k];
+    for (const k of Object.keys(COULEURS_MODULES)) delete COULEURS_MODULES[k];
+    if (donnees && donnees.couleurs && typeof donnees.couleurs === 'object') {
+        for (const [k, c] of Object.entries(donnees.couleurs)) if (COULEURS_LED[c]) COULEURS_MODULES[k] = c;
+    }
     if (donnees && donnees.places && typeof donnees.places === 'object') {
         for (const [k, p] of Object.entries(donnees.places)) {
             if (Array.isArray(p) && p.length >= 2 && p.every(Number.isFinite)) PLACES[k] = [Math.round(p[0]), Math.round(p[1])];

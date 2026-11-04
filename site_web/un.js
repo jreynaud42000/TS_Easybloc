@@ -11636,7 +11636,7 @@ try {
             // La luminosité perçue ne suit pas le rapport cyclique : une racine
             // rapproche l'affichage de ce que voit l'œil.
             const eclat = niveau ? 0.15 + 0.85 * Math.sqrt(f) : 0;
-            return '<div class="led-broche">' +
+            return '<div class="led-broche" data-broche="' + broche + '">' +   // data-broche : couleur choisie dans le montage (montage.js)
                    '<span class="led-socle"><span class="led-pastille" style="opacity:' +
                    eclat.toFixed(3) + '"></span></span>' +
                    '<span class="led-nom">P' + broche + '</span>' +
