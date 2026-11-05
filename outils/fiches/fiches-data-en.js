@@ -580,6 +580,58 @@ window.FICHES_EN = {
     ],
     legende: 'With a threshold of 200, only loud enough noises show the sad face.',
   },
+  // ═══════════════ Actuators (Audio) ═══════════════
+  audio_jouer: {
+    titre: '[Audio] play music …',
+    sert: 'Plays a **ready-made sound** on the board\'s speaker: a giggle (Giggle), a happy sound (Happy), a hello (Hello), a sad sound (Sad) or a twinkle (Twinkle).',
+    util: [
+      'Choose the sound in the block\'s list.',
+    ],
+    savoir: [
+      'The speaker only exists on the **micro:bit V2** board.',
+      'The program **waits for the end of the sound** before moving on to the next block.',
+      'In the simulator, the sound is an imitation played by the computer: it can be a little different from the board\'s sound.',
+    ],
+    legende: 'Button A plays a giggle, button B stops the sound.',
+  },
+  audio_arreter: {
+    titre: '[Audio] stop music',
+    sert: '**Stops** the sound being played.',
+    util: [
+      'Put it, for example, in a ‘when button … is pressed’ block to cut the sound on demand.',
+    ],
+    savoir: [
+      'If no sound is playing, it does nothing.',
+    ],
+    legende: 'Button A plays a giggle, button B stops the sound.',
+  },
+  music_jouer_melodie: {
+    titre: '[Music] play melody …',
+    sert: 'Plays a **ready-made melody**, note after note, on the board\'s speaker.',
+    util: [
+      'Choose the melody in the block\'s list.',
+    ],
+    savoir: [
+      'The program **waits for the end of the melody** before moving on to the next block.',
+      'The sound also goes out on pin **P0**: a buzzer plugged into P0 plays the same melody.',
+      'In the simulator, the melody is played by the computer.',
+    ],
+    legende: 'Button A plays the ‘Entertainer’ melody.',
+  },
+  speech_dire: {
+    titre: '[Speech] say … speed … pitch …',
+    sert: 'Makes the board **speak**: it says the text with a synthetic voice.',
+    util: [
+      'Type the text to say in the box.',
+      'Set the **speed** and the **pitch** of the voice, from **0 to 255**.',
+    ],
+    savoir: [
+      'The voice pronounces words **the English way**.',
+      'The **bigger** the ‘speed’ number, the **slower** the voice; the **bigger** the ‘pitch’ number, the **deeper** the voice.',
+      'The program **waits for the end of the sentence** before moving on to the next block.',
+    ],
+    legende: 'The board says ‘Hello’ at start.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

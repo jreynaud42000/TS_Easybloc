@@ -674,4 +674,60 @@ window.FICHES = [
     ],
     legende: 'Avec un seuil à 200, seuls les bruits assez forts font apparaître le visage triste.',
   },
+  // ═══════════════ Actionneurs (Audio) ═══════════════
+  {
+    t: 'audio_jouer',
+    titre: '[Audio] jouer la musique …',
+    sert: 'Joue un **son tout prêt** sur le haut-parleur de la carte : un rire (Giggle), un son joyeux (Happy), un bonjour (Hello), un son triste (Sad) ou un scintillement (Twinkle).',
+    util: [
+      'Choisissez le son dans la liste du bloc.',
+    ],
+    savoir: [
+      'Le haut-parleur n\'existe que sur la carte **micro:bit V2**.',
+      'Le programme **attend la fin du son** avant de passer au bloc suivant.',
+      'Dans le simulateur, le son est une imitation jouée par l\'ordinateur : il peut être un peu différent de celui de la carte.',
+    ],
+    legende: 'Le bouton A joue un rire, le bouton B arrête le son.',
+  },
+  {
+    t: 'audio_arreter',
+    titre: '[Audio] arrêter la musique',
+    sert: '**Arrête** le son en cours de lecture.',
+    util: [
+      'Placez-le, par exemple, dans un bloc « lorsque le bouton … est pressé » pour couper le son à la demande.',
+    ],
+    savoir: [
+      'S\'il n\'y a aucun son en cours, il ne fait rien.',
+    ],
+    legende: 'Le bouton A joue un rire, le bouton B arrête le son.',
+  },
+  {
+    t: 'music_jouer_melodie',
+    titre: '[Music] jouer la mélodie …',
+    sert: 'Joue une **mélodie toute prête**, note après note, sur le haut-parleur de la carte.',
+    util: [
+      'Choisissez la mélodie dans la liste du bloc.',
+    ],
+    savoir: [
+      'Le programme **attend la fin de la mélodie** avant de passer au bloc suivant.',
+      'Le son sort aussi sur la broche **P0** : un buzzer branché sur P0 joue la même mélodie.',
+      'Dans le simulateur, la mélodie est jouée par l\'ordinateur.',
+    ],
+    legende: 'Le bouton A joue la mélodie « Entertainer ».',
+  },
+  {
+    t: 'speech_dire',
+    titre: '[Speech] dire … vitesse … hauteur …',
+    sert: 'Fait **parler** la carte : elle prononce le texte avec une voix de synthèse.',
+    util: [
+      'Écrivez le texte à dire dans la case.',
+      'Réglez la **vitesse** et la **hauteur** de la voix, de **0 à 255**.',
+    ],
+    savoir: [
+      'La voix prononce les mots **à l\'anglaise** : écrivez le texte en anglais pour qu\'il soit compréhensible.',
+      'Plus le nombre « vitesse » est **grand**, plus la voix est **lente** ; plus le nombre « hauteur » est **grand**, plus la voix est **grave**.',
+      'Le programme **attend la fin de la phrase** avant de passer au bloc suivant.',
+    ],
+    legende: 'La carte dit « Hello » au démarrage.',
+  },
 ];

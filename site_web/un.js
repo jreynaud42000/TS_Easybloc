@@ -854,7 +854,7 @@ try {
     Blockly.Blocks['music_jouer_melodie'] = { init: function() {
         this.appendDummyInput().appendField("[Music] jouer la mélodie")
             .appendField(new Blockly.FieldDropdown([
-                ["Dadadadum", "DADADADUM"], ["Pirates", "PUNCHLINE"], ["Entertainer", "ENTERTAINER"]
+                ["Dadadadum", "DADADADUM"], ["Punchline", "PUNCHLINE"], ["Entertainer", "ENTERTAINER"]
             ]), "MELODY");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
