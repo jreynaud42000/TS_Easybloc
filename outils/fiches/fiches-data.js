@@ -243,4 +243,72 @@ window.FICHES = [
     ],
     legende: 'Le chronomètre part de 0 au démarrage, puis le temps écoulé, en secondes, s\'affiche chaque seconde.',
   },
+  // ═══════════════ Matrice LED ═══════════════
+  {
+    t: 'afficher_valeur',
+    titre: 'afficher …',
+    sert: 'Montre un **nombre** ou un **texte** sur la **matrice de LED** de la carte.',
+    util: [
+      'Accrochez dans la case un nombre, un texte, ou un bloc qui renvoie une valeur (une mesure, une variable…).',
+    ],
+    savoir: [
+      'Un texte de plusieurs caractères s\'affiche **un caractère après l\'autre**, sans défiler ; le dernier reste allumé.',
+      'Pour faire glisser un texte de droite à gauche, utilisez le bloc « faire défiler ».',
+      'La valeur reste affichée jusqu\'au prochain affichage, ou jusqu\'au bloc « effacer l\'écran ».',
+    ],
+    legende: 'Un nombre au hasard entre 1 et 6 s\'affiche, puis un autre 2 secondes plus tard, sans fin.',
+  },
+  {
+    t: 'faire_defiler',
+    titre: 'faire défiler …',
+    sert: 'Fait **glisser** un texte ou un nombre de droite à gauche sur la **matrice de LED**.',
+    util: [
+      'Accrochez dans la case un texte, un nombre, ou un bloc qui renvoie une valeur.',
+    ],
+    savoir: [
+      'Le programme **attend la fin du défilement** avant de passer au bloc suivant : un long texte prend plusieurs secondes.',
+      'À la fin du défilement, la matrice est éteinte.',
+    ],
+    legende: 'Le texte « Bonjour ! » défile une fois au démarrage.',
+  },
+  {
+    t: 'afficher_image_matrice',
+    titre: 'afficher l\'image …',
+    sert: 'Allume sur la **matrice de LED** une image que vous dessinez vous-même, LED par LED.',
+    util: [
+      'Chaque case du bloc correspond à une LED de la matrice : cochez les cases des LED à allumer.',
+    ],
+    savoir: [
+      'La grille du bloc a la même disposition que la matrice : **5 lignes de 5 LED**.',
+      'Les LED cochées s\'allument à **pleine luminosité**.',
+      'L\'image reste affichée jusqu\'au prochain affichage, ou jusqu\'au bloc « effacer l\'écran ».',
+    ],
+    legende: 'Un sourire dessiné case par case s\'affiche au démarrage.',
+  },
+  {
+    t: 'effacer_ecran',
+    titre: 'effacer l\'écran',
+    sert: '**Éteint toutes les LED** de la matrice de la carte.',
+    util: [
+      'Placez-le après un affichage pour le faire disparaître, par exemple avec le bloc « attendre » pour faire clignoter une image.',
+    ],
+    savoir: [
+      'Il n\'éteint que la matrice de LED : les modules branchés sur la carte (LED, afficheurs…) ne changent pas.',
+    ],
+    legende: 'Le cœur s\'affiche une seconde, puis s\'efface une seconde, sans fin.',
+  },
+  {
+    t: 'afficher_console',
+    titre: 'afficher dans la console …',
+    sert: 'Écrit un nombre ou un texte dans la **console**, sur une nouvelle ligne à chaque fois. Pratique pour suivre des mesures sans occuper la matrice de LED.',
+    util: [
+      'Accrochez dans la case un texte, un nombre, ou un bloc qui renvoie une valeur.',
+      'Ouvrez la console avec le bouton « Afficher la console » de la barre d\'outils, en haut : elle s\'ouvre en bas de l\'écran.',
+    ],
+    savoir: [
+      'Sur la vraie carte, le texte part par le **câble USB** : il s\'affiche dans la console après « Connecter » (navigateur Chrome ou Edge).',
+      'Rien ne s\'affiche sur la matrice de LED.',
+    ],
+    legende: 'Le mot « Démarrage » s\'écrit une fois, puis la température de la carte s\'écrit chaque seconde dans la console.',
+  },
 ];

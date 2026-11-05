@@ -193,9 +193,74 @@ window.FICHES_EN = {
     ],
     legende: 'The stopwatch starts from 0 at start, then the elapsed time, in seconds, shows every second.',
   },
+  // ═══════════════ LED matrix ═══════════════
+  afficher_valeur: {
+    titre: 'show …',
+    sert: 'Shows a **number** or a **text** on the board\'s **LED matrix**.',
+    util: [
+      'Attach in the box a number, a text, or a block that returns a value (a measurement, a variable…).',
+    ],
+    savoir: [
+      'A text of several characters shows **one character after the other**, without scrolling; the last one stays on.',
+      'To slide a text from right to left, use the ‘scroll’ block.',
+      'The value stays on until the next thing is shown, or until the ‘clear the screen’ block.',
+    ],
+    legende: 'A random number from 1 to 6 shows, then another one 2 seconds later, forever.',
+  },
+  faire_defiler: {
+    titre: 'scroll …',
+    sert: '**Slides** a text or a number from right to left on the **LED matrix**.',
+    util: [
+      'Attach in the box a text, a number, or a block that returns a value.',
+    ],
+    savoir: [
+      'The program **waits for the end of the scrolling** before moving on to the next block: a long text takes several seconds.',
+      'At the end of the scrolling, the matrix is off.',
+    ],
+    legende: 'The text ‘Hello!’ scrolls once at start.',
+  },
+  afficher_image_matrice: {
+    titre: 'show image …',
+    sert: 'Lights up on the **LED matrix** a picture that you draw yourself, LED by LED.',
+    util: [
+      'Each box of the block matches one LED of the matrix: tick the boxes of the LEDs to light up.',
+    ],
+    savoir: [
+      'The grid of the block has the same layout as the matrix: **5 rows of 5 LEDs**.',
+      'The ticked LEDs light up at **full brightness**.',
+      'The picture stays on until the next thing is shown, or until the ‘clear the screen’ block.',
+    ],
+    legende: 'A smile drawn box by box shows at start.',
+  },
+  effacer_ecran: {
+    titre: 'clear the screen',
+    sert: '**Turns off all the LEDs** of the board\'s matrix.',
+    util: [
+      'Put it after something shown to make it disappear, for example with the ‘wait’ block to make a picture blink.',
+    ],
+    savoir: [
+      'It only turns off the LED matrix: the modules plugged into the board (LEDs, displays…) do not change.',
+    ],
+    legende: 'The heart shows for one second, then clears for one second, forever.',
+  },
+  afficher_console: {
+    titre: 'show in the console …',
+    sert: 'Writes a number or a text in the **console**, on a new line each time. Handy to follow measurements without using the LED matrix.',
+    util: [
+      'Attach in the box a text, a number, or a block that returns a value.',
+      'Open the console with the ‘Show the console’ button of the toolbar, at the top: it opens at the bottom of the screen.',
+    ],
+    savoir: [
+      'On the real board, the text goes through the **USB cable**: it shows in the console after ‘Connect’ (Chrome or Edge browser).',
+      'Nothing shows on the LED matrix.',
+    ],
+    legende: 'The word ‘Start’ is written once, then the board\'s temperature is written every second in the console.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
+  'Bonjour !': 'Hello!',
+  'Démarrage': 'Start',
   'dé': 'die',
   'i': 'i',
 };

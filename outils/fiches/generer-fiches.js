@@ -73,6 +73,8 @@ function capturerSVG(ws) {
     // Curseur clavier et marqueurs de Blockly (trait au-dessus d'un bloc) : pas dans l'image
     if (/blocklyCursor|blocklyMarker|blocklyInsertionMarker/.test(orig[i].getAttribute('class') || '')) { aRetirer.push(cl[i]); continue; }
     var cs = getComputedStyle(orig[i]), st = '';
+    // Éléments masqués (coche d'une case non cochée…) : la classe retirée, ils réapparaîtraient
+    if (cs.display === 'none' || cs.visibility === 'hidden') { aRetirer.push(cl[i]); continue; }
     for (var p = 0; p < PROPS.length; p++) { var v = cs.getPropertyValue(PROPS[p]); if (v) st += PROPS[p] + ':' + v + ';'; }
     cl[i].setAttribute('style', st);
     cl[i].removeAttribute('class');

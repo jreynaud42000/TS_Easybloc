@@ -9446,6 +9446,15 @@ try {
         document.getElementById('fiche-titre').textContent = (window.tr ? window.tr('Expliquer ce bloc') : 'Expliquer ce bloc')
             + (window.LANGUE === 'en' ? ': ' : ' : ') + nom;
         const cadre = document.createElement('iframe');
+        // Titre de la fenetre = titre de la fiche une fois chargee (le texte du bloc contient aussi la valeur des cases a
+        // cocher : « afficher l'image false false… »)
+        cadre.addEventListener('load', () => {
+            try {
+                const h1 = cadre.contentDocument && cadre.contentDocument.querySelector('h1');
+                if (h1 && h1.textContent.trim()) document.getElementById('fiche-titre').textContent =
+                    (window.tr ? window.tr('Expliquer ce bloc') : 'Expliquer ce bloc') + (window.LANGUE === 'en' ? ': ' : ' : ') + h1.textContent.trim();
+            } catch (erreur) { /* fiche illisible : on garde le texte du bloc */ }
+        });
         cadre.src = chemin;
         cadre.title = window.tr ? window.tr('Fiche d\'aide du bloc') : 'Fiche d\'aide du bloc';
         const corps = document.getElementById('fiche-corps');
