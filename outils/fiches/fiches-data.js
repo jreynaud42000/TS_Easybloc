@@ -902,4 +902,236 @@ window.FICHES = [
     ],
     legende: 'Les moteurs M1 et M2 tournent chacun deux secondes à la vitesse 150, l\'un après l\'autre.',
   },
+  // ═══════════════ Cartes d'extension : Maqueen Lite ═══════════════
+  {
+    t: 'maqueenlite_moteur',
+    titre: 'Maqueen Lite : moteur … à … (-255 à 255)',
+    sert: 'Fait tourner le moteur **gauche**, le moteur **droit** ou **les deux** moteurs du robot **Maqueen Lite** à la vitesse choisie.',
+    util: [
+      'Choisissez le moteur : gauche, droit ou les deux.',
+      'Écrivez la vitesse, de **−255 à 255** : un nombre **négatif** fait reculer, **0** arrête.',
+    ],
+    savoir: [
+      'Les moteurs **continuent de tourner** jusqu\'à un autre ordre : pensez au bloc « Maqueen Lite : arrêter le moteur ».',
+      'Pour tourner, donnez des vitesses différentes aux deux moteurs (par exemple 100 à gauche et 0 à droite).',
+      'Le robot reçoit ses ordres de moteur par le **bus I2C** (broches P19 et P20).',
+      'Dans le simulateur, le robot se déplace dans la zone de simulation.',
+    ],
+    legende: 'Les deux moteurs tournent à la vitesse 50 pendant deux secondes, puis s\'arrêtent.',
+  },
+  {
+    t: 'maqueenlite_arreter',
+    titre: 'Maqueen Lite : arrêter le moteur …',
+    sert: '**Arrête** le moteur gauche, le moteur droit ou les deux moteurs du robot **Maqueen Lite**.',
+    util: [
+      'Choisissez le moteur : gauche, droit ou les deux.',
+    ],
+    savoir: [
+      'C\'est la même chose que le bloc « Maqueen Lite : moteur » avec la vitesse **0**.',
+    ],
+    legende: 'Les deux moteurs tournent à la vitesse 50 pendant deux secondes, puis s\'arrêtent.',
+  },
+  {
+    t: 'maqueenlite_distance',
+    titre: 'Maqueen Lite : distance (cm) capteur ultrason',
+    sert: 'Renvoie la **distance** entre l\'avant du robot et l\'obstacle le plus proche, en **centimètres**, mesurée par le capteur à ultrasons.',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si » (par exemple pour s\'arrêter avant un mur).',
+    ],
+    savoir: [
+      'Le capteur utilise les broches **P1** (émission) et **P2** (écho), fixées par le robot : elles ne peuvent pas servir à autre chose.',
+      'Il renvoie **0** quand aucun écho ne revient (obstacle trop loin ou surface qui absorbe le son).',
+      'Dans le simulateur, réglez la distance avec le curseur de distance du robot.',
+    ],
+    legende: 'La distance mesurée devant le robot s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueenlite_ligne',
+    titre: 'Maqueen Lite : capteur de ligne … (0 ou 1)',
+    sert: 'Renvoie l\'état du capteur de ligne **gauche** ou **droit**, sous le robot : **0** ou **1**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le capteur : gauche ou droit.',
+      'Comparez le résultat à 0 ou à 1 dans un bloc « si ».',
+    ],
+    savoir: [
+      'Le capteur gauche est lu sur la broche **P13**, le droit sur **P14**.',
+      'La valeur qui correspond à la ligne noire dépend du capteur : **vérifiez-la** sur votre robot en posant le capteur sur la ligne, puis à côté.',
+    ],
+    legende: 'Un visage heureux s\'affiche quand le capteur de ligne gauche est à 1.',
+  },
+  {
+    t: 'lorsque_maqueenlite_ligne',
+    titre: 'lorsque le capteur de ligne … passe à l\'état …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand le capteur de ligne **gauche** ou **droit** du Maqueen Lite **change d\'état** : il passe à **haut (1)** ou à **bas (0)**.',
+    util: [
+      'Choisissez le capteur, puis l\'état attendu.',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Le bloc se déclenche au **changement** d\'état, pas tant que l\'état dure.',
+      'L\'état est vérifié à chaque tour de la boucle principale du programme.',
+    ],
+    legende: 'Un cœur s\'affiche quand le capteur de ligne gauche passe à l\'état haut (1).',
+  },
+  {
+    t: 'maqueenlite_del',
+    titre: 'Maqueen Lite : DEL … …',
+    sert: '**Allume** ou **éteint** la DEL gauche, la DEL droite ou les deux DEL à l\'avant du robot **Maqueen Lite**.',
+    util: [
+      'Choisissez la DEL (gauche, droite ou les deux), puis **allumée** ou **éteinte**.',
+    ],
+    savoir: [
+      'La DEL gauche est commandée par la broche **P8**, la droite par la broche **P12**.',
+      'La DEL reste dans son état jusqu\'au prochain bloc qui la commande.',
+    ],
+    legende: 'Les deux DEL s\'allument une seconde, puis s\'éteignent une seconde, sans fin.',
+  },
+  {
+    t: 'maqueenlite_servo',
+    titre: 'Maqueen Lite : servo … angle … °',
+    sert: 'Place le **servomoteur** branché sur la prise **S1** ou **S2** du robot **Maqueen Lite** à l\'angle choisi.',
+    util: [
+      'Choisissez la prise du servomoteur : S1 ou S2.',
+      'Écrivez l\'angle, de **0 à 180°**.',
+    ],
+    savoir: [
+      'Le programme **n\'attend pas** que le servomoteur soit arrivé : ajoutez un bloc « attendre ».',
+      'Le robot reçoit cet ordre par le **bus I2C** (broches P19 et P20).',
+    ],
+    legende: 'Le servomoteur S1 se place à 90°, puis à 0° une seconde plus tard.',
+  },
+
+  // ═══════════════ Cartes d'extension : LiDAR ═══════════════
+  {
+    t: 'lidar_initialiser',
+    titre: 'LiDAR … : configurer la taille …',
+    sert: '**Prépare le capteur LiDAR** (DFRobot SEN0628) et choisit sa façon de mesurer : une grille de **8×8** points, ou le mode **évitement 4×4** qui donne la direction à suivre.',
+    util: [
+      'Placez ce bloc **une fois**, dans le bloc « au démarrage », avant tous les autres blocs LiDAR.',
+      'Choisissez l\'adresse du capteur (**0x30** au départ) et le mode.',
+    ],
+    savoir: [
+      'Le mode **Évitement 4x4** est nécessaire pour les blocs de la partie « Évitement d\'obstacle ».',
+      'Le mode **Matrice 8x8** est nécessaire pour le bloc « distance mesurée au point x … y … ».',
+      'L\'adresse (0x30 à 0x33) sert à choisir le capteur quand plusieurs sont branchés sur le **bus I2C** (broches P19 et P20).',
+    ],
+    legende: 'Le LiDAR est préparé en mode évitement au démarrage, puis la distance de l\'obstacle devant s\'affiche chaque seconde.',
+    exemple: [B('au_demarrage', null, { DO: S(B('lidar_initialiser', { ADRESSE: '48', MODE: 'FALSE' })) }),
+      B('boucle_infinie', null, { DO: S(B('lidar_acquerir'),
+        B('afficher_valeur', null, { VALEUR: V(B('lidar_distance_cote', { COTE: 'avant' })) }), ATT(1)) })],
+  },
+  {
+    t: 'lidar_point',
+    titre: 'LiDAR … : distance mesurée au point x … y … (mm)',
+    sert: 'Renvoie la **distance**, en **millimètres**, mesurée par le LiDAR au point **(x, y)** de sa grille de 8×8 points.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez l\'adresse du capteur, puis écrivez **x** et **y**, de **0 à 7**.',
+    ],
+    savoir: [
+      'Ce bloc ne fonctionne qu\'en mode **Matrice 8x8** : placez le bloc « LiDAR … : configurer la taille Matrice 8x8 » dans le bloc « au démarrage ».',
+      'Il interroge le capteur à chaque fois : le bloc « acquérir les données d\'évitement » n\'est pas utile ici.',
+    ],
+    legende: 'Le LiDAR est préparé en mode matrice 8×8, puis la distance mesurée au point (3, 3) s\'affiche chaque seconde.',
+    exemple: [B('au_demarrage', null, { DO: S(B('lidar_initialiser', { ADRESSE: '48', MODE: 'TRUE' })) }),
+      B('boucle_infinie', null, { DO: S(
+        B('afficher_valeur', null, { VALEUR: V(B('lidar_point', { ADRESSE: '48', X: 3, Y: 3 })) }), ATT(1)) })],
+  },
+  {
+    t: 'lidar_distance_evitement',
+    titre: 'LiDAR : configurer la distance d\'évitement à … (mm)',
+    sert: 'Règle la **distance**, en **millimètres**, à partir de laquelle le LiDAR considère qu\'un objet est un **obstacle** à éviter.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », après le bloc « LiDAR … : configurer la taille Évitement 4x4 ».',
+    ],
+    savoir: [
+      'Sur un robot Maqueen, ne dépassez pas **200 mm** : au-delà, le faisceau peut toucher le sol et fausser la détection (avertissement du fabricant).',
+    ],
+    legende: 'Le LiDAR est préparé en mode évitement avec une distance de 200 mm, puis la direction conseillée s\'affiche chaque seconde.',
+    exemple: [B('au_demarrage', null, { DO: S(B('lidar_initialiser', { ADRESSE: '48', MODE: 'FALSE' }),
+        B('lidar_distance_evitement', null, { DISTANCE: N(200) })) }),
+      B('boucle_infinie', null, { DO: S(B('lidar_acquerir'),
+        B('afficher_valeur', null, { VALEUR: V(B('lidar_direction')) }), ATT(1)) })],
+  },
+  {
+    t: 'lidar_acquerir',
+    titre: 'LiDAR : acquérir les données d\'évitement',
+    sert: '**Lit le capteur LiDAR** et garde ses résultats : direction à suivre, signal d\'urgence et distances à gauche, devant et à droite.',
+    util: [
+      'Placez ce bloc dans le bloc « répéter indéfiniment », **avant** les blocs qui lisent ces résultats.',
+    ],
+    savoir: [
+      'Les blocs « direction à suivre », « signal d\'urgence » et « distance de l\'obstacle » relisent la **dernière acquisition**, pas le capteur en direct.',
+      'Il faut le mode **Évitement 4x4** (bloc « configurer la taille »).',
+    ],
+    legende: 'Le LiDAR est préparé en mode évitement avec une distance de 200 mm, puis la direction conseillée s\'affiche chaque seconde.',
+    exempleDe: 'lidar_distance_evitement',
+  },
+  {
+    t: 'lidar_urgence',
+    titre: 'LiDAR : signal d\'urgence activé ?',
+    sert: 'Renvoie **vrai** quand le LiDAR a détecté un obstacle **très proche**, à moins de **100 mm**, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Mettez ce bloc dans un bloc « si », après le bloc « LiDAR : acquérir les données d\'évitement ».',
+    ],
+    savoir: [
+      'Le résultat vient de la **dernière acquisition** : placez le bloc « acquérir les données d\'évitement » juste avant.',
+      'Dans le simulateur, réglez les distances avec les curseurs du panneau « LiDAR ».',
+    ],
+    legende: 'Après chaque acquisition, un visage triste s\'affiche si un obstacle est à moins de 100 mm.',
+    exemple: [B('au_demarrage', null, { DO: S(B('lidar_initialiser', { ADRESSE: '48', MODE: 'FALSE' })) }),
+      B('boucle_infinie', null, { DO: S(B('lidar_acquerir'),
+        B('controls_if', null, { IF0: V(B('lidar_urgence')), DO0: S(ICONE('SAD')) })) })],
+  },
+  {
+    t: 'lidar_direction',
+    titre: 'LiDAR : direction à suivre pour éviter l\'obstacle',
+    sert: 'Renvoie la **direction conseillée** par le LiDAR pour éviter l\'obstacle : **1** pour à gauche, **2** pour à droite, **3** pour tout droit.',
+    valeur: 'nombre',
+    util: [
+      'Comparez le résultat à 1, 2 ou 3 dans un bloc « si » pour choisir le mouvement du robot.',
+      'Plus simple : le bloc « LiDAR : direction à suivre est … ? » fait la comparaison pour vous.',
+    ],
+    savoir: [
+      'Le résultat vient de la **dernière acquisition** : placez le bloc « acquérir les données d\'évitement » juste avant.',
+      'Dans le simulateur, réglez les distances avec les curseurs du panneau « LiDAR ».',
+    ],
+    legende: 'Le LiDAR est préparé en mode évitement avec une distance de 200 mm, puis la direction conseillée s\'affiche chaque seconde.',
+    exempleDe: 'lidar_distance_evitement',
+  },
+  {
+    t: 'lidar_direction_est',
+    titre: 'LiDAR : direction à suivre est … ?',
+    sert: 'Renvoie **vrai** quand la direction conseillée par le LiDAR est celle choisie (**à gauche**, **à droite** ou **tout droit**), **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez la direction, puis mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'Le résultat vient de la **dernière acquisition** : placez le bloc « acquérir les données d\'évitement » juste avant.',
+    ],
+    legende: 'Après chaque acquisition, un visage heureux s\'affiche si la direction à suivre est « à gauche ».',
+    exemple: [B('au_demarrage', null, { DO: S(B('lidar_initialiser', { ADRESSE: '48', MODE: 'FALSE' })) }),
+      B('boucle_infinie', null, { DO: S(B('lidar_acquerir'),
+        B('controls_if', null, { IF0: V(B('lidar_direction_est', { SENS: '1' })), DO0: S(ICONE('HAPPY')) })) })],
+  },
+  {
+    t: 'lidar_distance_cote',
+    titre: 'LiDAR : distance (en cm) de l\'obstacle à …',
+    sert: 'Renvoie la **distance**, en **centimètres**, de l\'obstacle à **gauche**, **devant** ou à **droite** du LiDAR.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le côté : gauche, devant ou droite.',
+    ],
+    savoir: [
+      'Le résultat vient de la **dernière acquisition** : placez le bloc « acquérir les données d\'évitement » juste avant.',
+      'Le capteur mesure en millimètres : le résultat en centimètres peut être un nombre à virgule.',
+      'Dans le simulateur, réglez les distances avec les curseurs du panneau « LiDAR ».',
+    ],
+    legende: 'Le LiDAR est préparé en mode évitement au démarrage, puis la distance de l\'obstacle devant s\'affiche chaque seconde.',
+    exempleDe: 'lidar_initialiser',
+  },
 ];

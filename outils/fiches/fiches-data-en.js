@@ -792,6 +792,197 @@ window.FICHES_EN = {
     ],
     legende: 'Motors M1 and M2 each turn for two seconds at speed 150, one after the other.',
   },
+  // ═══════════════ Extension boards: Maqueen Lite ═══════════════
+  maqueenlite_moteur: {
+    titre: 'Maqueen Lite: motor … to … (-255 to 255)',
+    sert: 'Turns the **left** motor, the **right** motor or **both** motors of the **Maqueen Lite** robot at the chosen speed.',
+    util: [
+      'Choose the motor: left, right or both.',
+      'Type the speed, from **−255 to 255**: a **negative** number goes backwards, **0** stops.',
+    ],
+    savoir: [
+      'The motors **keep turning** until another order: remember the ‘Maqueen Lite: stop the motor’ block.',
+      'To turn, give different speeds to the two motors (for example 100 on the left and 0 on the right).',
+      'The robot gets its motor orders through the **I2C bus** (pins P19 and P20).',
+      'In the simulator, the robot moves in the simulation area.',
+    ],
+    legende: 'Both motors turn at speed 50 for two seconds, then stop.',
+  },
+  maqueenlite_arreter: {
+    titre: 'Maqueen Lite: stop the motor …',
+    sert: '**Stops** the left motor, the right motor or both motors of the **Maqueen Lite** robot.',
+    util: [
+      'Choose the motor: left, right or both.',
+    ],
+    savoir: [
+      'It is the same as the ‘Maqueen Lite: motor’ block with speed **0**.',
+    ],
+    legende: 'Both motors turn at speed 50 for two seconds, then stop.',
+  },
+  maqueenlite_distance: {
+    titre: 'Maqueen Lite: distance (cm) ultrasonic sensor',
+    sert: 'Returns the **distance** between the front of the robot and the nearest obstacle, in **centimetres**, measured by the ultrasonic sensor.',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block (for example to stop before a wall).',
+    ],
+    savoir: [
+      'The sensor uses pins **P1** (trigger) and **P2** (echo), fixed by the robot: they cannot be used for anything else.',
+      'It returns **0** when no echo comes back (obstacle too far, or a surface that absorbs sound).',
+      'In the simulator, set the distance with the robot\'s distance slider.',
+    ],
+    legende: 'The distance measured in front of the robot shows every second on the LED matrix.',
+  },
+  maqueenlite_ligne: {
+    titre: 'Maqueen Lite: line sensor … (0 or 1)',
+    sert: 'Returns the state of the **left** or **right** line sensor, under the robot: **0** or **1**.',
+    util: [
+      'Choose the sensor: left or right.',
+      'Compare the result with 0 or 1 in an ‘if’ block.',
+    ],
+    savoir: [
+      'The left sensor is read on pin **P13**, the right one on **P14**.',
+      'Which value means the black line depends on the sensor: **check it** on your robot by putting the sensor on the line, then next to it.',
+    ],
+    legende: 'A happy face shows when the left line sensor is at 1.',
+  },
+  lorsque_maqueenlite_ligne: {
+    titre: 'when the line sensor … changes to state …',
+    sert: 'Runs the blocks inside it when the **left** or **right** line sensor of the Maqueen Lite **changes state**: it goes to **high (1)** or to **low (0)**.',
+    util: [
+      'Choose the sensor, then the expected state.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'The block runs when the state **changes**, not while the state lasts.',
+      'The state is checked at each turn of the program\'s main loop.',
+    ],
+    legende: 'A heart shows when the left line sensor goes to high (1).',
+  },
+  maqueenlite_del: {
+    titre: 'Maqueen Lite: LED … …',
+    sert: '**Turns on** or **turns off** the left LED, the right LED or both LEDs at the front of the **Maqueen Lite** robot.',
+    util: [
+      'Choose the LED (left, right or both), then **on** or **off**.',
+    ],
+    savoir: [
+      'The left LED is driven by pin **P8**, the right one by pin **P12**.',
+      'The LED stays in its state until the next block that controls it.',
+    ],
+    legende: 'Both LEDs turn on for one second, then off for one second, forever.',
+  },
+  maqueenlite_servo: {
+    titre: 'Maqueen Lite: servo … angle … °',
+    sert: 'Puts the **servomotor** plugged into socket **S1** or **S2** of the **Maqueen Lite** robot at the chosen angle.',
+    util: [
+      'Choose the servomotor\'s socket: S1 or S2.',
+      'Type the angle, from **0 to 180°**.',
+    ],
+    savoir: [
+      'The program **does not wait** for the servomotor to get there: add a ‘wait’ block.',
+      'The robot gets this order through the **I2C bus** (pins P19 and P20).',
+    ],
+    legende: 'Servomotor S1 goes to 90°, then to 0° one second later.',
+  },
+
+  // ═══════════════ Extension boards: LiDAR ═══════════════
+  lidar_initialiser: {
+    titre: 'LiDAR …: set the size …',
+    sert: '**Prepares the LiDAR sensor** (DFRobot SEN0628) and chooses how it measures: a grid of **8×8** points, or the **4×4 avoidance** mode that gives the direction to follow.',
+    util: [
+      'Put this block **once**, in the ‘on start’ block, before all the other LiDAR blocks.',
+      'Choose the sensor\'s address (**0x30** at first) and the mode.',
+    ],
+    savoir: [
+      'The **4x4 avoidance** mode is needed for the blocks of the ‘Obstacle avoidance’ part.',
+      'The **8x8 matrix** mode is needed for the ‘distance measured at point x … y …’ block.',
+      'The address (0x30 to 0x33) chooses the sensor when several are plugged into the **I2C bus** (pins P19 and P20).',
+    ],
+    legende: 'The LiDAR is prepared in avoidance mode at start, then the distance of the obstacle in front shows every second.',
+  },
+  lidar_point: {
+    titre: 'LiDAR …: distance measured at point x … y … (mm)',
+    sert: 'Returns the **distance**, in **millimetres**, measured by the LiDAR at point **(x, y)** of its 8×8 grid.',
+    util: [
+      'Choose the sensor\'s address, then type **x** and **y**, from **0 to 7**.',
+    ],
+    savoir: [
+      'This block only works in **8x8 matrix** mode: put the ‘LiDAR …: set the size 8x8 matrix’ block in the ‘on start’ block.',
+      'It asks the sensor each time: the ‘get the avoidance data’ block is not needed here.',
+    ],
+    legende: 'The LiDAR is prepared in 8×8 matrix mode, then the distance measured at point (3, 3) shows every second.',
+  },
+  lidar_distance_evitement: {
+    titre: 'LiDAR: set the avoidance distance to … (mm)',
+    sert: 'Sets the **distance**, in **millimetres**, from which the LiDAR considers an object as an **obstacle** to avoid.',
+    util: [
+      'Put this block in the ‘on start’ block, after the ‘LiDAR …: set the size 4x4 avoidance’ block.',
+    ],
+    savoir: [
+      'On a Maqueen robot, do not go above **200 mm**: beyond that, the beam can hit the floor and distort the detection (manufacturer\'s warning).',
+    ],
+    legende: 'The LiDAR is prepared in avoidance mode with a distance of 200 mm, then the advised direction shows every second.',
+  },
+  lidar_acquerir: {
+    titre: 'LiDAR: get the avoidance data',
+    sert: '**Reads the LiDAR sensor** and keeps its results: direction to follow, emergency signal and distances on the left, in front and on the right.',
+    util: [
+      'Put this block in the ‘forever’ block, **before** the blocks that read these results.',
+    ],
+    savoir: [
+      'The ‘direction to follow’, ‘emergency signal’ and ‘distance of the obstacle’ blocks read the **last acquisition** again, not the sensor live.',
+      'The **4x4 avoidance** mode is needed (‘set the size’ block).',
+    ],
+    legende: 'The LiDAR is prepared in avoidance mode with a distance of 200 mm, then the advised direction shows every second.',
+  },
+  lidar_urgence: {
+    titre: 'LiDAR: emergency signal on?',
+    sert: 'Returns **true** when the LiDAR has detected a **very close** obstacle, less than **100 mm** away, **false** otherwise.',
+    util: [
+      'Put this block in an ‘if’ block, after the ‘LiDAR: get the avoidance data’ block.',
+    ],
+    savoir: [
+      'The result comes from the **last acquisition**: put the ‘get the avoidance data’ block just before.',
+      'In the simulator, set the distances with the sliders of the ‘LiDAR’ panel.',
+    ],
+    legende: 'After each acquisition, a sad face shows if an obstacle is less than 100 mm away.',
+  },
+  lidar_direction: {
+    titre: 'LiDAR: direction to follow to avoid the obstacle',
+    sert: 'Returns the **direction advised** by the LiDAR to avoid the obstacle: **1** for left, **2** for right, **3** for straight on.',
+    util: [
+      'Compare the result with 1, 2 or 3 in an ‘if’ block to choose the robot\'s movement.',
+      'Simpler: the ‘LiDAR: direction to follow is … ?’ block does the comparison for you.',
+    ],
+    savoir: [
+      'The result comes from the **last acquisition**: put the ‘get the avoidance data’ block just before.',
+      'In the simulator, set the distances with the sliders of the ‘LiDAR’ panel.',
+    ],
+    legende: 'The LiDAR is prepared in avoidance mode with a distance of 200 mm, then the advised direction shows every second.',
+  },
+  lidar_direction_est: {
+    titre: 'LiDAR: direction to follow is … ?',
+    sert: 'Returns **true** when the direction advised by the LiDAR is the chosen one (**left**, **right** or **straight on**), **false** otherwise.',
+    util: [
+      'Choose the direction, then put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'The result comes from the **last acquisition**: put the ‘get the avoidance data’ block just before.',
+    ],
+    legende: 'After each acquisition, a happy face shows if the direction to follow is ‘left’.',
+  },
+  lidar_distance_cote: {
+    titre: 'LiDAR: distance (in cm) of the obstacle to the …',
+    sert: 'Returns the **distance**, in **centimetres**, of the obstacle on the **left**, in **front** or on the **right** of the LiDAR.',
+    util: [
+      'Choose the side: left, front or right.',
+    ],
+    savoir: [
+      'The result comes from the **last acquisition**: put the ‘get the avoidance data’ block just before.',
+      'The sensor measures in millimetres: the result in centimetres can be a decimal number.',
+      'In the simulator, set the distances with the sliders of the ‘LiDAR’ panel.',
+    ],
+    legende: 'The LiDAR is prepared in avoidance mode at start, then the distance of the obstacle in front shows every second.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

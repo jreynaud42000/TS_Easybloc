@@ -5280,7 +5280,9 @@ try {
     }};
     P.forBlock['lidar_initialiser'] = function(block) {
         piloteLidar();
-        return '_lidar_initialiser(' + block.getFieldValue('ADRESSE') + ', ' + block.getFieldValue('MODE') + ')\n';
+        // Valeurs du menu « TRUE »/« FALSE » : en Python, ce sont True/False (sinon NameError a l'execution)
+        const matrice = block.getFieldValue('MODE') === 'TRUE' ? 'True' : 'False';
+        return '_lidar_initialiser(' + block.getFieldValue('ADRESSE') + ', ' + matrice + ')\n';
     };
 
     Blockly.Blocks['lidar_point'] = { init: function() {

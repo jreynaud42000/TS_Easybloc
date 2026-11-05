@@ -168,7 +168,10 @@ function traduireAtelier(ws, ou) {
 /* Programme d'exemple d'une fiche : le sien, sinon celui de l'aide d'avant (exemple validé, un.js). */
 function programmeDe(f) {
   if (f.exemple) return f.exemple;
-  var ex = window.aideBlocTest && window.aideBlocTest.EXEMPLES_BLOCS[f.exempleDe || f.t];
+  // « exempleDe » renvoie d'abord à l'exemple écrit dans une autre fiche, puis à celui de l'aide d'avant
+  var autre = f.exempleDe && (window.FICHES || []).filter(function (g) { return g.t === f.exempleDe && g.exemple; })[0];
+  if (autre) return autre.exemple;
+  var ex =window.aideBlocTest && window.aideBlocTest.EXEMPLES_BLOCS[f.exempleDe || f.t];
   if (!ex) throw new Error('pas de programme d\'exemple');
   return ex.blocs;
 }
