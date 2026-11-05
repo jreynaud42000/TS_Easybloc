@@ -311,4 +311,105 @@ window.FICHES = [
     ],
     legende: 'Le mot « Démarrage » s\'écrit une fois, puis la température de la carte s\'écrit chaque seconde dans la console.',
   },
+  // ═══════════════ Entrées/Sorties ═══════════════
+  {
+    t: 'si_bouton_appuye',
+    titre: 'si le bouton … est appuyé alors',
+    sert: 'Exécute les blocs placés à l\'intérieur **si le bouton choisi est enfoncé** au moment où le programme passe sur ce bloc.',
+    util: [
+      'Choisissez le bouton : **A**, **B**, ou **A+B** (les deux en même temps).',
+      'Placez ce bloc dans le bloc « répéter indéfiniment » pour surveiller le bouton en permanence.',
+    ],
+    savoir: [
+      'Le bouton n\'est regardé qu\'au **passage du programme** : pendant un bloc « attendre », un appui très court peut passer inaperçu.',
+      'Pour réagir à chaque appui, même court, utilisez plutôt le bloc « lorsque le bouton … est pressé ».',
+      'Dans le simulateur, appuyez sur les boutons A et B de la carte dessinée.',
+    ],
+    legende: 'Le bouton A affiche un visage heureux, le bouton B efface l\'écran.',
+  },
+  {
+    t: 'si_logo_touche',
+    titre: 'si LOGO est touché alors',
+    sert: 'Exécute les blocs placés à l\'intérieur **si le logo tactile** de la carte est touché au moment où le programme passe sur ce bloc.',
+    util: [
+      'Placez ce bloc dans le bloc « répéter indéfiniment » pour surveiller le logo en permanence.',
+    ],
+    savoir: [
+      'Le logo tactile est le petit dessin doré au-dessus de la matrice de LED : il n\'existe que sur la carte **micro:bit V2**.',
+      'Un simple contact du doigt suffit, sans appuyer.',
+      'Dans le simulateur, cliquez sur le logo de la carte dessinée.',
+    ],
+    legende: 'Un cœur s\'affiche quand le logo est touché.',
+  },
+  {
+    t: 'si_secoue_alors',
+    titre: 'si secoué alors',
+    sert: 'Exécute les blocs placés à l\'intérieur **si la carte a été secouée** depuis le dernier passage du programme sur ce bloc.',
+    util: [
+      'Placez ce bloc dans le bloc « répéter indéfiniment ».',
+    ],
+    savoir: [
+      'Chaque secousse n\'est comptée **qu\'une seule fois** : au passage suivant, le bloc attend une nouvelle secousse.',
+      'Pour savoir si la carte est secouée **en ce moment**, utilisez le bloc « geste … est actif ».',
+      'Dans le simulateur, cliquez sur le bouton « Secouer la carte », sous la carte dessinée.',
+    ],
+    legende: 'À chaque secousse, un fantôme apparaît une seconde.',
+  },
+  {
+    t: 'bouton_est_appuye',
+    titre: 'bouton … est appuyé',
+    sert: 'Renvoie **vrai** tant que le bouton choisi est enfoncé, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez le bouton : **A**, **B**, ou **A+B** (les deux en même temps).',
+      'Mettez ce bloc dans un bloc « si » ou « attendre jusqu\'à ».',
+    ],
+    savoir: [
+      'Il renvoie l\'état du bouton **au moment** où le programme le lit : un appui très court, pendant un bloc « attendre », peut passer inaperçu.',
+      'Dans le simulateur, appuyez sur les boutons A et B de la carte dessinée.',
+    ],
+    legende: 'Le bouton A affiche un cœur, le bouton B efface l\'écran.',
+  },
+  {
+    t: 'logo_est_touche',
+    titre: 'le logo est appuyé',
+    sert: 'Renvoie **vrai** tant que le logo tactile de la carte est touché, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Mettez ce bloc dans un bloc « si » ou « attendre jusqu\'à ».',
+    ],
+    savoir: [
+      'Le logo tactile n\'existe que sur la carte **micro:bit V2**.',
+      'Dans le simulateur, cliquez sur le logo de la carte dessinée.',
+    ],
+    legende: 'Un cœur s\'affiche tant que le logo est touché.',
+  },
+  {
+    t: 'nombre_clics_bouton',
+    titre: 'nombre de clics du bouton …',
+    sert: 'Renvoie le **nombre total de clics** sur le bouton choisi depuis le démarrage de la carte.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le bouton : **A** ou **B**.',
+      'Comparez le résultat à un nombre dans un bloc « si », ou affichez-le.',
+    ],
+    savoir: [
+      'Le compteur **ne se remet jamais à 0** tout seul : il compte tous les clics depuis le démarrage, même espacés.',
+      'Un clic est compté même si le programme était occupé ailleurs à ce moment-là.',
+    ],
+    legende: 'Un cœur s\'affiche quand le bouton B a été pressé 10 fois en tout.',
+  },
+  {
+    t: 'reinitialiser_microbit',
+    titre: '[Micro:bit] réinitialiser la carte',
+    sert: '**Redémarre la carte** : le programme recommence depuis le début, comme après un appui sur le bouton reset, au dos de la carte.',
+    util: [
+      'Placez-le à l\'endroit où le programme doit repartir de zéro, par exemple quand un bouton est pressé.',
+    ],
+    savoir: [
+      'Rien ne peut s\'accrocher sous ce bloc : la carte redémarre aussitôt.',
+      'Les variables reprennent leur valeur de départ et le chronomètre repart de 0.',
+    ],
+    legende: 'Un cœur s\'affiche à chaque démarrage ; le bouton A redémarre la carte.',
+  },
 ];

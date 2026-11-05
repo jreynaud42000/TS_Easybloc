@@ -256,6 +256,97 @@ window.FICHES_EN = {
     ],
     legende: 'The word ‘Start’ is written once, then the board\'s temperature is written every second in the console.',
   },
+  // ═══════════════ Inputs/Outputs ═══════════════
+  si_bouton_appuye: {
+    titre: 'if button … is pressed then',
+    sert: 'Runs the blocks inside it **if the chosen button is held down** when the program reaches this block.',
+    util: [
+      'Choose the button: **A**, **B**, or **A+B** (both at the same time).',
+      'Put this block in the ‘forever’ block to watch the button all the time.',
+    ],
+    savoir: [
+      'The button is only checked **when the program reaches it**: during a ‘wait’ block, a very short press can be missed.',
+      'To react to every press, even a short one, use the ‘when button … is pressed’ block instead.',
+      'In the simulator, press buttons A and B of the drawn board.',
+    ],
+    legende: 'Button A shows a happy face, button B clears the screen.',
+  },
+  si_logo_touche: {
+    titre: 'if LOGO is touched then',
+    sert: 'Runs the blocks inside it **if the board\'s touch logo** is touched when the program reaches this block.',
+    util: [
+      'Put this block in the ‘forever’ block to watch the logo all the time.',
+    ],
+    savoir: [
+      'The touch logo is the small gold drawing above the LED matrix: it only exists on the **micro:bit V2** board.',
+      'A simple touch of the finger is enough, without pressing.',
+      'In the simulator, click the logo of the drawn board.',
+    ],
+    legende: 'A heart shows when the logo is touched.',
+  },
+  si_secoue_alors: {
+    titre: 'if shaken then',
+    sert: 'Runs the blocks inside it **if the board has been shaken** since the program last reached this block.',
+    util: [
+      'Put this block in the ‘forever’ block.',
+    ],
+    savoir: [
+      'Each shake is counted **only once**: the next time, the block waits for a new shake.',
+      'To know whether the board is being shaken **right now**, use the ‘gesture … is active’ block.',
+      'In the simulator, click the ‘Shake the board’ button, below the drawn board.',
+    ],
+    legende: 'At each shake, a ghost shows for one second.',
+  },
+  bouton_est_appuye: {
+    titre: 'button … is pressed',
+    sert: 'Returns **true** while the chosen button is held down, **false** otherwise.',
+    util: [
+      'Choose the button: **A**, **B**, or **A+B** (both at the same time).',
+      'Put this block in an ‘if’ or ‘wait until’ block.',
+    ],
+    savoir: [
+      'It returns the state of the button **at the moment** the program reads it: a very short press, during a ‘wait’ block, can be missed.',
+      'In the simulator, press buttons A and B of the drawn board.',
+    ],
+    legende: 'Button A shows a heart, button B clears the screen.',
+  },
+  logo_est_touche: {
+    titre: 'the logo is pressed',
+    sert: 'Returns **true** while the board\'s touch logo is touched, **false** otherwise.',
+    util: [
+      'Put this block in an ‘if’ or ‘wait until’ block.',
+    ],
+    savoir: [
+      'The touch logo only exists on the **micro:bit V2** board.',
+      'In the simulator, click the logo of the drawn board.',
+    ],
+    legende: 'A heart shows while the logo is touched.',
+  },
+  nombre_clics_bouton: {
+    titre: 'number of clicks of button …',
+    sert: 'Returns the **total number of clicks** on the chosen button since the board started.',
+    util: [
+      'Choose the button: **A** or **B**.',
+      'Compare the result with a number in an ‘if’ block, or show it.',
+    ],
+    savoir: [
+      'The counter **never goes back to 0** by itself: it counts all the clicks since the start, even spaced out.',
+      'A click is counted even if the program was busy elsewhere at that moment.',
+    ],
+    legende: 'A heart shows when button B has been pressed 10 times in all.',
+  },
+  reinitialiser_microbit: {
+    titre: '[Micro:bit] reset the board',
+    sert: '**Restarts the board**: the program starts again from the beginning, as after pressing the reset button, on the back of the board.',
+    util: [
+      'Put it where the program must start again from scratch, for example when a button is pressed.',
+    ],
+    savoir: [
+      'Nothing can be attached below this block: the board restarts at once.',
+      'The variables go back to their starting value and the stopwatch starts again from 0.',
+    ],
+    legende: 'A heart shows at each start; button A restarts the board.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
