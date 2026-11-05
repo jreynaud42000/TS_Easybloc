@@ -1134,4 +1134,288 @@ window.FICHES = [
     legende: 'Le LiDAR est préparé en mode évitement au démarrage, puis la distance de l\'obstacle devant s\'affiche chaque seconde.',
     exempleDe: 'lidar_initialiser',
   },
+  // ═══════════════ Cartes d'extension : Kitrobot v2 ═══════════════
+  {
+    t: 'kitrobot_definir_servos',
+    titre: 'Kitrobot v2 : servo gauche … servo droit …',
+    sert: 'Indique la ou les broches où sont branchés les servomoteurs gauche et droit du robot, si ce ne sont pas celles par défaut.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs Kitrobot v2.',
+      'Choisissez la ou les broches.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le logiciel utilise **P1** pour le servo gauche et **P2** pour le servo droit.',
+      'Le câblage du Kitrobot v2 n\'a pas de documentation publique : les broches par défaut sont un choix du logiciel. **Vérifiez le câblage** de votre robot.',
+    ],
+    legende: 'Les servos sont déclarés sur P1 (gauche) et P2 (droit), puis le robot avance deux secondes.',
+  },
+  {
+    t: 'kitrobot_definir_ultrason',
+    titre: 'Kitrobot v2 : capteur ultrason sur …',
+    sert: 'Indique la ou les broches où est branché le capteur à ultrasons du robot, si ce ne sont pas celles par défaut.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs Kitrobot v2.',
+      'Choisissez la ou les broches.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le logiciel utilise la broche **P0**.',
+      'Le câblage du Kitrobot v2 n\'a pas de documentation publique : les broches par défaut sont un choix du logiciel. **Vérifiez le câblage** de votre robot.',
+    ],
+    legende: 'Le capteur à ultrasons est déclaré sur P8, puis la distance s\'affiche chaque seconde.',
+  },
+  {
+    t: 'kitrobot_definir_buzzer',
+    titre: 'Kitrobot v2 : buzzer sur …',
+    sert: 'Indique la ou les broches où est branché le buzzer du robot, si ce ne sont pas celles par défaut.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs Kitrobot v2.',
+      'Choisissez la ou les broches.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le logiciel utilise la broche **P8**.',
+      'Le câblage du Kitrobot v2 n\'a pas de documentation publique : les broches par défaut sont un choix du logiciel. **Vérifiez le câblage** de votre robot.',
+    ],
+    legende: 'Le buzzer est déclaré sur P0, puis il sonne à 440 Hz pendant 500 ms.',
+  },
+  {
+    t: 'kitrobot_definir_lignes',
+    titre: 'Kitrobot v2 : capteur de ligne gauche … droit …',
+    sert: 'Indique la ou les broches où sont branchés les capteurs de ligne gauche et droit du robot, si ce ne sont pas celles par défaut.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs Kitrobot v2.',
+      'Choisissez la ou les broches.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le logiciel utilise **P13** pour le capteur gauche et **P14** pour le capteur droit.',
+      'Le câblage du Kitrobot v2 n\'a pas de documentation publique : les broches par défaut sont un choix du logiciel. **Vérifiez le câblage** de votre robot.',
+    ],
+    legende: 'Les capteurs de ligne sont déclarés sur P1 (gauche) et P2 (droit) ; un visage heureux s\'affiche quand le capteur gauche voit la ligne.',
+  },
+  {
+    t: 'kitrobot_definir_ruban',
+    titre: 'Kitrobot v2 : ruban RGB sur … avec … LED(s)',
+    sert: 'Indique sur quelle broche le **ruban de LED RGB** du robot est branché, et **combien de LED** il compte.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les blocs de LED du Kitrobot v2.',
+      'Choisissez la broche, puis écrivez le nombre de LED, de **1 à 64**.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le logiciel utilise la broche **P15** et un ruban de **8 LED**.',
+      'Le câblage du Kitrobot v2 n\'a pas de documentation publique : les broches par défaut sont un choix du logiciel. **Vérifiez le câblage** de votre robot.',
+    ],
+    legende: 'Le ruban de 8 LED est déclaré sur P0, puis l\'animation arc-en-ciel s\'allume.',
+  },
+  {
+    t: 'kitrobot_distance',
+    titre: 'Kitrobot v2 : distance (cm)',
+    sert: 'Renvoie la **distance** entre le robot et l\'obstacle le plus proche, en **centimètres**, mesurée par son capteur à ultrasons.',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si » (par exemple pour s\'arrêter avant un mur).',
+    ],
+    savoir: [
+      'Le capteur est lu sur la broche **P0**, sauf si le bloc « Kitrobot v2 : capteur ultrason sur … » en indique une autre.',
+      'Dans le simulateur, réglez la distance avec le curseur de distance du robot.',
+    ],
+    legende: 'La distance mesurée devant le robot s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'kitrobot_ligne',
+    titre: 'Kitrobot v2 : état du capteur de ligne …',
+    sert: 'Renvoie **vrai** quand le capteur de ligne choisi (gauche ou droit) détecte la ligne, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez le capteur : gauche ou droit.',
+      'Mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'Certains capteurs de ligne donnent l\'**inverse** (vrai hors de la ligne) : **vérifiez-le** sur votre robot en posant le capteur sur la ligne, puis à côté.',
+      'Les capteurs sont lus sur **P13** (gauche) et **P14** (droit), sauf si le bloc « Kitrobot v2 : capteur de ligne gauche … droit … » en indique d\'autres.',
+    ],
+    legende: 'Les capteurs de ligne sont déclarés sur P1 (gauche) et P2 (droit) ; un visage heureux s\'affiche quand le capteur gauche voit la ligne.',
+    exempleDe: 'kitrobot_definir_lignes',
+  },
+  {
+    t: 'kitrobot_avancer',
+    titre: 'Kitrobot v2 : … à la vitesse … %',
+    sert: 'Fait **avancer** ou **reculer** le robot tout droit, à la vitesse choisie.',
+    util: [
+      'Choisissez **avancer** ou **reculer**.',
+      'Écrivez la vitesse, de **0 à 100 %**.',
+    ],
+    savoir: [
+      'Le robot **continue de rouler** jusqu\'à un autre ordre : pensez au bloc « Kitrobot v2 : arrêter le robot ».',
+      'Les roues sont entraînées par deux **servomoteurs à rotation continue**. Si le robot recule au lieu d\'avancer, inversez le câblage d\'un côté.',
+      'Dans le simulateur, le robot se déplace dans la zone de simulation.',
+    ],
+    legende: 'Le robot avance à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'kitrobot_pivoter',
+    titre: 'Kitrobot v2 : pivoter … vitesse … %',
+    sert: 'Fait **tourner le robot sur place**, dans le sens horaire (↻) ou antihoraire (↺), à la vitesse choisie.',
+    util: [
+      'Choisissez le sens, puis écrivez la vitesse, de **0 à 100 %**.',
+    ],
+    savoir: [
+      'Le robot **continue de tourner** jusqu\'à un autre ordre : ajoutez un bloc « attendre », puis le bloc « Kitrobot v2 : arrêter le robot ».',
+      'Pour un quart de tour tout prêt, utilisez les blocs « pivoter à gauche » et « pivoter à droite ».',
+    ],
+    legende: 'Le robot pivote sur place à 50 % pendant une seconde, puis s\'arrête.',
+  },
+  {
+    t: 'kitrobot_moteur',
+    titre: 'Kitrobot v2 : contrôler le moteur … direction … vitesse … %',
+    sert: 'Commande **un seul moteur** du robot (gauche ou droit) : son sens de rotation et sa vitesse.',
+    util: [
+      'Choisissez le moteur, le sens (↻ ou ↺), puis écrivez la vitesse, de **0 à 100 %**.',
+    ],
+    savoir: [
+      'Les deux moteurs sont montés face à face : pour avancer, ils tournent dans des sens **opposés**. Le bloc « Kitrobot v2 : avancer » le fait pour vous.',
+      'Le moteur **continue de tourner** jusqu\'à un autre ordre.',
+    ],
+    legende: 'Le moteur gauche tourne à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'kitrobot_arreter_moteur',
+    titre: 'Kitrobot v2 : arrêter le moteur …',
+    sert: '**Arrête** le moteur gauche ou le moteur droit du robot.',
+    util: [
+      'Choisissez le moteur : gauche ou droit.',
+    ],
+    savoir: [
+      'Pour arrêter les deux moteurs d\'un coup, utilisez le bloc « Kitrobot v2 : arrêter le robot ».',
+    ],
+    legende: 'Le moteur gauche tourne à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'kitrobot_case_avant',
+    titre: 'Kitrobot v2 : avancer d\'une case',
+    sert: 'Fait **avancer** le robot d\'une **case**, puis l\'arrête.',
+    util: [
+      'Enchaînez ce bloc avec les autres blocs de déplacement « d\'une case » et « pivoter » pour suivre un parcours sur un quadrillage.',
+    ],
+    savoir: [
+      'Le robot roule à 50 % pendant **0,6 seconde** : la longueur parcourue dépend du sol et de la charge. **Mesurez-la** et adaptez votre quadrillage.',
+      'Le programme attend la fin du mouvement avant de passer au bloc suivant.',
+    ],
+    legende: 'Le robot avance d\'une case, pivote à droite, avance encore d\'une case, puis recule d\'une case.',
+  },
+  {
+    t: 'kitrobot_case_arriere',
+    titre: 'Kitrobot v2 : reculer d\'une case',
+    sert: 'Fait **reculer** le robot d\'une **case**, puis l\'arrête.',
+    util: [
+      'Enchaînez ce bloc avec les autres blocs de déplacement « d\'une case » et « pivoter ».',
+    ],
+    savoir: [
+      'Le robot recule à 50 % pendant **0,6 seconde** : la longueur parcourue dépend du sol et de la charge.',
+      'Le programme attend la fin du mouvement avant de passer au bloc suivant.',
+    ],
+    legende: 'Le robot avance d\'une case, pivote à droite, avance encore d\'une case, puis recule d\'une case.',
+  },
+  {
+    t: 'kitrobot_pivoter_gauche',
+    titre: 'Kitrobot v2 : pivoter à gauche',
+    sert: 'Fait tourner le robot **sur place vers la gauche**, d\'environ un quart de tour, puis l\'arrête.',
+    util: [
+      'Enchaînez ce bloc avec les blocs « avancer d\'une case » et « reculer d\'une case ».',
+    ],
+    savoir: [
+      'Le robot pivote à 50 % pendant **0,4 seconde** : l\'angle obtenu (environ 90°) dépend du sol et de la charge.',
+      'Le programme attend la fin du mouvement avant de passer au bloc suivant.',
+    ],
+    legende: 'Le robot avance d\'une case, pivote à droite, avance encore d\'une case, puis recule d\'une case.',
+  },
+  {
+    t: 'kitrobot_pivoter_droite',
+    titre: 'Kitrobot v2 : pivoter à droite',
+    sert: 'Fait tourner le robot **sur place vers la droite**, d\'environ un quart de tour, puis l\'arrête.',
+    util: [
+      'Enchaînez ce bloc avec les blocs « avancer d\'une case » et « reculer d\'une case ».',
+    ],
+    savoir: [
+      'Le robot pivote à 50 % pendant **0,4 seconde** : l\'angle obtenu (environ 90°) dépend du sol et de la charge.',
+      'Le programme attend la fin du mouvement avant de passer au bloc suivant.',
+    ],
+    legende: 'Le robot avance d\'une case, pivote à droite, avance encore d\'une case, puis recule d\'une case.',
+  },
+  {
+    t: 'kitrobot_arreter',
+    titre: 'Kitrobot v2 : arrêter le robot',
+    sert: '**Arrête les deux moteurs** du robot.',
+    util: [
+      'Placez-le après un bloc de déplacement et un bloc « attendre ».',
+    ],
+    savoir: [
+      'La carte cesse de commander les servomoteurs des roues : le robot s\'arrête.',
+    ],
+    legende: 'Le robot avance à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'kitrobot_buzzer',
+    titre: 'Kitrobot v2 : buzzer à la fréquence … Hz pendant … ms',
+    sert: 'Fait **sonner le buzzer** du robot à la fréquence choisie, pendant la durée choisie.',
+    util: [
+      'Écrivez la fréquence en **hertz (Hz)** : plus elle est grande, plus le son est aigu (440 Hz = la).',
+      'Écrivez la durée en **millisecondes (ms)** : 1000 ms = 1 seconde.',
+    ],
+    savoir: [
+      'Le programme **attend la fin du son** avant de passer au bloc suivant.',
+      'Une fréquence de **0** fait une pause silencieuse de la durée choisie.',
+      'Le buzzer est commandé par la broche **P8**, sauf si le bloc « Kitrobot v2 : buzzer sur … » en indique une autre.',
+    ],
+    legende: 'Le buzzer sonne à 440 Hz pendant 500 ms au démarrage.',
+  },
+  {
+    t: 'kitrobot_clignoter',
+    titre: 'Kitrobot v2 : clignoter le robot',
+    sert: 'Fait **clignoter une fois** toutes les LED du ruban du robot, en blanc.',
+    util: [
+      'Placez ce bloc dans une boucle avec un bloc « attendre » pour faire clignoter le robot plusieurs fois.',
+    ],
+    savoir: [
+      'Le flash dure **0,15 seconde**, puis toutes les LED du ruban s\'éteignent.',
+    ],
+    legende: 'Le robot clignote une fois au démarrage.',
+  },
+  {
+    t: 'kitrobot_del_couleur',
+    titre: 'Kitrobot v2 : LED RGB … à …',
+    sert: 'Allume **une LED** du ruban du robot dans la **couleur** choisie.',
+    util: [
+      'Écrivez le numéro de la LED : la première porte le numéro **0**.',
+      'Choisissez la couleur dans la liste du bloc.',
+    ],
+    savoir: [
+      'Avec un ruban de 8 LED, les numéros vont de **0 à 7** : un numéro en dehors ne fait rien.',
+      'La LED garde sa couleur jusqu\'au prochain bloc qui la change.',
+    ],
+    legende: 'La LED n° 0 s\'allume en rouge.',
+  },
+  {
+    t: 'kitrobot_del_rgb',
+    titre: 'Kitrobot v2 : LED RGB en … à R … V … B …',
+    sert: 'Allume **une LED** du ruban du robot dans une couleur que vous composez avec du **rouge (R)**, du **vert (V)** et du **bleu (B)**.',
+    util: [
+      'Écrivez le numéro de la LED : la première porte le numéro **0**.',
+      'Écrivez la quantité de rouge, de vert et de bleu, chacune de **0 à 255** (0, 0, 0 = éteinte ; 255, 255, 255 = blanc).',
+    ],
+    savoir: [
+      'Avec un ruban de 8 LED, les numéros vont de **0 à 7** : un numéro en dehors ne fait rien.',
+    ],
+    legende: 'La LED n° 0 s\'allume en vert (rouge 0, vert 255, bleu 0).',
+  },
+  {
+    t: 'kitrobot_arcenciel',
+    titre: 'Kitrobot v2 : Arc-en-ciel',
+    sert: 'Allume toutes les LED du ruban du robot avec les **couleurs de l\'arc-en-ciel**, réparties du rouge au violet.',
+    util: [
+      'Placez ce bloc où vous voulez allumer l\'arc-en-ciel, par exemple dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Les couleurs restent allumées jusqu\'au prochain bloc qui change les LED.',
+    ],
+    legende: 'L\'arc-en-ciel s\'allume au démarrage.',
+  },
 ];

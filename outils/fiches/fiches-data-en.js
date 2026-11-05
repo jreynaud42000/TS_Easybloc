@@ -983,6 +983,266 @@ window.FICHES_EN = {
     ],
     legende: 'The LiDAR is prepared in avoidance mode at start, then the distance of the obstacle in front shows every second.',
   },
+  // ═══════════════ Extension boards: Kitrobot v2 ═══════════════
+  kitrobot_definir_servos: {
+    titre: 'Kitrobot v2: left servo … right servo …',
+    sert: 'Tells which pin(s) the left and right servomotors of the robot are plugged into, if they are not the default ones.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other Kitrobot v2 blocks.',
+      'Choose the pin(s).',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the software uses **P1** for the left servo and **P2** for the right servo.',
+      'The Kitrobot v2 wiring has no public documentation: the default pins are a choice of the software. **Check the wiring** of your robot.',
+    ],
+    legende: 'The servos are set on P1 (left) and P2 (right), then the robot moves forward for two seconds.',
+  },
+  kitrobot_definir_ultrason: {
+    titre: 'Kitrobot v2: ultrasonic sensor on …',
+    sert: 'Tells which pin(s) the robot\'s ultrasonic sensor is plugged into, if they are not the default ones.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other Kitrobot v2 blocks.',
+      'Choose the pin(s).',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the software uses pin **P0**.',
+      'The Kitrobot v2 wiring has no public documentation: the default pins are a choice of the software. **Check the wiring** of your robot.',
+    ],
+    legende: 'The ultrasonic sensor is set on P8, then the distance shows every second.',
+  },
+  kitrobot_definir_buzzer: {
+    titre: 'Kitrobot v2: buzzer on …',
+    sert: 'Tells which pin(s) the robot\'s buzzer is plugged into, if they are not the default ones.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other Kitrobot v2 blocks.',
+      'Choose the pin(s).',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the software uses pin **P8**.',
+      'The Kitrobot v2 wiring has no public documentation: the default pins are a choice of the software. **Check the wiring** of your robot.',
+    ],
+    legende: 'The buzzer is set on P0, then it sounds at 440 Hz for 500 ms.',
+  },
+  kitrobot_definir_lignes: {
+    titre: 'Kitrobot v2: left line sensor … right …',
+    sert: 'Tells which pin(s) the left and right line sensors of the robot are plugged into, if they are not the default ones.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other Kitrobot v2 blocks.',
+      'Choose the pin(s).',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the software uses **P13** for the left sensor and **P14** for the right sensor.',
+      'The Kitrobot v2 wiring has no public documentation: the default pins are a choice of the software. **Check the wiring** of your robot.',
+    ],
+    legende: 'The line sensors are set on P1 (left) and P2 (right); a happy face shows when the left sensor sees the line.',
+  },
+  kitrobot_definir_ruban: {
+    titre: 'Kitrobot v2: RGB Strip on … with … LED(s)',
+    sert: 'Tells which pin the robot\'s **RGB LED strip** is plugged into, and **how many LEDs** it has.',
+    util: [
+      'Put this block in the ‘on start’ block, before the Kitrobot v2 LED blocks.',
+      'Choose the pin, then type the number of LEDs, from **1 to 64**.',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the software uses pin **P15** and a strip of **8 LEDs**.',
+      'The Kitrobot v2 wiring has no public documentation: the default pins are a choice of the software. **Check the wiring** of your robot.',
+    ],
+    legende: 'The strip of 8 LEDs is set on P0, then the rainbow lights up.',
+  },
+  kitrobot_distance: {
+    titre: 'Kitrobot v2: distance (cm)',
+    sert: 'Returns the **distance** between the robot and the nearest obstacle, in **centimetres**, measured by its ultrasonic sensor.',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block (for example to stop before a wall).',
+    ],
+    savoir: [
+      'The sensor is read on pin **P0**, unless the ‘Kitrobot v2: ultrasonic sensor on …’ block gives another one.',
+      'In the simulator, set the distance with the robot\'s distance slider.',
+    ],
+    legende: 'The distance measured in front of the robot shows every second on the LED matrix.',
+  },
+  kitrobot_ligne: {
+    titre: 'Kitrobot v2: line sensor state …',
+    sert: 'Returns **true** when the chosen line sensor (left or right) detects the line, **false** otherwise.',
+    util: [
+      'Choose the sensor: left or right.',
+      'Put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'Some line sensors give the **opposite** (true off the line): **check it** on your robot by putting the sensor on the line, then next to it.',
+      'The sensors are read on **P13** (left) and **P14** (right), unless the ‘Kitrobot v2: left line sensor … right …’ block gives other ones.',
+    ],
+    legende: 'The line sensors are set on P1 (left) and P2 (right); a happy face shows when the left sensor sees the line.',
+  },
+  kitrobot_avancer: {
+    titre: 'Kitrobot v2: … at speed … %',
+    sert: 'Makes the robot go **forward** or **backward** in a straight line, at the chosen speed.',
+    util: [
+      'Choose **forward** or **backward**.',
+      'Type the speed, from **0 to 100 %**.',
+    ],
+    savoir: [
+      'The robot **keeps moving** until another order: remember the ‘Kitrobot v2: stop the robot’ block.',
+      'The wheels are driven by two **continuous rotation servomotors**. If the robot goes backward instead of forward, swap the wiring on one side.',
+      'In the simulator, the robot moves in the simulation area.',
+    ],
+    legende: 'The robot moves forward at 50 % for two seconds, then stops.',
+  },
+  kitrobot_pivoter: {
+    titre: 'Kitrobot v2: spin … speed … %',
+    sert: 'Makes the robot **turn on the spot**, clockwise (↻) or anticlockwise (↺), at the chosen speed.',
+    util: [
+      'Choose the direction, then type the speed, from **0 to 100 %**.',
+    ],
+    savoir: [
+      'The robot **keeps turning** until another order: add a ‘wait’ block, then the ‘Kitrobot v2: stop the robot’ block.',
+      'For a ready-made quarter turn, use the ‘spin left’ and ‘spin right’ blocks.',
+    ],
+    legende: 'The robot spins on the spot at 50 % for one second, then stops.',
+  },
+  kitrobot_moteur: {
+    titre: 'Kitrobot v2: control the motor … direction … speed … %',
+    sert: 'Controls **one motor** of the robot (left or right): its direction of rotation and its speed.',
+    util: [
+      'Choose the motor, the direction (↻ or ↺), then type the speed, from **0 to 100 %**.',
+    ],
+    savoir: [
+      'The two motors face each other: to go forward, they turn in **opposite** directions. The ‘Kitrobot v2: forward’ block does it for you.',
+      'The motor **keeps turning** until another order.',
+    ],
+    legende: 'The left motor turns at 50 % for two seconds, then stops.',
+  },
+  kitrobot_arreter_moteur: {
+    titre: 'Kitrobot v2: stop the motor …',
+    sert: '**Stops** the left or the right motor of the robot.',
+    util: [
+      'Choose the motor: left or right.',
+    ],
+    savoir: [
+      'To stop both motors at once, use the ‘Kitrobot v2: stop the robot’ block.',
+    ],
+    legende: 'The left motor turns at 50 % for two seconds, then stops.',
+  },
+  kitrobot_case_avant: {
+    titre: 'Kitrobot v2: move forward one square',
+    sert: 'Makes the robot **move forward one square**, then stops it.',
+    util: [
+      'Chain this block with the other ‘one square’ and ‘spin’ blocks to follow a path on a grid.',
+    ],
+    savoir: [
+      'The robot moves at 50 % for **0.6 second**: the length covered depends on the floor and the load. **Measure it** and adapt your grid.',
+      'The program waits for the end of the movement before moving on to the next block.',
+    ],
+    legende: 'The robot moves forward one square, spins right, moves forward one more square, then moves back one square.',
+  },
+  kitrobot_case_arriere: {
+    titre: 'Kitrobot v2: move back one square',
+    sert: 'Makes the robot **move back one square**, then stops it.',
+    util: [
+      'Chain this block with the other ‘one square’ and ‘spin’ blocks.',
+    ],
+    savoir: [
+      'The robot moves back at 50 % for **0.6 second**: the length covered depends on the floor and the load.',
+      'The program waits for the end of the movement before moving on to the next block.',
+    ],
+    legende: 'The robot moves forward one square, spins right, moves forward one more square, then moves back one square.',
+  },
+  kitrobot_pivoter_gauche: {
+    titre: 'Kitrobot v2: spin left',
+    sert: 'Makes the robot turn **on the spot to the left**, by about a quarter turn, then stops it.',
+    util: [
+      'Chain this block with the ‘move forward one square’ and ‘move back one square’ blocks.',
+    ],
+    savoir: [
+      'The robot spins at 50 % for **0.4 second**: the angle obtained (about 90°) depends on the floor and the load.',
+      'The program waits for the end of the movement before moving on to the next block.',
+    ],
+    legende: 'The robot moves forward one square, spins right, moves forward one more square, then moves back one square.',
+  },
+  kitrobot_pivoter_droite: {
+    titre: 'Kitrobot v2: spin right',
+    sert: 'Makes the robot turn **on the spot to the right**, by about a quarter turn, then stops it.',
+    util: [
+      'Chain this block with the ‘move forward one square’ and ‘move back one square’ blocks.',
+    ],
+    savoir: [
+      'The robot spins at 50 % for **0.4 second**: the angle obtained (about 90°) depends on the floor and the load.',
+      'The program waits for the end of the movement before moving on to the next block.',
+    ],
+    legende: 'The robot moves forward one square, spins right, moves forward one more square, then moves back one square.',
+  },
+  kitrobot_arreter: {
+    titre: 'Kitrobot v2: stop the robot',
+    sert: '**Stops both motors** of the robot.',
+    util: [
+      'Put it after a movement block and a ‘wait’ block.',
+    ],
+    savoir: [
+      'The board stops driving the wheel servomotors: the robot stops.',
+    ],
+    legende: 'The robot moves forward at 50 % for two seconds, then stops.',
+  },
+  kitrobot_buzzer: {
+    titre: 'Kitrobot v2: buzzer at frequency … Hz for … ms',
+    sert: 'Makes the robot\'s **buzzer sound** at the chosen frequency, for the chosen time.',
+    util: [
+      'Type the frequency in **hertz (Hz)**: the bigger it is, the higher the sound (440 Hz = A).',
+      'Type the time in **milliseconds (ms)**: 1000 ms = 1 second.',
+    ],
+    savoir: [
+      'The program **waits for the end of the sound** before moving on to the next block.',
+      'A frequency of **0** makes a silent pause of the chosen time.',
+      'The buzzer is driven by pin **P8**, unless the ‘Kitrobot v2: buzzer on …’ block gives another one.',
+    ],
+    legende: 'The buzzer sounds at 440 Hz for 500 ms at start.',
+  },
+  kitrobot_clignoter: {
+    titre: 'Kitrobot v2: flash the robot',
+    sert: 'Makes all the LEDs of the robot\'s strip **flash once**, in white.',
+    util: [
+      'Put this block in a loop with a ‘wait’ block to make the robot flash several times.',
+    ],
+    savoir: [
+      'The flash lasts **0.15 second**, then all the LEDs of the strip turn off.',
+    ],
+    legende: 'The robot flashes once at start.',
+  },
+  kitrobot_del_couleur: {
+    titre: 'Kitrobot v2: RGB LED … to …',
+    sert: 'Lights up **one LED** of the robot\'s strip in the chosen **colour**.',
+    util: [
+      'Type the number of the LED: the first one is number **0**.',
+      'Choose the colour in the block\'s list.',
+    ],
+    savoir: [
+      'With a strip of 8 LEDs, the numbers go from **0 to 7**: a number outside does nothing.',
+      'The LED keeps its colour until the next block that changes it.',
+    ],
+    legende: 'LED number 0 lights up in red.',
+  },
+  kitrobot_del_rgb: {
+    titre: 'Kitrobot v2: RGB LED … to R … V … B …',
+    sert: 'Lights up **one LED** of the robot\'s strip in a colour you mix with **red (R)**, **green (V on the block)** and **blue (B)**.',
+    util: [
+      'Type the number of the LED: the first one is number **0**.',
+      'Type the amount of red, green and blue, each from **0 to 255** (0, 0, 0 = off; 255, 255, 255 = white).',
+    ],
+    savoir: [
+      'With a strip of 8 LEDs, the numbers go from **0 to 7**: a number outside does nothing.',
+    ],
+    legende: 'LED number 0 lights up in green (red 0, green 255, blue 0).',
+  },
+  kitrobot_arcenciel: {
+    titre: 'Kitrobot v2: Rainbow',
+    sert: 'Lights up all the LEDs of the robot\'s strip with the **colours of the rainbow**, spread from red to violet.',
+    util: [
+      'Put this block where you want the rainbow to light up, for example in the ‘on start’ block.',
+    ],
+    savoir: [
+      'The colours stay on until the next block that changes the LEDs.',
+    ],
+    legende: 'The rainbow lights up at start.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
