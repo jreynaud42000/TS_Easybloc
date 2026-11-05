@@ -468,6 +468,19 @@
     #voile-aide { position: fixed; inset: 0; background: rgba(0,0,0,0.55);
                   display: none; align-items: center; justify-content: center; z-index: 200100; }
     #voile-aide.ouvert { display: flex; }
+    /* Fiche d'aide d'un bloc (etape 10) : fenetre integree, la fiche (page blanche) dans un cadre */
+    #voile-fiche { position: fixed; inset: 0; background: rgba(0,0,0,0.55); display: none; align-items: center;
+                   justify-content: center; z-index: 200100; padding: 24px; }
+    #voile-fiche.ouvert { display: flex; }
+    #fiche-boite { background: #fff; width: min(900px, 92vw); height: min(90vh, 900px); border-radius: 8px; overflow: hidden;
+                   display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+    #fiche-entete { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 14px;
+                    background: var(--couleur-bandeau, #6a2c91); color: #fff; font-weight: 600; font-size: 14px; }
+    #fiche-fermer { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.4); border-radius: 5px;
+                    padding: 4px 12px; cursor: pointer; font: inherit; font-size: 13px; }
+    #fiche-fermer:hover { background: rgba(255,255,255,0.28); }
+    #fiche-corps { flex: 1; overflow: auto; background: #f2f2f2; }
+    #fiche-corps iframe { width: 100%; height: 100%; border: 0; display: block; }
     #fenetre-aide { background: var(--fond-code); color: var(--texte-chrome); border-radius: 10px;
                     padding: 20px 24px; width: 460px; max-width: 92vw; max-height: 85vh; overflow-y: auto;
                     box-shadow: 0 8px 30px rgba(0,0,0,0.5); border: 1px solid var(--bordure-chrome); }
@@ -2949,6 +2962,7 @@
   <script type="text/python">
     from browser import window, document, alert
     import math
+    import random   # blocs « nombre aléatoire » : le programme de l'élève l'importe, mais l'import est retiré (voir env)
     import re
     import textwrap
     import ast
@@ -3979,6 +3993,7 @@
             'pin8': PinMock('8'), 'pin12': PinMock('12'), 'pin13': PinMock('13'),
             'pin14': PinMock('14'), 'pin15': PinMock('15'), 'pin16': PinMock('16'),
             'math': math,
+            'random': random,
             # Grove : substituts des pilotes retires du code
             'neopixel': _NeoPixelModuleMock(), '_grove_lum': _grove_lum,
             '_grove_teinte': _grove_teinte, '_Afficheur4': _Afficheur4Mock,
@@ -4274,6 +4289,15 @@
         <button id="aide-inserer" type="button">Insérer cet exemple dans mon espace de travail</button>
       </div>
       <button id="aide-fermer" type="button">Fermer</button>
+    </div>
+  </div>
+  <!-- Fiche d'aide d'un bloc (etape 10, comme le modele R4) : page HTML locale aide/<type>.html, affichee DANS
+       EasyBloc (jamais une page web) ; clic droit > « Expliquer ce bloc ». Sans fiche : l'aide ci-dessus. -->
+  <div id="voile-fiche" role="dialog" aria-modal="true" aria-labelledby="fiche-titre">
+    <div id="fiche-boite">
+      <div id="fiche-entete"><span id="fiche-titre">Expliquer ce bloc</span>
+        <button id="fiche-fermer" type="button" title="Fermer (Échap)">✕ Fermer</button></div>
+      <div id="fiche-corps"></div>
     </div>
   </div>
   <div id="toast-admin"></div>

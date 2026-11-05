@@ -436,7 +436,7 @@ const ETAPES_CLIC_DROIT = [
             'ici : « au démarrage » ne se duplique pas, il n\'en faut qu\'un.',
         cible: '#blocklyDiv',
         consigne: 'Faites un clic droit sur un bloc (par exemple « au démarrage »).',
-        attendre: () => !!menuContextuel() && menuContient('Aide sur ce bloc'),
+        attendre: () => !!menuContextuel() && (menuContient('Aide sur ce bloc') || menuContient('Expliquer ce bloc')),
     },
     {
         titre: '2. Aide sur ce bloc',

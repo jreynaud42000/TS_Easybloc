@@ -1441,4 +1441,12 @@ window.DICO_EN = {
   "Afficher aux élèves": "Show to students",
   "Filtrer (ex: attendre, afficher)": "Filter (e.g.: wait, show)",
   "Renommer": "Rename",
+
+  // ── Fiches d'aide (10) ──
+  "Expliquer ce bloc": "Explain this block",
+  "Fiche d'aide du bloc": "Block help sheet",
+  "Remplacer votre programme par le programme d'exemple ?": "Replace your program with the example program?",
+  "Programme d'exemple chargé.": "Example program loaded.",
+  "✕ Fermer": "✕ Close",
+  "Fermer (Échap)": "Close (Esc)",
 };

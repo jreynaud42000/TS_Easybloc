@@ -9424,12 +9424,68 @@ try {
     const btnIAAide = document.getElementById('btn-ia-aide');
     if (btnIAAide) btnIAAide.addEventListener('click', ouvrirAideIA);
 
+    // ---------- Fiches d'aide (etape 10, comme le modele R4) ----------
+    // Clic droit > « Expliquer ce bloc » : la fiche aide/<type>.html (aide/en/ en anglais) s'affiche DANS EasyBloc, dans
+    // une fenetre integree (jamais une page web, RGPD). Tant qu'un bloc n'a pas encore sa fiche, l'aide d'avant s'ouvre.
+    const voileFiche = document.getElementById('voile-fiche');
+    function fermerFiche() {
+        if (!voileFiche) return;
+        voileFiche.classList.remove('ouvert');
+        document.getElementById('fiche-corps').textContent = '';
+    }
+    async function ouvrirFicheBloc(bloc) {
+        const chemin = 'aide/' + (window.LANGUE === 'en' ? 'en/' : '') + encodeURIComponent(bloc.type) + '.html';
+        let existe = false;
+        try {
+            const r = await fetch(chemin, { cache: 'no-store' });
+            existe = r.ok && (r.headers.get('content-type') || '').includes('html');
+        } catch (erreur) { existe = false; }
+        if (!existe || !voileFiche) { ouvrirAideBloc(bloc); return; }
+        let nom = '';
+        try { nom = bloc.toString(60, '…'); } catch (erreur) { nom = bloc.type; }
+        document.getElementById('fiche-titre').textContent = (window.tr ? window.tr('Expliquer ce bloc') : 'Expliquer ce bloc')
+            + (window.LANGUE === 'en' ? ': ' : ' : ') + nom;
+        const cadre = document.createElement('iframe');
+        cadre.src = chemin;
+        cadre.title = window.tr ? window.tr('Fiche d\'aide du bloc') : 'Fiche d\'aide du bloc';
+        const corps = document.getElementById('fiche-corps');
+        corps.textContent = '';
+        corps.appendChild(cadre);
+        voileFiche.classList.add('ouvert');
+        document.getElementById('fiche-fermer').focus();
+    }
+    if (voileFiche) {
+        document.getElementById('fiche-fermer').addEventListener('click', fermerFiche);
+        voileFiche.addEventListener('click', e => { if (e.target === voileFiche) fermerFiche(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && voileFiche.classList.contains('ouvert')) fermerFiche(); });
+    }
+    // Bouton « Essayer ce programme » d'une fiche : remplace le programme par l'exemple de la fiche (apres accord si
+    // l'espace de travail contient deja autre chose que le programme de depart).
+    window.essayerExemple = function (blocs) {
+        const espace = window.workspace;
+        const depart = espace.getAllBlocks(false).every(b => b.type === 'au_demarrage' || b.type === 'boucle_infinie')
+                       && espace.getAllBlocks(false).length <= 2;
+        const question = window.tr ? window.tr('Remplacer votre programme par le programme d\'exemple ?') : 'Remplacer votre programme par le programme d\'exemple ?';
+        if (!depart && !confirm(question)) return false;
+        fermerFiche();
+        if (editionManuelleActive) sortirEditionManuelle();
+        Blockly.Events.setGroup(true);
+        try {
+            espace.clear();
+            JSON.parse(JSON.stringify(blocs)).forEach(def => Blockly.serialization.blocks.append(def, espace, { recordUndo: true }));
+            espace.cleanUp();
+        } finally { Blockly.Events.setGroup(false); }
+        afficherEtat(window.tr ? window.tr('Programme d\'exemple chargé.') : 'Programme d\'exemple chargé.', false);
+        return true;
+    };
+
     Blockly.ContextMenuRegistry.registry.register({
         id: 'aide_sur_ce_bloc',
         scopeType: Blockly.ContextMenuRegistry.ScopeType.BLOCK,
-        displayText: () => 'Aide sur ce bloc',
+        // Comme le modele : « Expliquer ce bloc » (fiche d'aide ; sinon l'aide d'avant)
+        displayText: () => (window.tr ? window.tr('Expliquer ce bloc') : 'Expliquer ce bloc'),
         preconditionFn: () => 'enabled',
-        callback: scope => ouvrirAideBloc(scope.block),
+        callback: scope => ouvrirFicheBloc(scope.block),
         weight: 1,
     });
     window.aideBlocTest = { ouvrir: ouvrirAideBloc, fermer: fermerAideBloc, AIDE_BLOCS,
