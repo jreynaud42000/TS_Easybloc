@@ -1243,6 +1243,326 @@ window.FICHES_EN = {
     ],
     legende: 'The rainbow lights up at start.',
   },
+  // ═══════════════ Extension boards: Maqueen Plus ═══════════════
+  maqueen_moteur: {
+    titre: 'motor … to … (-255 to 255)',
+    sert: 'Turns the **left** motor, the **right** motor or **both** motors of the **Maqueen Plus** robot at the chosen speed.',
+    util: [
+      'Choose the motor: left, right or both.',
+      'Type the speed, from **−255 to 255**: a **negative** number goes backwards, **0** stops.',
+    ],
+    savoir: [
+      'The motors **keep turning** until another order: remember the ‘stop the motor’ block.',
+      'To turn, give different speeds to the two motors (for example 100 on the left and 0 on the right).',
+      'The robot gets its orders through the **I2C bus** (pins P19 and P20).',
+      'In the simulator, the robot moves on the track of the simulation area.',
+    ],
+    legende: 'Both motors turn at speed 50 for two seconds, then stop.',
+  },
+  maqueen_arreter: {
+    titre: 'stop the motor …',
+    sert: '**Stops** the left motor, the right motor or both motors of the **Maqueen Plus** robot.',
+    util: [
+      'Choose the motor: left, right or both.',
+    ],
+    savoir: [
+      'It is the same as the ‘motor … to …’ block with speed **0**.',
+    ],
+    legende: 'Both motors turn at speed 50 for two seconds, then stop.',
+  },
+  maqueen_ligne_etat: {
+    titre: 'line sensor … on the line',
+    sert: 'Returns **true** when the chosen line sensor, under the robot, detects the line, **false** otherwise.',
+    util: [
+      'Choose one of the five sensors: **L2** (far left), **L1** (left), **M** (middle), **R1** (right), **R2** (far right).',
+      'Put this block in an ‘if’ block to correct the robot\'s path.',
+    ],
+    savoir: [
+      'To follow a line, you usually watch **L1**, **M** and **R1**: if the line goes under L1, the robot turns a little to the left, and so on.',
+      'Put the robot on your track to **check** which line colour the sensors detect.',
+      'In the simulator, the robot detects the line of the drawn track.',
+    ],
+    legende: 'A happy face shows when the middle sensor sees the line.',
+  },
+  maqueen_ligne_valeur: {
+    titre: 'raw value of line sensor …',
+    sert: 'Returns the **raw value** measured by one of the robot\'s five line sensors: it changes with the colour and the brightness of the surface.',
+    util: [
+      'Choose the sensor: L2, L1, M, R1 or R2.',
+      'Show the value above the line, then next to it, to choose a threshold to compare in an ‘if’ block.',
+    ],
+    savoir: [
+      'To simply know whether the sensor sees the line or not, the ‘line sensor … on the line’ block is simpler.',
+    ],
+    legende: 'The value of the middle sensor shows every second on the LED matrix.',
+  },
+  maqueen_phare: {
+    titre: 'headlight … …',
+    sert: '**Turns on** or **turns off** the left headlight, the right headlight or both headlights at the front of the **Maqueen Plus** robot.',
+    util: [
+      'Choose the headlight (left, right or both), then **on** or **off**.',
+    ],
+    savoir: [
+      'The headlight stays in its state until the next block that controls it.',
+    ],
+    legende: 'Both headlights turn on for one second, then off for one second, forever.',
+  },
+  maqueen_rgb_couleur: {
+    titre: 'RGB LEDs … as …',
+    sert: 'Lights up one of the **four RGB LEDs** under the robot, or all of them, in the chosen **colour**.',
+    util: [
+      'Choose the LED: **L1**, **L2**, **R1**, **R2**, or **all**.',
+      'Choose the colour in the block\'s list.',
+    ],
+    savoir: [
+      'The RGB LEDs are driven by pin **P15**: it cannot be used for anything else.',
+      'The LED keeps its colour until the next block that changes it, or until the ‘turn off the RGB LEDs’ block.',
+    ],
+    legende: 'All the RGB LEDs light up in red for two seconds, then turn off.',
+  },
+  maqueen_rgb_eteindre: {
+    titre: 'turn off the RGB LEDs',
+    sert: '**Turns off the four RGB LEDs** under the **Maqueen Plus** robot.',
+    util: [
+      'Put it where the LEDs must turn off.',
+    ],
+    savoir: [
+      'It does not turn off the headlights: use the ‘headlight … off’ block for them.',
+    ],
+    legende: 'All the RGB LEDs light up in red for two seconds, then turn off.',
+  },
+  maqueen_distance: {
+    titre: 'distance (cm) Maqueen ultrasonic sensor',
+    sert: 'Returns the **distance** between the front of the robot and the nearest obstacle, in **centimetres**, measured by the Maqueen Plus ultrasonic sensor.',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block (for example to stop before a wall).',
+    ],
+    savoir: [
+      'The sensor uses pins **P13** (trigger) and **P14** (echo), fixed by the robot: they cannot be used for anything else.',
+      'It returns **0** when no echo comes back (obstacle too far, or a surface that absorbs sound).',
+      'In the simulator, set the distance with the robot\'s distance slider.',
+    ],
+    legende: 'The distance measured in front of the robot shows every second on the LED matrix.',
+  },
+  maqueen_v3_vitesse_suivi: {
+    titre: 'Maqueen Plus v3: line follower speed …',
+    sert: 'Sets the **speed** at which the V3 robot follows the line by itself, from **1** (slow) to **5** (fast).',
+    util: [
+      'Put this block in the ‘on start’ block, before starting the line follower.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+      'A slow speed follows tight bends better.',
+    ],
+    legende: 'The follower speed is set to 3, the robot goes straight on at crossroads, then line following starts.',
+  },
+  maqueen_v3_mode_carrefour: {
+    titre: 'Maqueen Plus v3: at crossroads, go …',
+    sert: 'Chooses what the V3 robot does, during line following, when it reaches a **crossroads** (+ crossing): go **straight on**, turn **left**, turn **right** or **stop**.',
+    util: [
+      'Put this block in the ‘on start’ block, before starting the line follower.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+      'The choice stays valid for all the next crossroads, until a new block.',
+    ],
+    legende: 'The follower speed is set to 3, the robot goes straight on at crossroads, then line following starts.',
+  },
+  maqueen_v3_mode_gauche: {
+    titre: 'Maqueen Plus v3: at left junctions, go …',
+    sert: 'Chooses what the V3 robot does, during line following, when a branch goes **to the left**: go **straight on**, turn **left** or **stop**.',
+    util: [
+      'Put this block in the ‘on start’ block, before starting the line follower.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+    ],
+    legende: 'The follower speed is set to 3, the robot goes straight on at crossroads, then line following starts.',
+  },
+  maqueen_v3_mode_droite: {
+    titre: 'Maqueen Plus v3: at right junctions, go …',
+    sert: 'Chooses what the V3 robot does, during line following, when a branch goes **to the right**: go **straight on**, turn **right** or **stop**.',
+    util: [
+      'Put this block in the ‘on start’ block, before starting the line follower.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+    ],
+    legende: 'The follower speed is set to 3, the robot goes straight on at crossroads, then line following starts.',
+  },
+  maqueen_v3_suiveur: {
+    titre: 'Maqueen Plus v3: … the line follower',
+    sert: '**Starts** or **stops** the built-in line follower of the V3 robot: once started, the robot **follows the line by itself**, with no other block.',
+    util: [
+      'Choose **start** or **stop**.',
+      'First set the speed and the choices at junctions with the other ‘Maqueen Plus v3’ blocks.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+      'During line following, the program goes on: it can for example watch the distance or the junctions.',
+    ],
+    legende: 'The V3 robot follows the line for ten seconds, then the follower stops.',
+  },
+  maqueen_v3_intersection_detectee: {
+    titre: 'Maqueen Plus v3: junction detected (code)',
+    sert: 'Returns the **code** of the last junction detected by the V3 robot during line following: **1** left, **2** right, **3** straight on, **4** stop.',
+    util: [
+      'Compare the result with a number in an ‘if’ block.',
+      'Simpler: the ‘junction detected is … ?’ block does the comparison for you.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+    ],
+    legende: 'The code of the detected junction shows every second on the LED matrix.',
+  },
+  maqueen_v3_intersection_est: {
+    titre: 'Maqueen Plus v3: junction detected is … ?',
+    sert: 'Returns **true** when the last junction detected by the V3 robot is the chosen type (**straight on**, **left**, **right**, **stop**), **false** otherwise.',
+    util: [
+      'Choose the junction type, then put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+    ],
+    legende: 'A happy face shows when the detected junction is ‘left’.',
+  },
+  maqueen_v3_luminosite: {
+    titre: 'Maqueen Plus v3: light level on the …',
+    sert: 'Returns the **light** measured by the **left** or **right** light sensor of the V3 robot.',
+    util: [
+      'Choose the sensor: left or right.',
+      'Compare both sides to make the robot go towards the light, for example.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis.',
+      'The value goes up with the light; show it to know the values in your classroom.',
+    ],
+    legende: 'The light measured on the left shows every second on the LED matrix.',
+  },
+  maqueen_v3_pid_avancer: {
+    titre: 'Maqueen Plus v3: … … cm … wait until finished',
+    sert: 'Makes the V3 robot go **forward** or **backward** by a **precise distance**, in centimetres: the wheels measure the path covered themselves.',
+    util: [
+      'Choose **forward** or **backward**, then type the distance in **centimetres**.',
+      'Tick **wait until finished** so that the program waits for the arrival before moving on to the next block.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis (wheels with encoder).',
+      'Without ‘wait until finished’, the program goes on while the robot moves: the ‘stop the current PID control’ block can then interrupt it.',
+    ],
+    legende: 'The V3 robot sets off for 50 cm without waiting for the end; one second later, the movement is interrupted.',
+  },
+  maqueen_v3_pid_tourner: {
+    titre: 'Maqueen Plus v3: turn … … ° … wait until finished',
+    sert: 'Makes the V3 robot **turn** on the spot by a **precise angle**, in degrees, to the left or to the right.',
+    util: [
+      'Choose **left** or **right**, then type the angle in **degrees** (90 = a quarter turn).',
+      'Tick **wait until finished** so that the program waits for the end of the turn.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis (wheels with encoder).',
+      'The left/right direction has not been checked on a real robot yet: **try it** and swap the choice if needed.',
+    ],
+    legende: 'The V3 robot turns 90° to the left and waits for the end of the turn.',
+  },
+  maqueen_v3_vitesse_reelle: {
+    titre: 'Maqueen Plus v3: real speed of the wheel … (cm/s)',
+    sert: 'Returns the **real speed** of the left or right wheel of the V3 robot, in **centimetres per second**, measured by the wheel encoder.',
+    util: [
+      'Choose the wheel: left or right.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis (wheels with encoder).',
+      'The real speed can differ from the requested speed: slippery floor, slope, load…',
+    ],
+    legende: 'The speed of the left wheel shows every second on the LED matrix.',
+  },
+  maqueen_v3_pid_stop: {
+    titre: 'Maqueen Plus v3: stop the current PID control',
+    sert: '**Interrupts** the precise movement or turn in progress on the V3 robot.',
+    util: [
+      'Put it after a ‘… cm’ or ‘turn … °’ block without ‘wait until finished’.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis (wheels with encoder).',
+    ],
+    legende: 'The V3 robot sets off for 50 cm without waiting for the end; one second later, the movement is interrupted.',
+  },
+  maqueen_v3_del_carrosserie: {
+    titre: 'Maqueen Plus v3: body LEDs … as …',
+    sert: 'Lights up the **left** LED, the **right** LED or both LEDs of the V3 robot\'s **body** in the chosen colour.',
+    util: [
+      'Choose the LED, then the colour: red, green, yellow, blue, purple, cyan, white, or **off**.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis.',
+      'These LEDs are different from the four RGB LEDs underneath (‘RGB LEDs … as …’ block).',
+    ],
+    legende: 'Both body LEDs light up in red.',
+  },
+  maqueen_ir_init: {
+    titre: 'Maqueen Plus: connect the infrared receiver to …',
+    sert: 'Tells which pin the **infrared receiver** is plugged into: it receives the orders of the remote control.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+      'Choose the receiver\'s pin.',
+    ],
+    savoir: [
+      'Without this block, the receiver is read on pin **P0**.',
+      'Decoding follows the **NEC** protocol of common infrared remote controls; it has not been tried with a real receiver yet.',
+      'In the simulator, choose a key in the ‘Infrared remote control (simulation)’ panel.',
+    ],
+    legende: 'The receiver is connected on P8, then the last code received shows every second (−1 if nothing).',
+  },
+  lorsque_ir_noire: {
+    titre: 'when the command … is received from the black remote (NEC)',
+    sert: 'Runs the blocks inside it when the chosen key of the DFRobot **black remote control** is pressed.',
+    util: [
+      'Choose the key, then put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'The receiver is watched at each turn of the program\'s main loop.',
+      'The receiver is read on **P0**, unless the ‘connect the infrared receiver to …’ block gives another pin.',
+      'In the simulator, choose the remote control and the key in the ‘Infrared remote control (simulation)’ panel.',
+    ],
+    legende: 'A heart shows when the Power key is pressed.',
+  },
+  lorsque_ir_grise: {
+    titre: 'when the command … is received from the grey Car mp3 remote (NEC)',
+    sert: 'Runs the blocks inside it when the chosen key of the **grey ‘Car mp3’ remote control** is pressed.',
+    util: [
+      'Choose the key, then put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'The receiver is watched at each turn of the program\'s main loop.',
+      'The receiver is read on **P0**, unless the ‘connect the infrared receiver to …’ block gives another pin.',
+      'In the simulator, choose the remote control and the key in the ‘Infrared remote control (simulation)’ panel.',
+    ],
+    legende: 'A heart shows when the CH key is pressed.',
+  },
+  maqueen_ir_decoder: {
+    titre: 'Maqueen Plus: decode the infrared receiver',
+    sert: '**Reads the infrared receiver** and keeps the code of the last key received.',
+    util: [
+      'Put it in the ‘forever’ block, before the ‘code received by the infrared receiver’ block.',
+    ],
+    savoir: [
+      'This block is **optional** with the ‘when the command …’ blocks: they already read the receiver at each turn of the loop.',
+    ],
+    legende: 'The receiver is connected on P8, then the last code received shows every second (−1 if nothing).',
+  },
+  maqueen_ir_dernier_code: {
+    titre: 'Maqueen Plus: code received by the infrared receiver',
+    sert: 'Returns the **code** of the last key received by the infrared receiver, or **−1** if nothing has been received yet.',
+    util: [
+      'Put the ‘decode the infrared receiver’ block just before, in the loop.',
+      'Show the code to find out the code of each key, then compare it in an ‘if’ block.',
+    ],
+    savoir: [
+      'The code keeps the value of the **last** key received, even when nothing is pressed any more.',
+    ],
+    legende: 'The receiver is connected on P8, then the last code received shows every second (−1 if nothing).',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

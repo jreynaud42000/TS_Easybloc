@@ -1418,4 +1418,358 @@ window.FICHES = [
     ],
     legende: 'L\'arc-en-ciel s\'allume au démarrage.',
   },
+  // ═══════════════ Cartes d'extension : Maqueen Plus ═══════════════
+  {
+    t: 'maqueen_moteur',
+    titre: 'moteur … à … (-255 à 255)',
+    sert: 'Fait tourner le moteur **gauche**, le moteur **droit** ou **les deux** moteurs du robot **Maqueen Plus** à la vitesse choisie.',
+    util: [
+      'Choisissez le moteur : gauche, droit ou les deux.',
+      'Écrivez la vitesse, de **−255 à 255** : un nombre **négatif** fait reculer, **0** arrête.',
+    ],
+    savoir: [
+      'Les moteurs **continuent de tourner** jusqu\'à un autre ordre : pensez au bloc « arrêter le moteur ».',
+      'Pour tourner, donnez des vitesses différentes aux deux moteurs (par exemple 100 à gauche et 0 à droite).',
+      'Le robot reçoit ses ordres par le **bus I2C** (broches P19 et P20).',
+      'Dans le simulateur, le robot se déplace sur la piste de la zone de simulation.',
+    ],
+    legende: 'Les deux moteurs tournent à la vitesse 50 pendant deux secondes, puis s\'arrêtent.',
+  },
+  {
+    t: 'maqueen_arreter',
+    titre: 'arrêter le moteur …',
+    sert: '**Arrête** le moteur gauche, le moteur droit ou les deux moteurs du robot **Maqueen Plus**.',
+    util: [
+      'Choisissez le moteur : gauche, droit ou les deux.',
+    ],
+    savoir: [
+      'C\'est la même chose que le bloc « moteur … à … » avec la vitesse **0**.',
+    ],
+    legende: 'Les deux moteurs tournent à la vitesse 50 pendant deux secondes, puis s\'arrêtent.',
+  },
+  {
+    t: 'maqueen_ligne_etat',
+    titre: 'capteur de ligne … sur la ligne',
+    sert: 'Renvoie **vrai** quand le capteur de ligne choisi, sous le robot, détecte la ligne, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez un des cinq capteurs : **L2** (extrême gauche), **L1** (gauche), **M** (milieu), **R1** (droit), **R2** (extrême droit).',
+      'Mettez ce bloc dans un bloc « si » pour corriger la trajectoire du robot.',
+    ],
+    savoir: [
+      'Pour suivre une ligne, on surveille en général **L1**, **M** et **R1** : si la ligne passe sous L1, le robot tourne un peu à gauche, et ainsi de suite.',
+      'Posez le robot sur votre piste pour **vérifier** quelle couleur de ligne les capteurs détectent.',
+      'Dans le simulateur, le robot détecte la ligne de la piste dessinée.',
+    ],
+    legende: 'Un visage heureux s\'affiche quand le capteur du milieu voit la ligne.',
+  },
+  {
+    t: 'maqueen_ligne_valeur',
+    titre: 'valeur brute du capteur de ligne …',
+    sert: 'Renvoie la **valeur brute** mesurée par un des cinq capteurs de ligne du robot : elle change avec la couleur et la clarté de la surface.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le capteur : L2, L1, M, R1 ou R2.',
+      'Affichez la valeur au-dessus de la ligne, puis à côté, pour choisir un seuil à comparer dans un bloc « si ».',
+    ],
+    savoir: [
+      'Pour savoir simplement si le capteur voit la ligne ou non, le bloc « capteur de ligne … sur la ligne » est plus simple.',
+    ],
+    legende: 'La valeur du capteur du milieu s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueen_phare',
+    titre: 'phare … …',
+    sert: '**Allume** ou **éteint** le phare gauche, le phare droit ou les deux phares à l\'avant du robot **Maqueen Plus**.',
+    util: [
+      'Choisissez le phare (gauche, droit ou les deux), puis **allumé** ou **éteint**.',
+    ],
+    savoir: [
+      'Le phare reste dans son état jusqu\'au prochain bloc qui le commande.',
+    ],
+    legende: 'Les deux phares s\'allument une seconde, puis s\'éteignent une seconde, sans fin.',
+  },
+  {
+    t: 'maqueen_rgb_couleur',
+    titre: 'DEL RGB … en …',
+    sert: 'Allume une des **quatre DEL RGB** du dessous du robot, ou toutes, dans la **couleur** choisie.',
+    util: [
+      'Choisissez la DEL : **L1**, **L2**, **R1**, **R2**, ou **toutes**.',
+      'Choisissez la couleur dans la liste du bloc.',
+    ],
+    savoir: [
+      'Les DEL RGB sont commandées par la broche **P15** : elle ne peut pas servir à autre chose.',
+      'La DEL garde sa couleur jusqu\'au prochain bloc qui la change, ou jusqu\'au bloc « éteindre les DEL RGB ».',
+    ],
+    legende: 'Toutes les DEL RGB s\'allument en rouge deux secondes, puis s\'éteignent.',
+  },
+  {
+    t: 'maqueen_rgb_eteindre',
+    titre: 'éteindre les DEL RGB',
+    sert: '**Éteint les quatre DEL RGB** du dessous du robot **Maqueen Plus**.',
+    util: [
+      'Placez-le où les DEL doivent s\'éteindre.',
+    ],
+    savoir: [
+      'Il n\'éteint pas les phares : utilisez pour eux le bloc « phare … éteint ».',
+    ],
+    legende: 'Toutes les DEL RGB s\'allument en rouge deux secondes, puis s\'éteignent.',
+  },
+  {
+    t: 'maqueen_distance',
+    titre: 'distance (cm) capteur ultrason Maqueen',
+    sert: 'Renvoie la **distance** entre l\'avant du robot et l\'obstacle le plus proche, en **centimètres**, mesurée par le capteur à ultrasons du Maqueen Plus.',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si » (par exemple pour s\'arrêter avant un mur).',
+    ],
+    savoir: [
+      'Le capteur utilise les broches **P13** (émission) et **P14** (écho), fixées par le robot : elles ne peuvent pas servir à autre chose.',
+      'Il renvoie **0** quand aucun écho ne revient (obstacle trop loin ou surface qui absorbe le son).',
+      'Dans le simulateur, réglez la distance avec le curseur de distance du robot.',
+    ],
+    legende: 'La distance mesurée devant le robot s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueen_v3_vitesse_suivi',
+    titre: 'Maqueen Plus v3 : vitesse du suiveur de ligne …',
+    sert: 'Règle la **vitesse** à laquelle le robot V3 suit seul la ligne, de **1** (lent) à **5** (rapide).',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant de démarrer le suiveur de ligne.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+      'Une vitesse lente suit mieux les virages serrés.',
+    ],
+    legende: 'La vitesse du suiveur est réglée sur 3, le robot va tout droit aux carrefours, puis le suivi de ligne démarre.',
+  },
+  {
+    t: 'maqueen_v3_mode_carrefour',
+    titre: 'Maqueen Plus v3 : aux carrefours, avancer …',
+    sert: 'Choisit ce que fait le robot V3, pendant le suivi de ligne, quand il arrive à un **carrefour** (croisement en +) : aller **tout droit**, tourner **à gauche**, tourner **à droite** ou s\'**arrêter**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant de démarrer le suiveur de ligne.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+      'Le choix reste valable pour tous les carrefours suivants, jusqu\'à un nouveau bloc.',
+    ],
+    legende: 'La vitesse du suiveur est réglée sur 3, le robot va tout droit aux carrefours, puis le suivi de ligne démarre.',
+  },
+  {
+    t: 'maqueen_v3_mode_gauche',
+    titre: 'Maqueen Plus v3 : aux intersections à gauche, avancer …',
+    sert: 'Choisit ce que fait le robot V3, pendant le suivi de ligne, quand une branche part **vers la gauche** : aller **tout droit**, tourner **à gauche** ou s\'**arrêter**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant de démarrer le suiveur de ligne.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+    ],
+    legende: 'La vitesse du suiveur est réglée sur 3, le robot va tout droit aux carrefours, puis le suivi de ligne démarre.',
+  },
+  {
+    t: 'maqueen_v3_mode_droite',
+    titre: 'Maqueen Plus v3 : aux intersections à droite, avancer …',
+    sert: 'Choisit ce que fait le robot V3, pendant le suivi de ligne, quand une branche part **vers la droite** : aller **tout droit**, tourner **à droite** ou s\'**arrêter**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant de démarrer le suiveur de ligne.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+    ],
+    legende: 'La vitesse du suiveur est réglée sur 3, le robot va tout droit aux carrefours, puis le suivi de ligne démarre.',
+  },
+  {
+    t: 'maqueen_v3_suiveur',
+    titre: 'Maqueen Plus v3 : … le suiveur de ligne',
+    sert: '**Démarre** ou **arrête** le suiveur de ligne intégré du robot V3 : une fois démarré, le robot **suit seul** la ligne, sans autre bloc.',
+    util: [
+      'Choisissez **démarrer** ou **arrêter**.',
+      'Réglez d\'abord la vitesse et les choix aux intersections avec les autres blocs « Maqueen Plus v3 ».',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+      'Pendant le suivi, le programme continue : il peut par exemple surveiller la distance ou les intersections.',
+    ],
+    legende: 'Le robot V3 suit la ligne pendant dix secondes, puis le suiveur s\'arrête.',
+  },
+  {
+    t: 'maqueen_v3_intersection_detectee',
+    titre: 'Maqueen Plus v3 : intersection détectée (code)',
+    sert: 'Renvoie le **code** de la dernière intersection détectée par le robot V3 pendant le suivi de ligne : **1** à gauche, **2** à droite, **3** tout droit, **4** stop.',
+    valeur: 'nombre',
+    util: [
+      'Comparez le résultat à un nombre dans un bloc « si ».',
+      'Plus simple : le bloc « intersection détectée est … ? » fait la comparaison pour vous.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+    ],
+    legende: 'Le code de l\'intersection détectée s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueen_v3_intersection_est',
+    titre: 'Maqueen Plus v3 : intersection détectée est … ?',
+    sert: 'Renvoie **vrai** quand la dernière intersection détectée par le robot V3 est du type choisi (**tout droit**, **à gauche**, **à droite**, **stop**), **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez le type d\'intersection, puis mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+    ],
+    legende: 'Un visage heureux s\'affiche quand l\'intersection détectée est « à gauche ».',
+  },
+  {
+    t: 'maqueen_v3_luminosite',
+    titre: 'Maqueen Plus v3 : intensité lumineuse à …',
+    sert: 'Renvoie la **lumière** mesurée par le capteur de lumière **gauche** ou **droit** du robot V3.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le capteur : gauche ou droite.',
+      'Comparez les deux côtés pour faire aller le robot vers la lumière, par exemple.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3**.',
+      'La valeur augmente avec la lumière ; affichez-la pour connaître les valeurs de votre salle.',
+    ],
+    legende: 'La lumière mesurée à gauche s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueen_v3_pid_avancer',
+    titre: 'Maqueen Plus v3 : … … cm … attendre la fin',
+    sert: 'Fait **avancer** ou **reculer** le robot V3 d\'une **distance précise**, en centimètres : les roues mesurent elles-mêmes le chemin parcouru.',
+    util: [
+      'Choisissez **avancer** ou **reculer**, puis écrivez la distance en **centimètres**.',
+      'Cochez **attendre la fin** pour que le programme attende l\'arrivée avant de passer au bloc suivant.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** (roues avec codeur).',
+      'Sans « attendre la fin », le programme continue pendant que le robot roule : le bloc « arrêter le contrôle PID en cours » peut alors l\'interrompre.',
+    ],
+    legende: 'Le robot V3 part pour 50 cm sans attendre la fin ; une seconde plus tard, le mouvement est interrompu.',
+  },
+  {
+    t: 'maqueen_v3_pid_tourner',
+    titre: 'Maqueen Plus v3 : tourner à … … ° … attendre la fin',
+    sert: 'Fait **tourner** le robot V3 sur place d\'un **angle précis**, en degrés, vers la gauche ou vers la droite.',
+    util: [
+      'Choisissez **gauche** ou **droite**, puis écrivez l\'angle en **degrés** (90 = un quart de tour).',
+      'Cochez **attendre la fin** pour que le programme attende la fin du virage.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** (roues avec codeur).',
+      'Le sens gauche/droite n\'a pas encore été vérifié sur un vrai robot : **essayez-le** et inversez le choix si besoin.',
+    ],
+    legende: 'Le robot V3 tourne de 90° vers la gauche et attend la fin du virage.',
+  },
+  {
+    t: 'maqueen_v3_vitesse_reelle',
+    titre: 'Maqueen Plus v3 : vitesse réelle de la roue … (cm/s)',
+    sert: 'Renvoie la **vitesse réelle** de la roue gauche ou droite du robot V3, en **centimètres par seconde**, mesurée par le codeur de la roue.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la roue : gauche ou droite.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** (roues avec codeur).',
+      'La vitesse réelle peut être différente de la vitesse demandée : sol glissant, pente, charge…',
+    ],
+    legende: 'La vitesse de la roue gauche s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'maqueen_v3_pid_stop',
+    titre: 'Maqueen Plus v3 : arrêter le contrôle PID en cours',
+    sert: '**Interrompt** le déplacement ou le virage précis en cours sur le robot V3.',
+    util: [
+      'Placez-le après un bloc « avancer … cm » ou « tourner à … ° » sans « attendre la fin ».',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** (roues avec codeur).',
+    ],
+    legende: 'Le robot V3 part pour 50 cm sans attendre la fin ; une seconde plus tard, le mouvement est interrompu.',
+  },
+  {
+    t: 'maqueen_v3_del_carrosserie',
+    titre: 'Maqueen Plus v3 : DEL de carrosserie … en …',
+    sert: 'Allume la DEL **gauche**, la DEL **droite** ou les deux DEL de la **coque** du robot V3 dans la couleur choisie.',
+    util: [
+      'Choisissez la DEL, puis la couleur : rouge, vert, jaune, bleu, violet, cyan, blanc, ou **éteint**.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3**.',
+      'Ces DEL sont différentes des quatre DEL RGB du dessous (bloc « DEL RGB … en … »).',
+    ],
+    legende: 'Les deux DEL de la coque s\'allument en rouge.',
+  },
+  {
+    t: 'maqueen_ir_init',
+    titre: 'Maqueen Plus : connecter le récepteur infrarouge à …',
+    sert: 'Indique sur quelle broche est branché le **récepteur infrarouge** qui reçoit les ordres de la télécommande.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+      'Choisissez la broche du récepteur.',
+    ],
+    savoir: [
+      'Sans ce bloc, le récepteur est lu sur la broche **P0**.',
+      'Le décodage suit le protocole **NEC** des télécommandes infrarouges courantes ; il n\'a pas encore été essayé avec un vrai récepteur.',
+      'Dans le simulateur, choisissez une touche dans le panneau « Télécommande infrarouge (simulation) ».',
+    ],
+    legende: 'Le récepteur est connecté sur P8, puis le dernier code reçu s\'affiche chaque seconde (−1 si rien).',
+  },
+  {
+    t: 'lorsque_ir_noire',
+    titre: 'lorsque la commande … est reçue par télécommande noire (NEC)',
+    sert: 'Exécute les blocs placés à l\'intérieur quand la touche choisie de la **télécommande noire** DFRobot est pressée.',
+    util: [
+      'Choisissez la touche, puis posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Le récepteur est surveillé à chaque tour de la boucle principale du programme.',
+      'Le récepteur est lu sur **P0**, sauf si le bloc « connecter le récepteur infrarouge à … » en indique une autre.',
+      'Dans le simulateur, choisissez la télécommande et la touche dans le panneau « Télécommande infrarouge (simulation) ».',
+    ],
+    legende: 'Un cœur s\'affiche quand la touche Power est pressée.',
+  },
+  {
+    t: 'lorsque_ir_grise',
+    titre: 'lorsque la commande … est reçue par télécommande grise Car mp3 (NEC)',
+    sert: 'Exécute les blocs placés à l\'intérieur quand la touche choisie de la **télécommande grise** « Car mp3 » est pressée.',
+    util: [
+      'Choisissez la touche, puis posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Le récepteur est surveillé à chaque tour de la boucle principale du programme.',
+      'Le récepteur est lu sur **P0**, sauf si le bloc « connecter le récepteur infrarouge à … » en indique une autre.',
+      'Dans le simulateur, choisissez la télécommande et la touche dans le panneau « Télécommande infrarouge (simulation) ».',
+    ],
+    legende: 'Un cœur s\'affiche quand la touche CH est pressée.',
+  },
+  {
+    t: 'maqueen_ir_decoder',
+    titre: 'Maqueen Plus : décoder le récepteur infrarouge',
+    sert: '**Lit le récepteur infrarouge** et garde le code de la dernière touche reçue.',
+    util: [
+      'Placez-le dans le bloc « répéter indéfiniment », avant le bloc « code reçu du récepteur infrarouge ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** avec les blocs « lorsque la commande … » : ils lisent déjà le récepteur à chaque tour de boucle.',
+    ],
+    legende: 'Le récepteur est connecté sur P8, puis le dernier code reçu s\'affiche chaque seconde (−1 si rien).',
+  },
+  {
+    t: 'maqueen_ir_dernier_code',
+    titre: 'Maqueen Plus : code reçu du récepteur infrarouge',
+    sert: 'Renvoie le **code** de la dernière touche reçue par le récepteur infrarouge, ou **−1** si rien n\'a encore été reçu.',
+    valeur: 'nombre',
+    util: [
+      'Placez le bloc « décoder le récepteur infrarouge » juste avant, dans la boucle.',
+      'Affichez le code pour découvrir celui de chaque touche, puis comparez-le dans un bloc « si ».',
+    ],
+    savoir: [
+      'Le code garde la valeur de la **dernière** touche reçue, même quand on ne presse plus rien.',
+    ],
+    legende: 'Le récepteur est connecté sur P8, puis le dernier code reçu s\'affiche chaque seconde (−1 si rien).',
+  },
 ];
