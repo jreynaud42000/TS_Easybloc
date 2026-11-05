@@ -712,6 +712,86 @@ window.FICHES_EN = {
     ],
     legende: 'A pulse of 1500 µs puts the servomotor plugged into P0 in the middle.',
   },
+  // ═══════════════ Extension boards: DFR0548, Motor:bit ═══════════════
+  dfr_servo: {
+    titre: 'DFR0548: servo … to … °',
+    sert: 'Puts the **servomotor** plugged into one of the 8 servo outputs (**S1 to S8**) of the **DFR0548** motor board at the chosen angle.',
+    util: [
+      'Choose the output where the servomotor is plugged in, from **S1 to S8**.',
+      'Type the angle, from **0 to 180°**, or put in a block that returns a number.',
+    ],
+    savoir: [
+      'The DFR0548 board gets its orders through the **I2C bus** (pins P19 and P20): these pins must not be used for anything else.',
+      'An angle below 0 or above 180 is brought back to 0 or 180°.',
+      'The program **does not wait** for the servomotor to get there: add a ‘wait’ block.',
+    ],
+    legende: 'The servomotor plugged into S1 goes from 0° to 180°, then back, every second.',
+  },
+  dfr_moteur: {
+    titre: 'DFR0548: motor … direction … speed … (0 to 255)',
+    sert: 'Turns the **DC motor** plugged into one of the 4 motor outputs (**M1 to M4**) of the **DFR0548** board.',
+    util: [
+      'Choose the motor\'s output (M1 to M4) and the direction: **clockwise** or **anticlockwise**.',
+      'Type the speed, from **0** (stop) to **255** (top speed).',
+    ],
+    savoir: [
+      'The motor **keeps turning** until another order: remember the ‘DFR0548: stop’ block.',
+      'The real direction depends on how the two motor wires are connected: swap them, or choose the other direction, if the motor turns the wrong way.',
+      'The DFR0548 board gets its orders through the **I2C bus** (pins P19 and P20).',
+    ],
+    legende: 'Motor M1 turns clockwise for two seconds at speed 150, then stops.',
+  },
+  dfr_moteur_arreter: {
+    titre: 'DFR0548: stop …',
+    sert: '**Stops** a DC motor of the **DFR0548** board, or all four at once.',
+    util: [
+      'Choose the motor (M1 to M4), or **all motors**.',
+    ],
+    savoir: [
+      'It only acts on the DC motors: the servomotors keep their position.',
+    ],
+    legende: 'Motor M1 turns clockwise for two seconds at speed 150, then stops.',
+  },
+  dfr_pas_a_pas: {
+    titre: 'DFR0548: stepper motor … on … direction … of … …',
+    sert: 'Turns a **stepper motor** plugged into two motor outputs of the **DFR0548** board by a number of **degrees** or **turns**, then stops it.',
+    util: [
+      'Choose the motor model: **28BYJ-48** or **42BYGH**.',
+      'Choose the two outputs it is plugged into (**M1-M2** or **M3-M4**) and the direction.',
+      'Type the amount, then choose the unit: **degrees** or **turns**.',
+    ],
+    savoir: [
+      'The program **waits for the end of the movement** before moving on to the next block.',
+      'The angle is obtained from a **turning time** (method of the DFRobot library): it can be a little different on the real motor. Check it and adjust the amount.',
+      'A stepper motor uses **two motor outputs**: they can no longer be used for a DC motor.',
+    ],
+    legende: 'The 28BYJ-48 stepper motor plugged into M1-M2 makes one turn clockwise, then half a turn the other way.',
+  },
+  motorbit_moteur: {
+    titre: 'Motor:bit: motor … direction … speed … (0 to 255)',
+    sert: 'Turns the **DC motor** plugged into output **M1** or **M2** of the **Motor:bit** board (ELECFREAKS).',
+    util: [
+      'Choose the motor\'s output (M1 or M2) and the direction: **clockwise** or **anticlockwise**.',
+      'Type the speed, from **0** (stop) to **255** (top speed).',
+    ],
+    savoir: [
+      'The motor **keeps turning** until another order: remember the ‘Motor:bit: stop’ block.',
+      'The Motor:bit board drives the motors with pins **P1, P2, P8 and P12**: do not plug another module into them.',
+      'The real direction depends on how the two motor wires are connected.',
+    ],
+    legende: 'Motors M1 and M2 each turn for two seconds at speed 150, one after the other.',
+  },
+  motorbit_moteur_arreter: {
+    titre: 'Motor:bit: stop …',
+    sert: '**Stops** a motor of the **Motor:bit** board (M1 or M2), or both at once.',
+    util: [
+      'Choose **motor M1**, **motor M2** or **both motors**.',
+    ],
+    savoir: [
+      'To stop both motors at once, choose **both motors**.',
+    ],
+    legende: 'Motors M1 and M2 each turn for two seconds at speed 150, one after the other.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

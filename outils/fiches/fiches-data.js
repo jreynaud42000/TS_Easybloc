@@ -816,4 +816,90 @@ window.FICHES = [
     ],
     legende: 'Une impulsion de 1500 µs place le servomoteur branché sur P0 au milieu.',
   },
+  // ═══════════════ Cartes d'extension : DFR0548, Motor:bit ═══════════════
+  {
+    t: 'dfr_servo',
+    titre: 'DFR0548 : servo … à … °',
+    sert: 'Place le **servomoteur** branché sur une des 8 sorties servo (**S1 à S8**) de la carte moteurs **DFR0548** à l\'angle choisi.',
+    util: [
+      'Choisissez la sortie où le servomoteur est branché, de **S1 à S8**.',
+      'Écrivez l\'angle, de **0 à 180°**, ou mettez-y un bloc qui renvoie un nombre.',
+    ],
+    savoir: [
+      'La carte DFR0548 reçoit ses ordres par le **bus I2C** (broches P19 et P20) : ces broches ne doivent pas servir à autre chose.',
+      'Un angle plus petit que 0 ou plus grand que 180 est ramené à 0 ou à 180°.',
+      'Le programme **n\'attend pas** que le servomoteur soit arrivé : ajoutez un bloc « attendre ».',
+    ],
+    legende: 'Le servomoteur branché sur S1 passe de 0° à 180°, puis revient, chaque seconde.',
+  },
+  {
+    t: 'dfr_moteur',
+    titre: 'DFR0548 : moteur … sens … vitesse … (0 à 255)',
+    sert: 'Fait tourner le **moteur à courant continu** branché sur une des 4 sorties moteur (**M1 à M4**) de la carte **DFR0548**.',
+    util: [
+      'Choisissez la sortie du moteur (M1 à M4) et le sens : **horaire** ou **antihoraire**.',
+      'Écrivez la vitesse, de **0** (arrêt) à **255** (vitesse maximale).',
+    ],
+    savoir: [
+      'Le moteur **continue de tourner** jusqu\'à un autre ordre : pensez au bloc « DFR0548 : arrêter ».',
+      'Le sens réel dépend du branchement des deux fils du moteur : inversez-les, ou choisissez l\'autre sens, si le moteur tourne à l\'envers.',
+      'La carte DFR0548 reçoit ses ordres par le **bus I2C** (broches P19 et P20).',
+    ],
+    legende: 'Le moteur M1 tourne deux secondes dans le sens horaire à la vitesse 150, puis s\'arrête.',
+  },
+  {
+    t: 'dfr_moteur_arreter',
+    titre: 'DFR0548 : arrêter …',
+    sert: '**Arrête** un moteur à courant continu de la carte **DFR0548**, ou les quatre à la fois.',
+    util: [
+      'Choisissez le moteur (M1 à M4), ou **tous les moteurs**.',
+    ],
+    savoir: [
+      'Il n\'agit que sur les moteurs à courant continu : les servomoteurs gardent leur position.',
+    ],
+    legende: 'Le moteur M1 tourne deux secondes dans le sens horaire à la vitesse 150, puis s\'arrête.',
+  },
+  {
+    t: 'dfr_pas_a_pas',
+    titre: 'DFR0548 : moteur pas à pas … sur … sens … de … …',
+    sert: 'Fait tourner un **moteur pas à pas** branché sur deux sorties moteur de la carte **DFR0548**, d\'un nombre de **degrés** ou de **tours**, puis l\'arrête.',
+    util: [
+      'Choisissez le modèle du moteur : **28BYJ-48** ou **42BYGH**.',
+      'Choisissez les deux sorties où il est branché (**M1-M2** ou **M3-M4**) et le sens.',
+      'Écrivez la quantité, puis choisissez l\'unité : **degrés** ou **tours**.',
+    ],
+    savoir: [
+      'Le programme **attend la fin du mouvement** avant de passer au bloc suivant.',
+      'L\'angle est obtenu par une **durée de rotation** (méthode de la bibliothèque DFRobot) : il peut être un peu différent sur le vrai moteur. Vérifiez-le et ajustez la quantité.',
+      'Un moteur pas à pas occupe **deux sorties moteur** : elles ne peuvent plus servir à un moteur à courant continu.',
+    ],
+    legende: 'Le moteur pas à pas 28BYJ-48 branché sur M1-M2 fait un tour dans le sens horaire, puis un demi-tour dans l\'autre sens.',
+  },
+  {
+    t: 'motorbit_moteur',
+    titre: 'Motor:bit : moteur … sens … vitesse … (0 à 255)',
+    sert: 'Fait tourner le **moteur à courant continu** branché sur la sortie **M1** ou **M2** de la carte **Motor:bit** (ELECFREAKS).',
+    util: [
+      'Choisissez la sortie du moteur (M1 ou M2) et le sens : **horaire** ou **antihoraire**.',
+      'Écrivez la vitesse, de **0** (arrêt) à **255** (vitesse maximale).',
+    ],
+    savoir: [
+      'Le moteur **continue de tourner** jusqu\'à un autre ordre : pensez au bloc « Motor:bit : arrêter ».',
+      'La carte Motor:bit commande les moteurs avec les broches **P1, P2, P8 et P12** : n\'y branchez pas d\'autre module.',
+      'Le sens réel dépend du branchement des deux fils du moteur.',
+    ],
+    legende: 'Les moteurs M1 et M2 tournent chacun deux secondes à la vitesse 150, l\'un après l\'autre.',
+  },
+  {
+    t: 'motorbit_moteur_arreter',
+    titre: 'Motor:bit : arrêter …',
+    sert: '**Arrête** un moteur de la carte **Motor:bit** (M1 ou M2), ou les deux à la fois.',
+    util: [
+      'Choisissez **le moteur M1**, **le moteur M2** ou **les deux moteurs**.',
+    ],
+    savoir: [
+      'Pour arrêter les deux moteurs d\'un coup, choisissez **les deux moteurs**.',
+    ],
+    legende: 'Les moteurs M1 et M2 tournent chacun deux secondes à la vitesse 150, l\'un après l\'autre.',
+  },
 ];
