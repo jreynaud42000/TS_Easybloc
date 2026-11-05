@@ -730,4 +730,90 @@ window.FICHES = [
     ],
     legende: 'La carte dit « Hello » au démarrage.',
   },
+  // ═══════════════ Servos ═══════════════
+  {
+    t: 'servo_angle',
+    titre: 'régler l\'angle du servomoteur … à … °',
+    sert: 'Fait tourner un **servomoteur** jusqu\'à l\'angle choisi, de **0 à 180°**, et l\'y maintient.',
+    util: [
+      'Choisissez la broche où le servomoteur est branché : **P0, P1 ou P2**.',
+      'Écrivez l\'angle dans la case, ou mettez-y un bloc qui renvoie un nombre.',
+    ],
+    savoir: [
+      'Le programme **n\'attend pas** que le servomoteur soit arrivé : ajoutez un bloc « attendre » pour lui laisser le temps de tourner.',
+      'L\'angle est ramené dans l\'intervalle choisi avec le bloc « définir l\'intervalle du servomoteur » (de 0 à 180° au départ).',
+      'Ce bloc est fait pour un servomoteur **positionnel** ; pour un servomoteur à rotation continue, utilisez le bloc « servomoteur … à rotation continue fonctionne à … % ».',
+    ],
+    legende: 'Le servomoteur branché sur P0 se place à 90°, puis à 0° une seconde plus tard.',
+  },
+  {
+    t: 'servo_continu',
+    titre: 'servomoteur … à rotation continue fonctionne à … %',
+    sert: 'Fait tourner un **servomoteur à rotation continue** à la vitesse choisie, de **−100 à 100 %**.',
+    util: [
+      'Choisissez la broche où le servomoteur est branché : **P0, P1 ou P2**.',
+      'Écrivez la vitesse : **0** pour l\'arrêt, un nombre **négatif** pour tourner dans l\'autre sens.',
+    ],
+    savoir: [
+      'Le servomoteur continue de tourner jusqu\'au prochain bloc qui le commande.',
+      'Si le servomoteur tourne encore doucement à 0 %, utilisez le bloc « mettre l\'arrêt au neutre du servomoteur » ou le bloc « arrêter le servomoteur ».',
+    ],
+    legende: 'Le servomoteur branché sur P0 tourne à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'servo_arreter',
+    titre: 'arrêter le servomoteur …',
+    sert: '**Cesse de commander** le servomoteur : la carte ne lui envoie plus d\'ordre.',
+    util: [
+      'Choisissez la broche du servomoteur.',
+    ],
+    savoir: [
+      'Un servomoteur **à rotation continue** s\'arrête.',
+      'Un servomoteur **positionnel** reste où il est, mais ne tient plus sa position : on peut le tourner à la main.',
+    ],
+    legende: 'Le servomoteur branché sur P0 tourne à 50 % pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'servo_arret_neutre',
+    titre: 'mettre l\'arrêt au neutre du servomoteur … à …',
+    sert: 'Avec **ON**, une vitesse de **0 %** donnée au servomoteur à rotation continue l\'**arrête complètement**, au lieu de lui envoyer l\'ordre « position du milieu ».',
+    util: [
+      'Choisissez la broche du servomoteur, puis **ON** ou **OFF**.',
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Utile quand le servomoteur à rotation continue tourne encore doucement à 0 %.',
+      'Au départ, l\'arrêt au neutre est sur **OFF**.',
+    ],
+    legende: 'L\'arrêt au neutre est activé, puis une vitesse de 0 % arrête le servomoteur branché sur P0.',
+  },
+  {
+    t: 'servo_intervalle',
+    titre: 'définir l\'intervalle du servomoteur … de … à …',
+    sert: '**Limite la course** du servomoteur entre un angle mini et un angle maxi.',
+    util: [
+      'Choisissez la broche du servomoteur, puis écrivez l\'angle mini et l\'angle maxi.',
+      'Placez ce bloc dans le bloc « au démarrage », avant de faire tourner le servomoteur.',
+    ],
+    savoir: [
+      'Le mini est ramené **entre 0 et 90°**, le maxi **entre 90 et 180°**.',
+      'Ensuite, un angle demandé hors de l\'intervalle est ramené à la limite la plus proche : cela protège une pièce qui ne doit pas aller trop loin.',
+      'Au départ, l\'intervalle va de 0 à 180°.',
+    ],
+    legende: 'La course du servomoteur branché sur P0 est limitée de 30° à 150°, puis il se place à 90°.',
+  },
+  {
+    t: 'servo_impulsion',
+    titre: 'régler la largeur d\'impulsion du servomoteur … à … µs',
+    sert: 'Commande le servomoteur directement par la **durée de l\'impulsion** qu\'il reçoit, en **microsecondes (µs)**.',
+    util: [
+      'Choisissez la broche du servomoteur, puis écrivez la durée.',
+    ],
+    savoir: [
+      'La durée est ramenée **entre 500 et 2500 µs** : 500 µs correspond à 0°, **1500 µs** au milieu (90°), 2500 µs à 180°.',
+      'La carte envoie une impulsion toutes les **20 millisecondes**.',
+      'Pour un usage courant, le bloc « régler l\'angle du servomoteur » est plus simple.',
+    ],
+    legende: 'Une impulsion de 1500 µs place le servomoteur branché sur P0 au milieu.',
+  },
 ];

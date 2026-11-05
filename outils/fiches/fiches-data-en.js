@@ -632,6 +632,86 @@ window.FICHES_EN = {
     ],
     legende: 'The board says ‘Hello’ at start.',
   },
+  // ═══════════════ Servos ═══════════════
+  servo_angle: {
+    titre: 'set the servomotor angle … to … °',
+    sert: 'Turns a **servomotor** to the chosen angle, from **0 to 180°**, and holds it there.',
+    util: [
+      'Choose the pin where the servomotor is plugged in: **P0, P1 or P2**.',
+      'Type the angle in the box, or put in a block that returns a number.',
+    ],
+    savoir: [
+      'The program **does not wait** for the servomotor to get there: add a ‘wait’ block to give it time to turn.',
+      'The angle is brought back into the range set with the ‘set the servomotor range’ block (0 to 180° at first).',
+      'This block is made for a **positional** servomotor; for a continuous rotation servomotor, use the ‘servomotor … continuous rotation runs at … %’ block.',
+    ],
+    legende: 'The servomotor plugged into P0 goes to 90°, then to 0° one second later.',
+  },
+  servo_continu: {
+    titre: 'servomotor … continuous rotation runs at … %',
+    sert: 'Turns a **continuous rotation servomotor** at the chosen speed, from **−100 to 100 %**.',
+    util: [
+      'Choose the pin where the servomotor is plugged in: **P0, P1 or P2**.',
+      'Type the speed: **0** to stop, a **negative** number to turn the other way.',
+    ],
+    savoir: [
+      'The servomotor keeps turning until the next block that controls it.',
+      'If the servomotor still turns slowly at 0 %, use the ‘set neutral stop of servomotor’ block or the ‘stop the servomotor’ block.',
+    ],
+    legende: 'The servomotor plugged into P0 turns at 50 % for two seconds, then stops.',
+  },
+  servo_arreter: {
+    titre: 'stop the servomotor …',
+    sert: '**Stops controlling** the servomotor: the board no longer sends it orders.',
+    util: [
+      'Choose the servomotor\'s pin.',
+    ],
+    savoir: [
+      'A **continuous rotation** servomotor stops.',
+      'A **positional** servomotor stays where it is, but no longer holds its position: you can turn it by hand.',
+    ],
+    legende: 'The servomotor plugged into P0 turns at 50 % for two seconds, then stops.',
+  },
+  servo_arret_neutre: {
+    titre: 'set neutral stop of servomotor … to …',
+    sert: 'With **ON**, a speed of **0 %** given to the continuous rotation servomotor **stops it completely**, instead of sending it the ‘middle position’ order.',
+    util: [
+      'Choose the servomotor\'s pin, then **ON** or **OFF**.',
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'Handy when the continuous rotation servomotor still turns slowly at 0 %.',
+      'At first, the neutral stop is **OFF**.',
+    ],
+    legende: 'The neutral stop is switched on, then a speed of 0 % stops the servomotor plugged into P0.',
+  },
+  servo_intervalle: {
+    titre: 'set the servomotor range … of … to …',
+    sert: '**Limits the travel** of the servomotor between a minimum and a maximum angle.',
+    util: [
+      'Choose the servomotor\'s pin, then type the minimum and the maximum angle.',
+      'Put this block in the ‘on start’ block, before turning the servomotor.',
+    ],
+    savoir: [
+      'The minimum is brought back **between 0 and 90°**, the maximum **between 90 and 180°**.',
+      'Then, an angle asked outside the range is brought back to the nearest limit: this protects a part that must not go too far.',
+      'At first, the range goes from 0 to 180°.',
+    ],
+    legende: 'The travel of the servomotor plugged into P0 is limited from 30° to 150°, then it goes to 90°.',
+  },
+  servo_impulsion: {
+    titre: 'set the servomotor pulse width … to … µs',
+    sert: 'Controls the servomotor directly with the **length of the pulse** it receives, in **microseconds (µs)**.',
+    util: [
+      'Choose the servomotor\'s pin, then type the length.',
+    ],
+    savoir: [
+      'The length is brought back **between 500 and 2500 µs**: 500 µs is 0°, **1500 µs** is the middle (90°), 2500 µs is 180°.',
+      'The board sends a pulse every **20 milliseconds**.',
+      'For everyday use, the ‘set the servomotor angle’ block is simpler.',
+    ],
+    legende: 'A pulse of 1500 µs puts the servomotor plugged into P0 in the middle.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
