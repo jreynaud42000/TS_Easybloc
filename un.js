@@ -487,7 +487,7 @@ try {
         this.appendDummyInput().appendField("lorsque la broche")
             .appendField(new Blockly.FieldDropdown([["P0", "pin0"], ["P1", "pin1"], ["P2", "pin2"]]), "BROCHE")
             .appendField("est")
-            .appendField(new Blockly.FieldDropdown([["activée", "touched"], ["relachée", "released"]]), "ETAT");
+            .appendField(new Blockly.FieldDropdown([["activée", "touched"], ["relâchée", "released"]]), "ETAT");
         this.appendStatementInput("DO").setCheck(null);
         this.setColour(300);
     }};
@@ -500,7 +500,7 @@ try {
     Blockly.Blocks['lorsque_son_detecte'] = { init: function() {
         this.appendDummyInput().appendField("lorsque le son")
             .appendField(new Blockly.FieldDropdown([["bruyant", "LOUD"], ["faible", "QUIET"]]), "SON")
-            .appendField("est detecté");
+            .appendField("est détecté");
         this.appendStatementInput("DO").setCheck(null);
         this.setColour(300);
     }};
@@ -511,7 +511,7 @@ try {
 
     Blockly.Blocks['lorsque_logo'] = { init: function() {
         this.appendDummyInput().appendField("sur le logo")
-            .appendField(new Blockly.FieldDropdown([["appuyé", "touched"], ["relaché", "released"]]), "ACTION");
+            .appendField(new Blockly.FieldDropdown([["appuyé", "touched"], ["relâché", "released"]]), "ACTION");
         this.appendStatementInput("DO").setCheck(null);
         this.setColour(300);
     }};
@@ -785,7 +785,7 @@ try {
     };
 
     Blockly.Blocks['gamme_accelerometre'] = { init: function() {
-        this.appendDummyInput().appendField("spécifier la gamme de l'acceleromètre")
+        this.appendDummyInput().appendField("spécifier la gamme de l'accéléromètre")
             .appendField(new Blockly.FieldDropdown([["1g", "1"], ["2g", "2"], ["4g", "4"], ["8g", "8"]]), "GAMME");
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);

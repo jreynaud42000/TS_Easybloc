@@ -412,4 +412,266 @@ window.FICHES = [
     ],
     legende: 'Un cœur s\'affiche à chaque démarrage ; le bouton A redémarre la carte.',
   },
+  // ═══════════════ Capteurs ═══════════════
+  {
+    t: 'lorsque_bouton',
+    titre: 'lorsque le bouton … est pressé',
+    sert: 'Exécute les blocs placés à l\'intérieur **à chaque appui** sur le bouton choisi.',
+    util: [
+      'Choisissez le bouton : **A**, **B**, ou **A+B** (les deux en même temps).',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Un appui ne déclenche le bloc **qu\'une fois**, même si le bouton reste enfoncé.',
+      'Un appui sur **A+B** ne déclenche pas en plus les blocs « lorsque le bouton A » et « lorsque le bouton B ».',
+      'Le bouton est surveillé à chaque tour de la boucle principale du programme (ajoutée automatiquement s\'il n\'y en a pas).',
+      'Dans le simulateur, appuyez sur les boutons A et B de la carte dessinée.',
+    ],
+    legende: 'Le bouton A affiche un visage heureux, le bouton B efface l\'écran.',
+  },
+  {
+    t: 'lorsque_geste',
+    titre: 'lorsque …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand la carte fait le **geste** choisi : secouée, logo vers le haut ou logo vers le bas.',
+    util: [
+      'Choisissez le geste dans la liste du bloc.',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Chaque geste ne déclenche le bloc **qu\'une fois** par mouvement.',
+      'Dans le simulateur, seul le geste « secouer » existe : cliquez sur le bouton « Secouer la carte », sous la carte dessinée.',
+    ],
+    legende: 'Quand on secoue la carte, un fantôme apparaît une seconde.',
+  },
+  {
+    t: 'lorsque_broche',
+    titre: 'lorsque la broche … est …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand la broche **P0, P1 ou P2** est touchée avec le doigt (« activée »), ou quand on la lâche (« relâchée »).',
+    util: [
+      'Choisissez la broche, puis « activée » ou « relâchée ».',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      '**Un seul doigt** sur la broche suffit : le mode tactile de la carte V2 est activé automatiquement.',
+      'Une broche utilisée comme touche ne doit pas servir en même temps à un module branché.',
+      'Dans le simulateur, cliquez sur la broche 0, 1 ou 2 de la carte dessinée.',
+    ],
+    legende: 'Un doigt sur P0 affiche un visage heureux pendant une seconde.',
+  },
+  {
+    t: 'lorsque_son_detecte',
+    titre: 'lorsque le son … est détecté',
+    sert: 'Exécute les blocs placés à l\'intérieur quand le **micro** de la carte entend un son **bruyant**, ou quand il redevient **faible**.',
+    util: [
+      'Choisissez « bruyant » ou « faible ».',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Le micro n\'existe que sur la carte **micro:bit V2**.',
+      'Le niveau qui sépare « bruyant » et « faible » se règle avec le bloc « définit le seuil du son ».',
+      'Le simulateur n\'entend aucun son : ce bloc ne se déclenche que sur la vraie carte.',
+    ],
+    legende: 'Un bruit fort fait apparaître un visage triste une seconde.',
+  },
+  {
+    t: 'lorsque_logo',
+    titre: 'sur le logo …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand le **logo tactile** de la carte est touché (« appuyé »), ou quand on le lâche (« relâché »).',
+    util: [
+      'Choisissez « appuyé » ou « relâché ».',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Le logo tactile n\'existe que sur la carte **micro:bit V2**.',
+      'Dans le simulateur, cliquez sur le logo de la carte dessinée.',
+    ],
+    legende: 'Un cœur s\'affiche quand on touche le logo.',
+  },
+  {
+    t: 'capteur_acceleration',
+    titre: 'accélération (mg) …',
+    sert: 'Renvoie l\'**accélération** mesurée par la carte selon l\'axe **x**, **y** ou **z**, ou la **force** totale.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez l\'axe : **x** (gauche-droite), **y** (avant-arrière), **z** (haut-bas), ou **force** (les trois ensemble).',
+    ],
+    savoir: [
+      'L\'unité est le **milli-g (mg)** : 1000 mg correspondent à la pesanteur terrestre. Carte posée à plat, l\'axe vertical mesure donc environ 1000 mg.',
+      'L\'étendue de mesure se règle avec le bloc « spécifier la gamme de l\'accéléromètre ».',
+      'Dans le simulateur, la carte est toujours immobile et à plat : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'L\'accélération sur l\'axe x s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'broche_est_pressee',
+    titre: 'broche … est pressée',
+    sert: 'Renvoie **vrai** tant que la broche **P0, P1 ou P2** est touchée avec le doigt, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez la broche.',
+      'Mettez ce bloc dans un bloc « si » ou « attendre jusqu\'à ».',
+    ],
+    savoir: [
+      '**Un seul doigt** sur la broche suffit : le mode tactile de la carte V2 est activé automatiquement.',
+      'Dans le simulateur, cliquez sur la broche 0, 1 ou 2 de la carte dessinée.',
+    ],
+    legende: 'Un visage heureux s\'affiche tant que la broche P0 est touchée.',
+  },
+  {
+    t: 'capteur_luminosite',
+    titre: 'niveau d\'intensité lumineuse',
+    sert: 'Renvoie le **niveau de lumière** autour de la carte, de **0** (obscurité) à **255** (très lumineux).',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si » (par exemple pour allumer une LED quand il fait sombre).',
+    ],
+    savoir: [
+      'La lumière est mesurée par la **matrice de LED** elle-même : il n\'y a pas de capteur à part.',
+      'Dans le simulateur, cette mesure ne varie pas (elle vaut toujours 128) : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'Le niveau de lumière s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'capteur_boussole_direction',
+    titre: 'direction de la boussole (°)',
+    sert: 'Renvoie la **direction** vers laquelle pointe le haut de la carte, en degrés : **0** pour le nord, 90 pour l\'est, 180 pour le sud, 270 pour l\'ouest.',
+    valeur: 'nombre',
+    util: [
+      'Tenez la carte à plat pour une mesure juste.',
+      'Placez le bloc « calibrer la boussole » dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Si la boussole n\'a pas encore été calibrée, la carte lance d\'abord la calibration.',
+      'Un aimant, un moteur ou un objet en fer près de la carte fausse la direction.',
+      'Dans le simulateur, cette mesure ne varie pas (elle vaut toujours 0) : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'La boussole est calibrée une fois au démarrage, puis la direction s\'affiche chaque seconde.',
+    exempleDe: 'capteur_boussole_calibrer',
+  },
+  {
+    t: 'capteur_temperature',
+    titre: 'température (° C)',
+    sert: 'Renvoie la **température** mesurée par la carte, en **degrés Celsius**.',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si ».',
+    ],
+    savoir: [
+      'C\'est la température de la **puce** de la carte : elle est un peu plus élevée que celle de l\'air autour.',
+      'Dans le simulateur, cette mesure ne varie pas (elle vaut toujours 21 °C) : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'La température de la carte s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'geste_est_actif',
+    titre: 'geste … est actif',
+    sert: 'Renvoie **vrai** tant que la carte fait le geste choisi (secouée, logo vers le haut, logo vers le bas), **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez le geste dans la liste du bloc.',
+      'Mettez ce bloc dans un bloc « si » ou « attendre jusqu\'à ».',
+    ],
+    savoir: [
+      'Il reste **vrai pendant tout le geste**, contrairement au bloc « si secoué alors » qui ne compte chaque secousse qu\'une fois.',
+      'Dans le simulateur, seul le geste « secouer » existe : cliquez sur le bouton « Secouer la carte », sous la carte dessinée.',
+    ],
+    legende: 'Un visage triste s\'affiche tant que la carte est secouée.',
+  },
+  {
+    t: 'micro_intensite_son',
+    titre: 'niveau sonore',
+    sert: 'Renvoie le **niveau du son** entendu par le micro de la carte, de **0** (silence) à **255** (très fort).',
+    valeur: 'nombre',
+    util: [
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si ».',
+    ],
+    savoir: [
+      'Le micro n\'existe que sur la carte **micro:bit V2**.',
+      'Dans le simulateur, cette mesure ne varie pas (elle vaut toujours 0) : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'Le niveau sonore s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'capteur_boussole_calibrer',
+    titre: 'calibrer la boussole',
+    sert: 'Lance le **réglage de la boussole** : la carte demande de l\'incliner dans tous les sens.',
+    util: [
+      'Placez-le dans le bloc « au démarrage ».',
+      'Pendant le réglage, suivez les indications qui défilent sur la matrice de LED : inclinez la carte dans tous les sens jusqu\'à la fin du réglage.',
+    ],
+    savoir: [
+      'Le programme **attend la fin du réglage** avant de passer au bloc suivant.',
+      'Sans ce bloc, la carte lance le réglage d\'elle-même à la première lecture de la boussole.',
+    ],
+    legende: 'La boussole est calibrée une fois au démarrage, puis la direction s\'affiche chaque seconde.',
+  },
+  {
+    t: 'capteur_boussole_force',
+    titre: 'force magnétique (µT) …',
+    sert: 'Renvoie le **champ magnétique** mesuré par la carte selon l\'axe **x**, **y** ou **z**, ou sa **force** totale, en **microteslas (µT)**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez l\'axe, ou **force** pour les trois ensemble.',
+      'Approchez un aimant de la carte : la valeur change.',
+    ],
+    savoir: [
+      'Dans le simulateur, cette mesure ne varie pas (elle vaut toujours 0) : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'Le champ magnétique sur l\'axe x s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'capteur_rotation',
+    titre: 'rotation (°) …',
+    sert: 'Renvoie l\'**inclinaison** de la carte en degrés : **pitch** quand on la penche vers l\'avant ou l\'arrière, **roll** quand on la penche vers la gauche ou la droite.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez **pitch** ou **roll**.',
+    ],
+    savoir: [
+      'L\'inclinaison est calculée à partir de l\'accéléromètre : elle n\'est juste que si la carte ne bouge pas trop vite.',
+      'Dans le simulateur, la carte est toujours immobile et à plat : essayez le programme sur la vraie carte.',
+    ],
+    legende: 'L\'inclinaison avant-arrière (pitch) s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'temps_execution',
+    titre: 'temps d\'exécution …',
+    sert: 'Renvoie le **temps écoulé depuis le démarrage** de la carte.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez l\'unité : **(ms)** pour les millisecondes, **(micros)** pour les microsecondes.',
+    ],
+    savoir: [
+      '1 seconde = 1000 millisecondes = 1 000 000 microsecondes.',
+      'Pour mesurer une durée à partir d\'un moment choisi, utilisez plutôt les blocs du chronomètre (catégorie « Temps »).',
+    ],
+    legende: 'Le temps écoulé depuis le démarrage, en millisecondes, s\'affiche chaque seconde.',
+  },
+  {
+    t: 'gamme_accelerometre',
+    titre: 'spécifier la gamme de l\'accéléromètre …',
+    sert: 'Règle l\'**étendue de mesure** de l\'accéléromètre : **1g, 2g, 4g ou 8g**.',
+    util: [
+      'Placez-le dans le bloc « au démarrage ».',
+      'Choisissez une petite gamme pour mesurer de petits mouvements, une grande gamme pour mesurer des chocs forts.',
+    ],
+    savoir: [
+      'Une gamme plus large mesure des chocs plus forts, mais avec **moins de précision**.',
+    ],
+    legende: 'L\'accéléromètre est réglé sur 8g, puis la force mesurée s\'affiche chaque seconde.',
+  },
+  {
+    t: 'micro_definir_seuil',
+    titre: 'définit le seuil du son … à …',
+    sert: 'Règle le **niveau sonore** à partir duquel un son est « bruyant » (ou en dessous duquel il est « faible ») pour le bloc « lorsque le son … est détecté ».',
+    util: [
+      'Choisissez « bruyant » ou « faible », puis écrivez le seuil, de **0 à 255** (comme le bloc « niveau sonore »).',
+      'Placez-le dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Plus le seuil « bruyant » est haut, plus il faut de bruit pour déclencher le bloc.',
+      'Le micro n\'existe que sur la carte **micro:bit V2**. Le simulateur n\'entend aucun son.',
+    ],
+    legende: 'Avec un seuil à 200, seuls les bruits assez forts font apparaître le visage triste.',
+  },
 ];

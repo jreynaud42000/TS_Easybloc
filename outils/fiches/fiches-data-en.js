@@ -347,6 +347,239 @@ window.FICHES_EN = {
     ],
     legende: 'A heart shows at each start; button A restarts the board.',
   },
+  // ═══════════════ Sensors ═══════════════
+  lorsque_bouton: {
+    titre: 'when button … is pressed',
+    sert: 'Runs the blocks inside it **at each press** on the chosen button.',
+    util: [
+      'Choose the button: **A**, **B**, or **A+B** (both at the same time).',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'A press runs the block **only once**, even if the button stays held down.',
+      'A press on **A+B** does not also run the ‘when button A’ and ‘when button B’ blocks.',
+      'The button is watched at each turn of the program\'s main loop (added automatically if there is none).',
+      'In the simulator, press buttons A and B of the drawn board.',
+    ],
+    legende: 'Button A shows a happy face, button B clears the screen.',
+  },
+  lorsque_geste: {
+    titre: 'when …',
+    sert: 'Runs the blocks inside it when the board makes the chosen **gesture**: shaken, logo up or logo down.',
+    util: [
+      'Choose the gesture in the block\'s list.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'Each gesture runs the block **only once** per movement.',
+      'In the simulator, only the ‘shake’ gesture exists: click the ‘Shake the board’ button, below the drawn board.',
+    ],
+    legende: 'When you shake the board, a ghost shows for one second.',
+  },
+  lorsque_broche: {
+    titre: 'when pin … is …',
+    sert: 'Runs the blocks inside it when pin **P0, P1 or P2** is touched with a finger (‘on’), or when you let go of it (‘released’).',
+    util: [
+      'Choose the pin, then ‘on’ or ‘released’.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      '**One finger** on the pin is enough: the touch mode of the V2 board is switched on automatically.',
+      'A pin used as a touch key must not be used at the same time by a plugged-in module.',
+      'In the simulator, click pin 0, 1 or 2 of the drawn board.',
+    ],
+    legende: 'A finger on P0 shows a happy face for one second.',
+  },
+  lorsque_son_detecte: {
+    titre: 'when the sound … is detected',
+    sert: 'Runs the blocks inside it when the board\'s **microphone** hears a **loud** sound, or when it becomes **quiet** again.',
+    util: [
+      'Choose ‘loud’ or ‘quiet’.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'The microphone only exists on the **micro:bit V2** board.',
+      'The level between ‘loud’ and ‘quiet’ is set with the ‘set the sound threshold’ block.',
+      'The simulator hears no sound: this block only runs on the real board.',
+    ],
+    legende: 'A loud noise shows a sad face for one second.',
+  },
+  lorsque_logo: {
+    titre: 'on the logo …',
+    sert: 'Runs the blocks inside it when the board\'s **touch logo** is touched (‘pressed’), or when you let go of it (‘released’).',
+    util: [
+      'Choose ‘pressed’ or ‘released’.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'The touch logo only exists on the **micro:bit V2** board.',
+      'In the simulator, click the logo of the drawn board.',
+    ],
+    legende: 'A heart shows when you touch the logo.',
+  },
+  capteur_acceleration: {
+    titre: 'acceleration (mg) …',
+    sert: 'Returns the **acceleration** measured by the board along the **x**, **y** or **z** axis, or the total **strength**.',
+    util: [
+      'Choose the axis: **x** (left-right), **y** (front-back), **z** (up-down), or **strength** (the three together).',
+    ],
+    savoir: [
+      'The unit is the **milli-g (mg)**: 1000 mg is the Earth\'s gravity. With the board lying flat, the vertical axis therefore measures about 1000 mg.',
+      'The measuring range is set with the ‘set the accelerometer range’ block.',
+      'In the simulator, the board is always still and flat: try the program on the real board.',
+    ],
+    legende: 'The acceleration along the x axis shows every second on the LED matrix.',
+  },
+  broche_est_pressee: {
+    titre: 'pin … is pressed',
+    sert: 'Returns **true** while pin **P0, P1 or P2** is touched with a finger, **false** otherwise.',
+    util: [
+      'Choose the pin.',
+      'Put this block in an ‘if’ or ‘wait until’ block.',
+    ],
+    savoir: [
+      '**One finger** on the pin is enough: the touch mode of the V2 board is switched on automatically.',
+      'In the simulator, click pin 0, 1 or 2 of the drawn board.',
+    ],
+    legende: 'A happy face shows while pin P0 is touched.',
+  },
+  capteur_luminosite: {
+    titre: 'light level',
+    sert: 'Returns the **light level** around the board, from **0** (dark) to **255** (very bright).',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block (for example to turn on an LED when it is dark).',
+    ],
+    savoir: [
+      'The light is measured by the **LED matrix** itself: there is no separate sensor.',
+      'In the simulator, this measurement does not change (it is always 128): try the program on the real board.',
+    ],
+    legende: 'The light level shows every second on the LED matrix.',
+  },
+  capteur_boussole_direction: {
+    titre: 'compass heading (°)',
+    sert: 'Returns the **direction** the top of the board points to, in degrees: **0** for north, 90 for east, 180 for south, 270 for west.',
+    util: [
+      'Hold the board flat for a correct measurement.',
+      'Put the ‘calibrate the compass’ block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'If the compass has not been calibrated yet, the board first starts the calibration.',
+      'A magnet, a motor or an iron object near the board distorts the direction.',
+      'In the simulator, this measurement does not change (it is always 0): try the program on the real board.',
+    ],
+    legende: 'The compass is calibrated once at start, then the direction shows every second.',
+  },
+  capteur_temperature: {
+    titre: 'temperature (° C)',
+    sert: 'Returns the **temperature** measured by the board, in **degrees Celsius**.',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block.',
+    ],
+    savoir: [
+      'It is the temperature of the board\'s **chip**: it is a little higher than the temperature of the air around.',
+      'In the simulator, this measurement does not change (it is always 21 °C): try the program on the real board.',
+    ],
+    legende: 'The board\'s temperature shows every second on the LED matrix.',
+  },
+  geste_est_actif: {
+    titre: 'gesture … is active',
+    sert: 'Returns **true** while the board makes the chosen gesture (shaken, logo up, logo down), **false** otherwise.',
+    util: [
+      'Choose the gesture in the block\'s list.',
+      'Put this block in an ‘if’ or ‘wait until’ block.',
+    ],
+    savoir: [
+      'It stays **true during the whole gesture**, unlike the ‘if shaken then’ block, which counts each shake only once.',
+      'In the simulator, only the ‘shake’ gesture exists: click the ‘Shake the board’ button, below the drawn board.',
+    ],
+    legende: 'A sad face shows while the board is being shaken.',
+  },
+  micro_intensite_son: {
+    titre: 'sound level',
+    sert: 'Returns the **level of the sound** heard by the board\'s microphone, from **0** (silence) to **255** (very loud).',
+    util: [
+      'Show the value, or compare it with a number in an ‘if’ block.',
+    ],
+    savoir: [
+      'The microphone only exists on the **micro:bit V2** board.',
+      'In the simulator, this measurement does not change (it is always 0): try the program on the real board.',
+    ],
+    legende: 'The sound level shows every second on the LED matrix.',
+  },
+  capteur_boussole_calibrer: {
+    titre: 'calibrate the compass',
+    sert: 'Starts the **setting of the compass**: the board asks you to tilt it in every direction.',
+    util: [
+      'Put it in the ‘on start’ block.',
+      'During the setting, follow the instructions that scroll on the LED matrix: tilt the board in every direction until the setting ends.',
+    ],
+    savoir: [
+      'The program **waits for the end of the setting** before moving on to the next block.',
+      'Without this block, the board starts the setting by itself the first time the compass is read.',
+    ],
+    legende: 'The compass is calibrated once at start, then the direction shows every second.',
+  },
+  capteur_boussole_force: {
+    titre: 'magnetic force (µT) …',
+    sert: 'Returns the **magnetic field** measured by the board along the **x**, **y** or **z** axis, or its total **strength**, in **microteslas (µT)**.',
+    util: [
+      'Choose the axis, or **strength** for the three together.',
+      'Bring a magnet near the board: the value changes.',
+    ],
+    savoir: [
+      'In the simulator, this measurement does not change (it is always 0): try the program on the real board.',
+    ],
+    legende: 'The magnetic field along the x axis shows every second on the LED matrix.',
+  },
+  capteur_rotation: {
+    titre: 'rotation (°) …',
+    sert: 'Returns the **tilt** of the board in degrees: **pitch** when you tilt it forwards or backwards, **roll** when you tilt it left or right.',
+    util: [
+      'Choose **pitch** or **roll**.',
+    ],
+    savoir: [
+      'The tilt is calculated from the accelerometer: it is only correct if the board does not move too fast.',
+      'In the simulator, the board is always still and flat: try the program on the real board.',
+    ],
+    legende: 'The forwards-backwards tilt (pitch) shows every second on the LED matrix.',
+  },
+  temps_execution: {
+    titre: 'running time …',
+    sert: 'Returns the **time elapsed since the board started**.',
+    util: [
+      'Choose the unit: **(ms)** for milliseconds, **(micros)** for microseconds.',
+    ],
+    savoir: [
+      '1 second = 1000 milliseconds = 1,000,000 microseconds.',
+      'To measure a duration from a chosen moment, use the stopwatch blocks (‘Time’ category) instead.',
+    ],
+    legende: 'The time elapsed since start, in milliseconds, shows every second.',
+  },
+  gamme_accelerometre: {
+    titre: 'set the accelerometer range …',
+    sert: 'Sets the **measuring range** of the accelerometer: **1g, 2g, 4g or 8g**.',
+    util: [
+      'Put it in the ‘on start’ block.',
+      'Choose a small range to measure small movements, a large range to measure strong shocks.',
+    ],
+    savoir: [
+      'A larger range measures stronger shocks, but with **less precision**.',
+    ],
+    legende: 'The accelerometer is set to 8g, then the measured strength shows every second.',
+  },
+  micro_definir_seuil: {
+    titre: 'set the sound threshold … to …',
+    sert: 'Sets the **sound level** above which a sound is ‘loud’ (or below which it is ‘quiet’) for the ‘when the sound … is detected’ block.',
+    util: [
+      'Choose ‘loud’ or ‘quiet’, then type the threshold, from **0 to 255** (like the ‘sound level’ block).',
+      'Put it in the ‘on start’ block.',
+    ],
+    savoir: [
+      'The higher the ‘loud’ threshold, the more noise is needed to run the block.',
+      'The microphone only exists on the **micro:bit V2** board. The simulator hears no sound.',
+    ],
+    legende: 'With a threshold of 200, only loud enough noises show the sad face.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
