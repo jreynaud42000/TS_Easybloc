@@ -1180,10 +1180,11 @@ try {
     };
 
     Blockly.Blocks['math_convert'] = { init: function() {
-        this.appendValueInput("NUM").setCheck("Number").appendField("convert");
-        this.appendDummyInput().appendField("from")
+        // Libelles en francais (ils etaient restes en anglais) ; la traduction anglaise est dans langue-en.js
+        this.appendValueInput("NUM").setCheck("Number").appendField("convertir");
+        this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown([
-                ["degrees to radians", "radians"], ["radians to degrees", "degrees"]
+                ["des degrés en radians", "radians"], ["des radians en degrés", "degrees"]
             ]), "OP");
         this.setOutput(true, "Number");
         this.setColour(280);

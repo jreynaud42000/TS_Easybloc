@@ -2026,9 +2026,996 @@ window.FICHES_EN = {
     ],
     legende: 'The continuous servomotor on channel 1 turns one way for two seconds, then the other way for two seconds.',
   },
+  // ═══════════════ Grove: displays ═══════════════
+  grove_4d_definir: {
+    titre: 'set the 4-digit display: CLK … DIO …',
+    sert: 'Tells which pins the Grove **4-digit display** is plugged into: **CLK** (clock) and **DIO** (data).',
+    util: [
+      'Put this block in the ‘on start’ block, before the other display blocks.',
+      'Choose the two pins: those of the Grove port the display is plugged into.',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the display is taken with **CLK on P0** and **DIO on P1**.',
+    ],
+    legende: 'The display is set (CLK on P0, DIO on P1), its brightness is set to 3, then 1234 shows.',
+  },
+  grove_4d_nombre: {
+    titre: 'show the number …',
+    sert: 'Shows a **whole number** on the 4-digit display.',
+    util: [
+      'Type the number, or put in a block that returns a number (a measurement, a counter…).',
+    ],
+    savoir: [
+      'The **4 digits** are always written: 42 shows as **0042**.',
+      'A decimal number loses its decimal part (23.7 shows as 0023); above 9999, only the last 4 digits stay.',
+      'A negative number shows a ‘-’ sign instead of the first digit.',
+    ],
+    legende: 'The number 1234 shows on the 4-digit display.',
+  },
+  grove_4d_chiffre: {
+    titre: 'show the digit … at position …',
+    sert: 'Shows **one digit** at the chosen position of the 4-digit display, without touching the others.',
+    util: [
+      'Type the digit, from **0 to 9**, then the position, from **0 to 3** (from left to right).',
+    ],
+    savoir: [
+      'A value outside 0 to 9 **turns off** this position.',
+      'A position outside 0 to 3 is brought back to 0 or 3.',
+    ],
+    legende: 'The digit 7 shows at position 2 (positions go from 0 to 3).',
+  },
+  grove_4d_points: {
+    titre: '… the colon',
+    sert: '**Turns on** or **turns off** the colon in the middle of the 4-digit display, for example to write a time (12:34).',
+    util: [
+      'Choose **turn on** or **turn off**.',
+    ],
+    savoir: [
+      'The colon keeps its state when another number is shown.',
+    ],
+    legende: 'The number 1234 shows with the colon on: 12:34.',
+  },
+  grove_4d_luminosite: {
+    titre: 'display brightness to …',
+    sert: 'Sets the **brightness** of the 4-digit display, from **0** (weakest) to **7** (strongest).',
+    util: [
+      'Put this block in the ‘on start’ block, or change the brightness depending on the light in the room.',
+    ],
+    savoir: [
+      'With 0, the display stays on, but very dimly: to turn it off, use the ‘clear the display’ block.',
+      'A value outside 0 to 7 is brought back to 0 or 7.',
+    ],
+    legende: 'The display is set (CLK on P0, DIO on P1), its brightness is set to 3, then 1234 shows.',
+  },
+  grove_4d_effacer: {
+    titre: 'clear the display',
+    sert: '**Turns off all the digits** of the 4-digit display.',
+    util: [
+      'Put it where the display must turn off.',
+    ],
+    savoir: [
+      'Without the ‘set the 4-digit display’ block, the display is taken with **CLK on P0** and **DIO on P1**.',
+    ],
+    legende: 'The number 1234 stays on for two seconds, then disappears.',
+  },
+  grove_lcd_init: {
+    titre: 'set up the 16x2 LCD screen',
+    sert: 'Prepares the **Grove 16x2 LCD screen**: 2 lines of 16 characters.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other screen blocks.',
+    ],
+    savoir: [
+      'This block is **optional**: The screen plugs into an **I2C** port; it is prepared by itself the first time it is used.',
+      'The backlight of this screen is **always on**; it cannot be controlled.',
+    ],
+    legende: 'The LCD screen is prepared, then ‘Hello’ is written on the first line and ‘micro:bit’ on the second.',
+  },
+  grove_lcd_texte: {
+    titre: 'LCD: show … at x … y …',
+    sert: 'Writes a **text** or a **number** on the 16x2 LCD screen, from the chosen position.',
+    util: [
+      'Type the text, or put in a block that returns a value.',
+      'Choose the position: **x** from **0 to 15** (column), **y** **0** (top line) or **1** (bottom line).',
+    ],
+    savoir: [
+      'What goes past the end of the line is **cut off**.',
+      'The new text is written **over** the old one without clearing it: a shorter text leaves the end of the old one. Clear first, or pad with spaces.',
+      'Avoid **accented letters**: the screen does not know them and shows another sign instead.',
+    ],
+    legende: '‘Hello’ shows at the top left for two seconds, then the screen clears.',
+  },
+  grove_lcd_effacer: {
+    titre: 'LCD: clear',
+    sert: '**Clears all the text** of the 16x2 LCD screen.',
+    util: [
+      'Put it before writing a new text, so as not to keep leftovers of the old one.',
+    ],
+    savoir: [
+      'The backlight stays on.',
+    ],
+    legende: '‘Hello’ shows at the top left for two seconds, then the screen clears.',
+  },
+  grove_lcd_alimenter: {
+    titre: 'LCD: … the display',
+    sert: '**Hides** or **shows again** the characters of the 16x2 LCD screen, without clearing them.',
+    util: [
+      'Choose **turn off** to hide the text, **turn on** to show it again.',
+    ],
+    savoir: [
+      'The text is **kept**: it comes back as it was with ‘turn on’.',
+      'The backlight of this screen stays on: it cannot be controlled.',
+    ],
+    legende: '‘Hello’ is written at start, then the text blinks: one second visible, one second hidden.',
+  },
+  grove_lcdrgb_init: {
+    titre: 'set up the RGB LCD screen (V4.0)',
+    sert: 'Prepares the **Grove RGB LCD screen** (version 4.0): 2 lines of 16 characters, with a lit background whose colour you choose.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other screen blocks.',
+    ],
+    savoir: [
+      'This block is **optional**: The screen plugs into an **I2C** port; it is prepared by itself the first time it is used. The background then lights up in **white**.',
+      'According to this module\'s documentation, it needs a **5 V** power supply.',
+    ],
+    legende: 'The RGB LCD screen is prepared, then ‘Hello’ is written on the first line.',
+  },
+  grove_lcdrgb_texte: {
+    titre: 'RGB LCD: show … at x … y …',
+    sert: 'Writes a **text** or a **number** on the RGB LCD screen, from the chosen position.',
+    util: [
+      'Type the text, or put in a block that returns a value.',
+      'Choose the position: **x** from **0 to 15** (column), **y** **0** (top line) or **1** (bottom line).',
+    ],
+    savoir: [
+      'What goes past the end of the line is **cut off**.',
+      'The new text is written **over** the old one without clearing it: clear first, or pad with spaces.',
+      'Avoid **accented letters**: the screen does not know them and shows another sign instead.',
+    ],
+    legende: 'The background turns blue, ‘Hello’ shows, then the backlight turns off two seconds later.',
+  },
+  grove_lcdrgb_effacer: {
+    titre: 'RGB LCD: clear',
+    sert: '**Clears all the text** of the RGB LCD screen.',
+    util: [
+      'Put it before writing a new text, so as not to keep leftovers of the old one.',
+    ],
+    savoir: [
+      'The background colour does not change.',
+    ],
+    legende: '‘Hello’ shows for two seconds, then the screen clears.',
+  },
+  grove_lcdrgb_alimenter: {
+    titre: 'RGB LCD: … the display',
+    sert: '**Hides** or **shows again** the characters of the RGB LCD screen, without clearing them.',
+    util: [
+      'Choose **turn off** to hide the text, **turn on** to show it again.',
+    ],
+    savoir: [
+      'The text is **kept**: it comes back as it was with ‘turn on’.',
+      'The lit background is controlled separately, with the ‘RGB LCD: … the backlight’ block.',
+    ],
+    legende: '‘Hello’ is written at start, then the text blinks: one second visible, one second hidden.',
+  },
+  grove_lcdrgb_fond_couleur: {
+    titre: 'RGB LCD: backlight …',
+    sert: 'Chooses the **colour of the lit background** of the RGB LCD screen from a list.',
+    util: [
+      'Choose the colour in the block\'s list.',
+    ],
+    savoir: [
+      'The colour **black** turns the background off.',
+      'To mix your own colour, use the ‘RGB LCD: backlight red … green … blue …’ block.',
+    ],
+    legende: 'The background turns blue, ‘Hello’ shows, then the backlight turns off two seconds later.',
+  },
+  grove_lcdrgb_fond_rvb: {
+    titre: 'RGB LCD: backlight red … green … blue …',
+    sert: 'Sets the **background colour** of the RGB LCD screen by mixing **red**, **green** and **blue**.',
+    util: [
+      'Type the amount of each colour, from **0 to 255** (0, 0, 0 = background off; 255, 255, 255 = white).',
+    ],
+    savoir: [
+      'A value outside 0 to 255 is brought back to 0 or 255.',
+      'If the backlight is off, the colour is kept and appears at the next ‘turn on the backlight’.',
+    ],
+    legende: 'The background takes an orange colour (red 255, green 128, blue 0), then ‘Orange’ shows.',
+  },
+  grove_lcdrgb_retro: {
+    titre: 'RGB LCD: … the backlight',
+    sert: '**Turns off** or **turns on again** the lit background of the RGB LCD screen.',
+    util: [
+      'Choose **turn off** or **turn on**.',
+    ],
+    savoir: [
+      '‘Turn on’ brings back the **last colour** chosen.',
+      'The text stays written, but it is hard to read without a lit background.',
+    ],
+    legende: 'The background turns blue, ‘Hello’ shows, then the backlight turns off two seconds later.',
+  },
+  grove_oled_init: {
+    titre: 'set up the OLED screen 0.96"',
+    sert: 'Prepares the small 0.96-inch **Grove OLED screen**: 8 lines of 21 characters.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other screen blocks.',
+    ],
+    savoir: [
+      'This block is **optional**: The screen plugs into an **I2C** port; it is prepared by itself the first time it is used.',
+    ],
+    legende: 'The OLED screen shows two lines, waits two seconds, then clears.',
+  },
+  grove_oled_texte: {
+    titre: 'OLED: show … at column … line …',
+    sert: 'Writes a **text** or a **number** on the OLED screen, from the chosen position.',
+    util: [
+      'Type the text, or put in a block that returns a value.',
+      'Choose the **column**, from **0 to 20**, and the **line**, from **0 to 7** (0 = top).',
+    ],
+    savoir: [
+      'What goes past the end of the line is **cut off**.',
+      'Accented letters are replaced by the plain letter (é becomes e); other unknown signs become ‘?’.',
+      'The new text is written over the old one: clear first, or pad with spaces.',
+    ],
+    legende: 'The OLED screen shows two lines, waits two seconds, then clears.',
+  },
+  grove_oled_effacer: {
+    titre: 'OLED: clear the screen',
+    sert: '**Clears** the whole OLED screen.',
+    util: [
+      'Put it before writing a new text, so as not to keep leftovers of the old one.',
+    ],
+    savoir: [
+      'Clearing takes a short moment: avoid repeating it at each turn of a fast loop.',
+    ],
+    legende: 'The OLED screen shows two lines, waits two seconds, then clears.',
+  },
+  // ═══════════════ Grove: simple sensors ═══════════════
+  grove_ultrason_cm: {
+    titre: 'distance (cm) on …',
+    sert: 'Returns the **distance** between the Grove ultrasonic sensor and the nearest obstacle, in **centimetres**.',
+    util: [
+      'Choose the sensor\'s pin.',
+      'Show the value, or compare it with a number in an ‘if’ block (for example to react when something comes closer).',
+    ],
+    savoir: [
+      'The Grove ultrasonic sensor uses **only one pin**: the one chosen in the block.',
+      'It returns **0** when the echo does not come back in time (obstacle too far, or a surface that absorbs sound).',
+      'In the simulator, set the distance with the slider of the ‘Peripherals’ table.',
+    ],
+    legende: 'The distance measured by the sensor plugged into P0 shows every second.',
+  },
+  grove_ultrason_pouces: {
+    titre: 'distance (inches) on …',
+    sert: 'Returns the **distance** between the Grove ultrasonic sensor and the nearest obstacle, in **inches** (1 inch = 2.54 cm).',
+    util: [
+      'Choose the sensor\'s pin.',
+    ],
+    savoir: [
+      'Distances are usually measured in centimetres: prefer the ‘distance (cm) on …’ block.',
+      'The Grove ultrasonic sensor uses **only one pin**: the one chosen in the block.',
+      'It returns **0** when the echo does not come back in time.',
+    ],
+    legende: 'The distance measured by the sensor plugged into P0 shows every second.',
+  },
+  grove_joystick_valeur: {
+    titre: 'joystick value on …',
+    sert: 'Returns the **position of one axis** of the Grove joystick, from **0 to 1023**: about 512 when the stick is at rest.',
+    util: [
+      'Choose the pin of the axis to read: each axis (X or Y) has its own pin.',
+    ],
+    savoir: [
+      'The joystick plugs into analogue inputs: **P0, P1 or P2**.',
+      'Pressing the stick makes the X axis drop almost to 0.',
+      'In the simulator, push the stick drawn in the wiring, or use the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'The value of the X axis (pin P0) shows every second.',
+  },
+  grove_joystick_direction: {
+    titre: 'joystick X … Y … towards …',
+    sert: 'Returns **true** when the joystick is pushed in the chosen **direction** (up, down, left, right), or when it is **in the centre**.',
+    util: [
+      'Choose the pins of the **X** and **Y** axes, then the direction.',
+      'Put this block in an ‘if’ block, in the ‘forever’ block.',
+    ],
+    savoir: [
+      'The joystick counts as pushed when the axis goes **below 350** or **above 700** (out of 1023).',
+      'For finer control, read the exact value with the ‘joystick value on …’ block.',
+    ],
+    legende: 'A happy face shows when the joystick (axes on P0 and P1) is pushed up.',
+  },
+  grove_joystick_bouton: {
+    titre: 'joystick button on … pressed',
+    sert: 'Returns **true** when you **press the stick** of the Grove joystick, **false** otherwise.',
+    util: [
+      'Choose the pin of the joystick\'s **X** axis.',
+      'Put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'The press is recognised because it makes the X axis drop **below 250**: pushing the stick fully to the left can give the same result.',
+    ],
+    legende: 'A heart shows when you press the joystick\'s stick.',
+  },
+  grove_bouton_lorsque: {
+    titre: 'when the push button on … is pressed',
+    sert: 'Runs the blocks inside it **at each press** on the Grove push button.',
+    util: [
+      'Choose the button\'s pin.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'A press runs the block **only once**, even if the button stays held down.',
+      'The button is watched at each turn of the program\'s main loop.',
+      'In the simulator, click the button drawn in the wiring.',
+    ],
+    legende: 'Each press on the push button (P0) adds 1 to the counter, which shows.',
+  },
+  grove_bouton_appuye: {
+    titre: 'push button on … pressed',
+    sert: 'Returns **true** while the Grove push button is held down, **false** otherwise.',
+    util: [
+      'Choose the button\'s pin.',
+      'Put this block in an ‘if’ block, in the ‘forever’ block.',
+    ],
+    savoir: [
+      'To react **once per press**, use the ‘when the push button on … is pressed’ block instead.',
+      'In the simulator, keep clicking on the button drawn in the wiring.',
+    ],
+    legende: 'A heart shows while the push button (P0) is held down.',
+  },
+  grove_lumiere: {
+    titre: 'light on … as …',
+    sert: 'Returns the **light** received by the Grove light sensor: the more light, the bigger the value.',
+    util: [
+      'Choose the sensor\'s pin: **P0, P1 or P2** (analogue inputs).',
+      'Choose the unit: the **value** from 0 to 1023, or the **percentage** from 0 to 100 %.',
+    ],
+    savoir: [
+      'It is a **relative** measurement: it is used to compare (lighter, darker), not to measure light in lux.',
+      'In the simulator, set the light with the ‘Light’ slider of the ‘Peripherals’ table.',
+    ],
+    legende: 'The light measured on P1, as a percentage, shows every second.',
+  },
+  grove_gestes_init: {
+    titre: 'set up the gesture sensor',
+    sert: 'Prepares the Grove **gesture sensor** (PAJ7620), which recognises hand movements in front of it.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'This block is **optional**: the sensor is prepared by itself at its first reading.',
+      'The gesture sensor plugs into an **I2C** port.',
+    ],
+    legende: 'The gesture sensor is prepared, then the last gesture detected shows every second.',
+  },
+  grove_gestes_est: {
+    titre: 'the gesture detected is …',
+    sert: 'Returns **true** when the gesture sensor has just detected the **chosen gesture**: up, down, left, right, forward, backward, a rotation one way or the other, or a wave.',
+    util: [
+      'Choose the gesture, then put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'Each reading **uses up** the gesture: it is given only once. To test several gestures, first store the result of the ‘gesture detected’ block in a variable.',
+      'Move your hand a few centimetres from the sensor, with a clear movement.',
+      'In the simulator, choose the gesture by clicking the sensor drawn in the wiring.',
+    ],
+    legende: 'A happy face shows when the sensor detects an upward gesture.',
+  },
+  grove_gestes_lire: {
+    titre: 'gesture detected',
+    sert: 'Returns the **name of the last gesture** detected (‘haut’, ‘gauche’, ‘vague’…), or an empty text if no gesture has been made since the previous reading.',
+    util: [
+      'Show the result, or store it in a variable to compare it afterwards.',
+    ],
+    savoir: [
+      'Each reading **uses up** the gesture: it is given only once. To test several gestures, first store the result of the ‘gesture detected’ block in a variable.',
+      'The names are French words written without accents: ‘haut’ (up), ‘bas’ (down), ‘gauche’ (left), ‘droite’ (right), ‘avant’, ‘arriere’, ‘horaire’, ‘antihoraire’, ‘vague’ (wave).',
+    ],
+    legende: 'The gesture sensor is prepared, then the last gesture detected shows every second.',
+  },
+  // ═══════════════ Grove: environment, colour, clock ═══════════════
+  grove_th_init: {
+    titre: 'set up the temperature & humidity sensor',
+    sert: 'Prepares the Grove I2C **temperature and humidity sensor** (AHT20 chip, also sold as DHT20).',
+    util: [
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'This block is **optional**: the sensor is prepared by itself at its first measurement.',
+      'The sensor plugs into an **I2C** port.',
+    ],
+    legende: 'The sensor is prepared, then the humidity (in %) shows every second.',
+  },
+  grove_th_mesure: {
+    titre: 'T&H sensor: …',
+    sert: 'Returns the **temperature** (in °C or °F) or the air **humidity** (in %) measured by the Grove I2C temperature and humidity sensor.',
+    util: [
+      'Choose the quantity: **temperature (°C)**, **temperature (°F)** or **humidity (%)**.',
+    ],
+    savoir: [
+      'The result can be a decimal number.',
+      'In the simulator, set the values with the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'The temperature measured by the sensor shows every second.',
+  },
+  grove_dht11_definir: {
+    titre: 'set the DHT11 on …',
+    sert: 'Tells which pin the **DHT11** temperature and humidity sensor is plugged into.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+      'Choose the sensor\'s pin.',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the DHT11 is taken on pin **P1**.',
+      'On the **micro:bit V2** board, reading the DHT is **experimental**: the block returns **-1** when the measurement fails, never a wrong value. The I2C temperature and humidity sensor (AHT20/DHT20) is more reliable.',
+    ],
+    legende: 'The DHT11 is set on P1, then the temperature shows every second.',
+  },
+  grove_dht11_mesure: {
+    titre: 'DHT11: …',
+    sert: 'Returns the **temperature** (in °C or °F) or the **humidity** (in %) measured by the **DHT11** sensor.',
+    util: [
+      'Choose the quantity: **temperature (°C)**, **temperature (°F)** or **humidity (%)**.',
+    ],
+    savoir: [
+      'The DHT11 gives **one measurement per second** at most: no need to read it more often.',
+      'On the **micro:bit V2** board, reading the DHT is **experimental**: the block returns **-1** when the measurement fails, never a wrong value. The I2C temperature and humidity sensor (AHT20/DHT20) is more reliable.',
+    ],
+    legende: 'The DHT11 is set on P1, then the temperature shows every second.',
+  },
+  grove_dht22_definir: {
+    titre: 'set the DHT22 on …',
+    sert: 'Tells which pin the **DHT22** temperature and humidity sensor is plugged into.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+      'Choose the sensor\'s pin.',
+    ],
+    savoir: [
+      'This block is **optional**: without it, the DHT22 is taken on pin **P1**.',
+      'On the **micro:bit V2** board, reading the DHT is **experimental**: the block returns **-1** when the measurement fails, never a wrong value. The I2C temperature and humidity sensor (AHT20/DHT20) is more reliable.',
+    ],
+    legende: 'The DHT22 is set on P1, then the temperature shows every second.',
+  },
+  grove_dht22_mesure: {
+    titre: 'DHT22: …',
+    sert: 'Returns the **temperature** (in °C or °F) or the **humidity** (in %) measured by the **DHT22** sensor.',
+    util: [
+      'Choose the quantity: **temperature (°C)**, **temperature (°F)** or **humidity (%)**.',
+    ],
+    savoir: [
+      'The DHT22 gives **one measurement every 2 seconds** at most: no need to read it more often.',
+      'On the **micro:bit V2** board, reading the DHT is **experimental**: the block returns **-1** when the measurement fails, never a wrong value. The I2C temperature and humidity sensor (AHT20/DHT20) is more reliable.',
+    ],
+    legende: 'The DHT22 is set on P1, then the temperature shows every second.',
+  },
+  grove_scd30_init: {
+    titre: 'set up the CO₂ sensor SCD30',
+    sert: 'Prepares the **SCD30 CO₂ sensor**, which also measures temperature and humidity.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'This block is **optional**: the sensor is prepared by itself at its first measurement.',
+      'The sensor plugs into an **I2C** port.',
+    ],
+    legende: 'The sensor is prepared, then the CO₂ (in ppm) shows every second.',
+  },
+  grove_scd30_lire: {
+    titre: 'SCD30: …',
+    sert: 'Returns the **CO₂** (in ppm), the **temperature** (in °C) or the **humidity** (in %) measured by the SCD30 sensor.',
+    util: [
+      'Choose the quantity: **CO₂ (ppm)**, **temperature (°C)** or **humidity (%)**.',
+    ],
+    savoir: [
+      'CO₂ is measured in **ppm** (parts per million): outdoor air contains about 400 ppm; the higher the value in a room, the more it needs airing.',
+      'In the simulator, set the values with the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'The CO₂ measured by the SCD30 shows every second.',
+  },
+  grove_scd41_init: {
+    titre: 'set up the CO₂ sensor SCD41',
+    sert: 'Prepares the **SCD41 CO₂ sensor**, which also measures temperature and humidity.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'This block is **optional**: the sensor is prepared by itself at its first measurement.',
+      'The sensor plugs into an **I2C** port.',
+    ],
+    legende: 'The sensor is prepared, then the CO₂ (in ppm) shows every second.',
+  },
+  grove_scd41_lire: {
+    titre: 'SCD41: …',
+    sert: 'Returns the **CO₂** (in ppm), the **temperature** (in °C) or the **humidity** (in %) measured by the SCD41 sensor.',
+    util: [
+      'Choose the quantity: **CO₂ (ppm)**, **temperature (°C)** or **humidity (%)**.',
+    ],
+    savoir: [
+      'CO₂ is measured in **ppm** (parts per million): outdoor air contains about 400 ppm; the higher the value in a room, the more it needs airing.',
+      'In the simulator, set the values with the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'The CO₂ measured by the SCD41 shows every second.',
+  },
+  grove_bmp280: {
+    titre: 'BMP280: …',
+    sert: 'Returns the **air pressure** (in hPa), the **temperature** (in °C) or the estimated **altitude** (in m) measured by the Grove BMP280 sensor.',
+    util: [
+      'Choose the quantity: **pressure (hPa)**, **temperature (°C)** or **altitude (m)**.',
+    ],
+    savoir: [
+      'At sea level, the air pressure is about **1013 hPa**; it goes down as you go up.',
+      'The altitude is **calculated** from the pressure, taking 1013.25 hPa at sea level: it also changes with the weather.',
+      'The sensor plugs into an **I2C** port. ' + 'In the simulator, set the values with the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'The air pressure measured by the BMP280 shows every second.',
+  },
+  grove_sgp30: {
+    titre: 'SGP30 air quality: …',
+    sert: 'Returns a measurement of **air quality** made by the Grove SGP30 sensor: the **eCO₂** (in ppm) or the **total VOC** (in ppb).',
+    util: [
+      'Choose the quantity: **eCO₂ (ppm)** or **Total VOC (ppb)**.',
+    ],
+    savoir: [
+      '**VOC** are volatile organic compounds (solvents, perfumes, glues…); **eCO₂** is an estimate of CO₂ calculated by the sensor, not a real CO₂ measurement.',
+      'During the **first 15 seconds**, the sensor warms up: it returns 400 ppm and 0 ppb.',
+      'The sensor plugs into an **I2C** port. ' + 'In the simulator, set the values with the sliders of the ‘Peripherals’ table.',
+    ],
+    legende: 'A sad face shows when the VOC go above 500 ppb, a happy face otherwise.',
+  },
+  grove_couleur_init: {
+    titre: 'set up the colour sensor',
+    sert: 'Prepares the Grove **colour sensor** (VEML6040), which measures the amount of red, green, blue and white light.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+    ],
+    savoir: [
+      'This block is **optional**: the sensor is prepared by itself at its first measurement.',
+      'The sensor plugs into an **I2C** port.',
+    ],
+    legende: 'The colour sensor is prepared, then the measured amount of red shows every second.',
+  },
+  grove_couleur_lire: {
+    titre: 'colour sensor: channel …',
+    sert: 'Returns the amount of **red**, **green**, **blue** or **white** light received by the colour sensor.',
+    util: [
+      'Choose the channel.',
+      'To recognise a colour, compare the channels with each other: for example, the object is rather red if red is bigger than green and blue.',
+    ],
+    savoir: [
+      'These are **raw values** (from 0 to 65535): they depend a lot on the lighting and on the object\'s distance.',
+      'Put the object very close to the sensor, always at the same distance.',
+    ],
+    legende: 'The colour sensor is prepared, then the measured amount of red shows every second.',
+  },
+  grove_rtc_regler: {
+    titre: 'set the clock to day … month … year … to … h … min … s',
+    sert: 'Sets the Grove **real-time clock** (DS1307 or DS3231) to the given date and time.',
+    util: [
+      'Type the date (day, month, year) and the time (hours from 0 to 23, minutes, seconds).',
+      'Put this block in the ‘on start’ block, upload the program **once**, then **remove the block** and upload again.',
+    ],
+    savoir: [
+      'The module\'s **battery** keeps the time, even with the board unplugged: if the block stays in the program, the clock is set back to the same time at each start.',
+      'The module plugs into an **I2C** port.',
+      'In the simulator, the clock follows the computer\'s time, shifted by what the program has set.',
+    ],
+    legende: 'The clock is set once at start, then the time scrolls every 5 seconds.',
+  },
+  grove_rtc_lire: {
+    titre: 'clock: …',
+    sert: 'Returns one part of the real-time clock\'s date or time: the **hour** (0 to 23), the **minute**, the **second**, the **day**, the **month** or the **year**.',
+    util: [
+      'Choose the part to read.',
+      'Compare it with a number in an ‘if’ block to trigger an action at a precise time.',
+    ],
+    savoir: [
+      'To react at a precise time (an alarm clock), test **the hour and the minute** together with the ‘and’ block.',
+      'The clock must first have been set with the ‘set the clock to …’ block.',
+    ],
+    legende: 'The buzzer plugged into P0 sounds at 7:30.',
+  },
+  grove_rtc_texte: {
+    titre: 'clock: time as text (hh:mm:ss)',
+    sert: 'Returns the real-time clock\'s **time** as **text** ‘hh:mm:ss’, for example ‘08:05:30’.',
+    util: [
+      'Show the text on the LED matrix (‘scroll’ block) or on a screen (LCD, OLED…).',
+    ],
+    savoir: [
+      'Numbers smaller than 10 are written with a **0 in front**: 8:5 becomes ‘08:05’.',
+    ],
+    legende: 'The clock is set once at start, then the time scrolls every 5 seconds.',
+  },
+  // ═══════════════ Logic ═══════════════
+  controls_if: {
+    titre: 'if … do … else …',
+    sert: 'Runs the blocks in ‘do’ **only if** a condition is true; otherwise, it can run other blocks (‘else’).',
+    util: [
+      'Attach a condition in the ‘if’ box: a block that returns true or false (button pressed, comparison…).',
+      'Put in ‘do’ the blocks to run when the condition is true.',
+      'To add ‘else’ or ‘else if’, click the block\'s **gear** and drag the parts you want.',
+    ],
+    savoir: [
+      'The condition is tested **only once**, when the program reaches it: put the block in the ‘forever’ block to watch it all the time.',
+      'With several ‘else if’, only the **first** true condition is run.',
+    ],
+    legende: 'A happy face shows while button A is pressed, a sad face otherwise.',
+  },
+  logic_ternary: {
+    titre: 'test … if true … if false …',
+    sert: 'Returns **one value or another** depending on a condition: the ‘if true’ value when the condition is true, the ‘if false’ value otherwise.',
+    util: [
+      'Attach the condition in ‘test’, then one value in ‘if true’ and another in ‘if false’.',
+      'Put this block where a value is expected: show, store in a variable…',
+    ],
+    savoir: [
+      'The result has the type of the chosen values: a number, a text… (here, a text).',
+      'It is a short form of the ‘if … else’ block, when you only need to choose a value.',
+    ],
+    legende: 'At start, the board scrolls ‘Hot’ if the temperature is above 25 °C, ‘Cool’ otherwise.',
+  },
+  logic_compare: {
+    titre: '… = …',
+    sert: 'Compares two values and returns **true** or **false**: equal (=), different (≠), smaller (<), smaller or equal (≤), bigger (>), bigger or equal (≥).',
+    util: [
+      'Attach a value on each side, then choose the comparison in the block\'s list.',
+      'Put this block in an ‘if’ or ‘repeat while’ block.',
+    ],
+    savoir: [
+      'With a measurement that changes a little all the time (temperature, light), prefer < or > to =: the exact value may never be reached.',
+      'You can also compare two texts: ‘=’ checks that they are identical.',
+    ],
+    legende: 'A sad face shows when the board\'s temperature is above 25 °C, a happy face otherwise.',
+  },
+  logic_operation: {
+    titre: '… and …',
+    sert: 'Combines two conditions: ‘**and**’ returns true if **both** are true; ‘**or**’ returns true if **at least one** is true.',
+    util: [
+      'Attach a condition on each side, then choose **and** or **or** in the block\'s list.',
+    ],
+    savoir: [
+      'To combine more than two conditions, put an ‘and’ (or ‘or’) block inside another one.',
+    ],
+    legende: 'A heart shows only when buttons A and B are pressed together.',
+  },
+  logic_negate: {
+    titre: 'not …',
+    sert: '**Reverses** a condition: returns true when the condition is false, and false when it is true.',
+    util: [
+      'Attach the condition to reverse.',
+    ],
+    savoir: [
+      '‘not button A is pressed’ is true as long as A is **not** pressed.',
+    ],
+    legende: 'A sad face shows while button A is not pressed, a happy face otherwise.',
+  },
+  logic_boolean: {
+    titre: 'true / false',
+    sert: 'Returns the value **true** or the value **false**, chosen in the block\'s list.',
+    util: [
+      'Store it in a variable to remember a state: on or off, game in progress or over…',
+    ],
+    savoir: [
+      'With the ‘not’ block, you can easily switch from one state to the other: ‘set on to not on’.',
+    ],
+    legende: 'Button A turns the heart on or off: the ‘allume’ (on) variable switches between true and false.',
+  },
+  logic_null: {
+    titre: 'null',
+    sert: 'Returns the value **null**: ‘no value’.',
+    util: [
+      'Store it in a variable to show that it does not contain anything yet.',
+    ],
+    savoir: [
+      'In the Python program, null is written **None**.',
+      'This block is rarely used: for a number, starting at 0 is often better.',
+    ],
+    legende: 'A variable gets the value null at start, then it is written in the console (None).',
+  },
+
+  // ═══════════════ Maths ═══════════════
+  math_number: {
+    titre: '123 (number)',
+    sert: 'Returns the **number** written in the block.',
+    util: [
+      'Click in the block to type the number.',
+    ],
+    savoir: [
+      'A decimal number is written with a **point**: 2.5.',
+      'A negative number is written with the minus sign: -3.',
+    ],
+    legende: 'The number 42 scrolls at start.',
+  },
+  math_constant: {
+    titre: 'π',
+    sert: 'Returns a **mathematical constant**: π (pi), e, φ (golden ratio), √2, √½ or ∞ (infinity).',
+    util: [
+      'Choose the constant in the block\'s list.',
+    ],
+    savoir: [
+      'π is about 3.14: it is used to calculate the circumference or the area of a circle (circumference = 2 × π × radius).',
+    ],
+    legende: 'At start, the value of π scrolls on the LED matrix.',
+  },
+  math_arithmetic: {
+    titre: '… + …',
+    sert: 'Returns the result of a **calculation** between two numbers: addition (+), subtraction (−), multiplication (×), division (÷) or power (^).',
+    util: [
+      'Attach a number on each side, then choose the operation in the block\'s list.',
+      'For a longer calculation, put a calculation block inside another one.',
+    ],
+    savoir: [
+      'Division gives a **decimal** number: 7 ÷ 2 = 3.5.',
+      'A division **by 0** stops the program with an error.',
+      '‘^’ is the power: 2 ^ 3 = 2 × 2 × 2 = 8.',
+    ],
+    legende: 'At start, the result of 3 + 4 (that is 7) scrolls.',
+  },
+  math_modulo: {
+    titre: 'remainder of … ÷ …',
+    sert: 'Returns the **remainder** of the whole-number division of one number by another: the remainder of 17 ÷ 5 is 2 (17 = 3 × 5 + 2).',
+    util: [
+      'Attach the number to divide, then the divisor.',
+    ],
+    savoir: [
+      'A number is **even** when the remainder of its division by 2 is **0**.',
+      'The remainder comes back to 0 regularly: handy to do something every 5 turns, for example.',
+    ],
+    legende: 'At start, the remainder of 17 ÷ 5 (that is 2) scrolls.',
+  },
+  math_min_max: {
+    titre: 'min of … and …',
+    sert: 'Returns the **smaller** (min) or the **bigger** (max) of two numbers.',
+    util: [
+      'Choose **min** or **max**, then attach the two numbers.',
+    ],
+    savoir: [
+      '‘max of measurement and 0’ prevents a negative result: it never goes below 0.',
+    ],
+    legende: 'At start, the bigger of 3 and 7 (that is 7) shows.',
+  },
+  math_absolue: {
+    titre: 'absolute value of …',
+    sert: 'Returns the **absolute value** of a number: the number without its sign (−5 becomes 5, 5 stays 5).',
+    util: [
+      'Attach the number.',
+    ],
+    savoir: [
+      'Handy to know a **gap** without caring about its direction: absolute value of (measurement − target).',
+    ],
+    legende: 'At start, the absolute value of −5 (that is 5) shows.',
+  },
+  math_racine: {
+    titre: 'square root …',
+    sert: 'Returns the **square root** of a number: the square root of 16 is 4, because 4 × 4 = 16.',
+    util: [
+      'Attach the number.',
+    ],
+    savoir: [
+      'The result is a decimal number (4.0).',
+      'The square root of a **negative** number stops the program with an error.',
+    ],
+    legende: 'At start, the square root of 16 (that is 4) shows.',
+  },
+  math_arrondi_custom: {
+    titre: 'round …',
+    sert: 'Returns a number **rounded** to a whole number: to the nearest (round), up (round up) or down (round down).',
+    util: [
+      'Choose the kind of rounding, then attach the number.',
+    ],
+    savoir: [
+      '3.7 gives 4 with ‘round’, 4 with ‘round up’ and 3 with ‘round down’.',
+      'Handy before showing a decimal measurement on the LED matrix.',
+    ],
+    legende: 'At start, 3.7 rounded (that is 4) shows.',
+  },
+  math_constrain: {
+    titre: 'constrain … low … high …',
+    sert: 'Returns a number **brought back between two limits**: if it is too small, it becomes the low limit; too big, the high limit.',
+    util: [
+      'Attach the number, then the low limit and the high limit.',
+    ],
+    savoir: [
+      'Handy to keep a value within what a module accepts, for example a servomotor angle between 0 and 180.',
+    ],
+    legende: 'At start, 150 constrained between 0 and 100 gives 100, which shows.',
+  },
+  math_random_int: {
+    titre: 'random integer from … to …',
+    sert: 'Returns a **random whole number** between the two chosen limits.',
+    util: [
+      'Type the smallest and the biggest possible values.',
+    ],
+    savoir: [
+      'Both limits **can come out**: from 1 to 6, the result can be 1, 2, 3, 4, 5 or 6, like a die.',
+      'A new number is drawn **each time** the program reaches this block.',
+    ],
+    legende: 'A random number from 1 to 6 shows, then another one 2 seconds later, forever.',
+  },
+  math_random_bool: {
+    titre: 'pick random true or false',
+    sert: 'Returns **true** or **false** at random, one chance in two, like heads or tails.',
+    util: [
+      'Put this block in an ‘if’ block.',
+    ],
+    savoir: [
+      'A new draw is made **each time** the program reaches this block.',
+    ],
+    legende: 'Each press on button A flips a coin: happy face or sad face.',
+  },
+  math_map: {
+    titre: 'map … of … and … to … and …',
+    sert: 'Changes a value from a starting **range** to another range: for example a measurement from 0 to 1023 into a value from 0 to 4.',
+    util: [
+      'Attach the value, then the two limits of the starting range, then the two limits of the target range.',
+    ],
+    savoir: [
+      'The result is often a **decimal** number: round it with the ‘round’ block if needed.',
+      'A value **outside** the starting range gives a result outside the target range: use the ‘constrain’ block to limit it.',
+    ],
+    legende: 'The light level (0 to 255) is changed into a value from 0 to 4, which shows every second.',
+  },
+  math_convert: {
+    titre: 'convert … from degrees to radians',
+    sert: 'Converts an **angle** from degrees to radians, or from radians to degrees.',
+    util: [
+      'Attach the angle, then choose the direction of the conversion.',
+    ],
+    savoir: [
+      '180° is π radians (about 3.14).',
+    ],
+    legende: 'At start, 180 degrees converted to radians (about 3.14) show.',
+  },
+
+  // ═══════════════ Text ═══════════════
+  text: {
+    titre: '“ … ”',
+    sert: 'Returns the **text** written in the block.',
+    util: [
+      'Click in the block to type the text.',
+    ],
+    savoir: [
+      'A text that contains digits stays a text: ‘12’ is not calculated like the number 12.',
+      'The LED matrix does not show accented letters.',
+    ],
+    legende: 'The text ‘Hello!’ scrolls once at start.',
+  },
+  text_join: {
+    titre: 'create text with …',
+    sert: 'Returns a **text** made of several pieces put end to end: text, numbers, measurements…',
+    util: [
+      'Attach the pieces in the boxes, in order.',
+      'To add boxes, click the block\'s **gear**.',
+    ],
+    savoir: [
+      'The pieces are stuck together **without spaces**: add the spaces in your texts (‘Temp: ’ with a space at the end).',
+    ],
+    legende: 'At start, the board scrolls ‘Temp: ’ followed by the temperature.',
+  },
+
+  // ═══════════════ Variables ═══════════════
+  variables_set: {
+    titre: 'set … to …',
+    sert: '**Stores a value** in a variable: a number, a text, a measurement… The variable keeps this value until the next change.',
+    util: [
+      'First create the variable with the ‘Create variable…’ button of the ‘Variables’ category.',
+      'Choose the variable in the block\'s list, then attach the value.',
+    ],
+    savoir: [
+      'Give your variables **clear names**: ‘score’, ‘speed’… rather than ‘a’ or ‘b’.',
+      'Put the starting value in the ‘on start’ block.',
+    ],
+    legende: 'The counter starts at 0; each press on A adds 1 to it, and its value shows.',
+  },
+  variables_get: {
+    titre: '… (variable)',
+    sert: 'Returns the **value stored** in the variable.',
+    util: [
+      'Take the variable\'s block from the ‘Variables’ category, then put it where the value is expected.',
+    ],
+    savoir: [
+      'A variable can contain a number, a text or true/false: its type is that of the last value stored.',
+      'A variable read before getting a value is **null** (None).',
+    ],
+    legende: 'The counter starts at 0; each press on A adds 1 to it, and its value shows.',
+  },
+  math_change: {
+    titre: 'change … by …',
+    sert: '**Adds** a number to a variable\'s value: ‘change score by 1’ makes score go from 4 to 5.',
+    util: [
+      'Choose the variable, then type the number to add.',
+    ],
+    savoir: [
+      'With a **negative** number, the variable goes down: ‘change lives by -1’.',
+      'The variable must already contain a number: give it a starting value in the ‘on start’ block.',
+    ],
+    legende: 'The counter starts at 0; each press on A adds 1 to it, and its value shows.',
+  },
+
+  // ═══════════════ Functions ═══════════════
+  procedures_defnoreturn: {
+    titre: 'to do something',
+    sert: '**Creates a function**: a series of blocks given a name, which can then be run with a single block, as many times as you like.',
+    util: [
+      'Click ‘do something’ to give the function a clear name (‘blink’, ‘forward’…).',
+      'Put in the block the blocks the function must run.',
+      'The block that runs the function then appears in the ‘Functions’ category.',
+    ],
+    savoir: [
+      'The function block is put **on its own** in the workspace.',
+      'To give the function **parameters**, click its gear.',
+      'A function avoids copying the same blocks several times: you fix it in one place.',
+    ],
+    legende: 'The ‘clignoter’ (blink) function blinks the heart once; it is run three times at start.',
+  },
+  procedures_defreturn: {
+    titre: 'to do something … return …',
+    sert: '**Creates a function that returns a value**: it makes a calculation and gives the result to the block that ran it.',
+    util: [
+      'Give the function a clear name, then put in the block the calculation blocks.',
+      'Attach in ‘return’ the value to return.',
+      'To give the function **parameters** (the values it receives), click its gear.',
+    ],
+    savoir: [
+      'The block that runs the function is a **round** block: it goes where a value is expected.',
+      'The ‘if … return’ block returns a value earlier.',
+    ],
+    legende: 'The ‘limiter’ function returns the number it receives, but never more than 9: 25 gives 9, which shows.',
+  },
+  procedures_callnoreturn: {
+    titre: 'do something',
+    sert: '**Runs a function**: runs all the blocks of the function with this name.',
+    util: [
+      'Take this block from the ‘Functions’ category: it appears there as soon as a function is created.',
+      'Put it where the function must run.',
+    ],
+    savoir: [
+      'After the function, the program goes on with the next block.',
+      'If the function has parameters, attach a value in each box of the block.',
+    ],
+    legende: 'The ‘clignoter’ (blink) function blinks the heart once; it is run three times at start.',
+  },
+  procedures_callreturn: {
+    titre: 'do something (with result)',
+    sert: '**Runs a function that returns a value**, and returns this result.',
+    util: [
+      'Take this block from the ‘Functions’ category, then put it where a value is expected.',
+      'If the function has parameters, attach a value in each box of the block.',
+    ],
+    savoir: [
+      'The type of the result depends on what the function returns: a number, a text…',
+    ],
+    legende: 'The ‘limiter’ function returns the number it receives, but never more than 9: 25 gives 9, which shows.',
+  },
+  procedures_ifreturn: {
+    titre: 'if … return …',
+    sert: 'In a function that returns a value, **returns at once** the given value **if** the condition is true; the rest of the function is then not run.',
+    util: [
+      'Put this block **inside** a ‘to do something … return’ block.',
+      'Attach the condition, then the value to return.',
+    ],
+    savoir: [
+      'This block can only be used in a function.',
+    ],
+    legende: 'The ‘limiter’ function returns the number it receives, but never more than 9: 25 gives 9, which shows.',
+  },
+  maqueen_v3_mode_T: {
+    titre: 'Maqueen Plus v3: at T-junctions, go …',
+    sert: 'Chooses what the V3 robot does, during line following, when it reaches a **T-junction** (the line stops and goes left and right): turn **left**, turn **right** or **stop**.',
+    util: [
+      'Put this block in the ‘on start’ block, before starting the line follower.',
+    ],
+    savoir: [
+      'This block needs a **Maqueen Plus V3** chassis: V1 and V2 chassis do not have this built-in line follower.',
+      'At a T, going straight on is impossible: only ‘left’, ‘right’ and ‘stop’ are offered.',
+    ],
+    legende: 'At start, the V3 robot turns right at T-junctions, then line following starts.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
+  'Chaud': 'Hot',
+  'Frais': 'Cool',
+  'Temp : ': 'Temp: ',
+  'compteur': 'counter',
+  'Bonjour': 'Hello',
   'Chat': 'Cat',
   'Salut': 'Hi',
   'Bonjour !': 'Hello!',

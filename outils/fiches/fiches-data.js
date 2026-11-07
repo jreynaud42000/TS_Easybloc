@@ -20,8 +20,20 @@ function B(type, champs, entrees) { var b = { type: type }; if (champs) b.fields
 function V(b) { return { block: b }; }
 function N(n) { return V(B('math_number', { NUM: n })); }
 function S() { var bs = Array.prototype.slice.call(arguments); for (var i = bs.length - 2; i >= 0; i--) bs[i].next = { block: bs[i + 1] }; return { block: bs[0] }; }
+function T(s) { return V(B('text', { TEXT: s })); }
 function ICONE(i) { return B('afficher_icone', { ICONE: i }); }
 function ATT(s) { return B('attendre_temps', { UNITE: 's' }, { TEMPS: N(s) }); }
+
+function SI(cond, alors, sinon) { var b = B('controls_if', null, { IF0: V(cond), DO0: alors }); if (sinon) { b.extraState = { hasElse: true }; b.inputs.ELSE = sinon; } return b; }
+function BOUTON(x) { return B('bouton_est_appuye', { BOUTON: x }); }
+function VAR(n) { return B('variables_get', { VAR: { name: n } }); }
+function DEF(n, val) { return B('variables_set', { VAR: { name: n } }, { VALUE: val }); }
+function AFF(v) { return B('afficher_valeur', null, { VALEUR: V(v) }); }
+function DEFILE(v) { return B('faire_defiler', null, { VALEUR: V(v) }); }
+function APPEL(n) { return Object.assign(B('procedures_callnoreturn'), { extraState: { name: n } }); }
+function START() { return B('au_demarrage', null, { DO: S.apply(null, arguments) }); }
+function LOOP() { return B('boucle_infinie', null, { DO: S.apply(null, arguments) }); }
+function QUAND(type, champs) { return B(type, champs, { DO: S.apply(null, Array.prototype.slice.call(arguments, 2)) }); }
 
 window.FICHES = [
   {
@@ -2281,5 +2293,1155 @@ window.FICHES = [
       'Le servomoteur continue de tourner jusqu\'au prochain bloc qui le commande.',
     ],
     legende: 'Le servomoteur continu de la voie 1 tourne deux secondes dans un sens, puis deux secondes dans l\'autre.',
+  },
+  // ═══════════════ Grove : affichages ═══════════════
+  {
+    t: 'grove_4d_definir',
+    titre: 'définir l\'afficheur 4 digits : CLK … DIO …',
+    sert: 'Indique sur quelles broches est branché l\'**afficheur à 4 chiffres** Grove : **CLK** (horloge) et **DIO** (données).',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs de l\'afficheur.',
+      'Choisissez les deux broches : celles du port Grove où l\'afficheur est branché.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, l\'afficheur est pris avec **CLK sur P0** et **DIO sur P1**.',
+    ],
+    legende: 'L\'afficheur est déclaré (CLK sur P0, DIO sur P1), sa luminosité est réglée à 3, puis 1234 s\'affiche.',
+  },
+  {
+    t: 'grove_4d_nombre',
+    titre: 'afficher le nombre …',
+    sert: 'Affiche un **nombre entier** sur l\'afficheur à 4 chiffres.',
+    util: [
+      'Écrivez le nombre, ou mettez-y un bloc qui renvoie un nombre (une mesure, un compteur…).',
+    ],
+    savoir: [
+      'Les **4 chiffres** sont toujours écrits : 42 s\'affiche **0042**.',
+      'Un nombre à virgule perd sa partie décimale (23.7 s\'affiche 0023) ; au-delà de 9999, seuls les 4 derniers chiffres restent.',
+      'Un nombre négatif affiche un signe « - » à la place du premier chiffre.',
+    ],
+    legende: 'Le nombre 1234 s\'affiche sur l\'afficheur à 4 chiffres.',
+  },
+  {
+    t: 'grove_4d_chiffre',
+    titre: 'afficher le chiffre … à la position …',
+    sert: 'Affiche **un seul chiffre** à la position choisie de l\'afficheur à 4 chiffres, sans toucher aux autres.',
+    util: [
+      'Écrivez le chiffre, de **0 à 9**, puis la position, de **0 à 3** (de gauche à droite).',
+    ],
+    savoir: [
+      'Une valeur hors de 0 à 9 **éteint** cette position.',
+      'Une position hors de 0 à 3 est ramenée à 0 ou à 3.',
+    ],
+    legende: 'Le chiffre 7 s\'affiche à la position 2 (les positions vont de 0 à 3).',
+  },
+  {
+    t: 'grove_4d_points',
+    titre: '… les deux points',
+    sert: '**Allume** ou **éteint** les deux points au milieu de l\'afficheur à 4 chiffres, par exemple pour écrire une heure (12:34).',
+    util: [
+      'Choisissez **allumer** ou **éteindre**.',
+    ],
+    savoir: [
+      'Les deux points restent dans leur état quand on affiche un autre nombre.',
+    ],
+    legende: 'Le nombre 1234 s\'affiche avec les deux points allumés : 12:34.',
+  },
+  {
+    t: 'grove_4d_luminosite',
+    titre: 'luminosité de l\'afficheur à …',
+    sert: 'Règle la **luminosité** de l\'afficheur à 4 chiffres, de **0** (la plus faible) à **7** (la plus forte).',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », ou changez la luminosité selon la lumière de la salle.',
+    ],
+    savoir: [
+      'Avec 0, l\'afficheur reste allumé, mais très faiblement : pour l\'éteindre, utilisez le bloc « effacer l\'afficheur ».',
+      'Une valeur hors de 0 à 7 est ramenée à 0 ou à 7.',
+    ],
+    legende: 'L\'afficheur est déclaré (CLK sur P0, DIO sur P1), sa luminosité est réglée à 3, puis 1234 s\'affiche.',
+  },
+  {
+    t: 'grove_4d_effacer',
+    titre: 'effacer l\'afficheur',
+    sert: '**Éteint tous les chiffres** de l\'afficheur à 4 chiffres.',
+    util: [
+      'Placez-le où l\'afficheur doit s\'éteindre.',
+    ],
+    savoir: [
+      'Sans le bloc « définir l\'afficheur 4 digits », l\'afficheur est pris avec **CLK sur P0** et **DIO sur P1**.',
+    ],
+    legende: 'Le nombre 1234 reste affiché deux secondes, puis disparaît.',
+  },
+  {
+    t: 'grove_lcd_init',
+    titre: 'initialiser l\'écran LCD 16x2',
+    sert: 'Prépare l\'**écran LCD Grove 16x2** : 2 lignes de 16 caractères.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs de l\'écran.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : L\'écran se branche sur un port **I2C** ; il est préparé tout seul à sa première utilisation.',
+      'Le rétroéclairage de cet écran est **toujours allumé** ; il ne se commande pas.',
+    ],
+    legende: 'L\'écran LCD est préparé, puis « Bonjour » s\'écrit sur la première ligne et « micro:bit » sur la seconde.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcd_init'),
+      B('grove_lcd_texte', null, { TEXTE: T('Bonjour'), X: N(0), Y: N(0) }),
+      B('grove_lcd_texte', null, { TEXTE: T('micro:bit'), X: N(0), Y: N(1) })) })],
+  },
+  {
+    t: 'grove_lcd_texte',
+    titre: 'LCD : afficher … en x … y …',
+    sert: 'Écrit un **texte** ou un **nombre** sur l\'écran LCD 16x2, à partir de la position choisie.',
+    util: [
+      'Écrivez le texte, ou mettez-y un bloc qui renvoie une valeur.',
+      'Choisissez la position : **x** de **0 à 15** (colonne), **y** **0** (ligne du haut) ou **1** (ligne du bas).',
+    ],
+    savoir: [
+      'Ce qui dépasse la fin de la ligne est **coupé**.',
+      'Le nouveau texte s\'écrit **par-dessus** l\'ancien sans l\'effacer : un texte plus court laisse la fin de l\'ancien. Effacez d\'abord, ou complétez avec des espaces.',
+      'Évitez les **lettres accentuées** : l\'écran ne les connaît pas et affiche un autre signe à la place.',
+    ],
+    legende: '« Bonjour » s\'affiche en haut à gauche pendant deux secondes, puis l\'écran s\'efface.',
+  },
+  {
+    t: 'grove_lcd_effacer',
+    titre: 'LCD : effacer',
+    sert: '**Efface tout le texte** de l\'écran LCD 16x2.',
+    util: [
+      'Placez-le avant d\'écrire un nouveau texte, pour ne pas garder de restes de l\'ancien.',
+    ],
+    savoir: [
+      'Le rétroéclairage reste allumé.',
+    ],
+    legende: '« Bonjour » s\'affiche en haut à gauche pendant deux secondes, puis l\'écran s\'efface.',
+  },
+  {
+    t: 'grove_lcd_alimenter',
+    titre: 'LCD : … l\'affichage',
+    sert: '**Masque** ou **fait réapparaître** les caractères de l\'écran LCD 16x2, sans les effacer.',
+    util: [
+      'Choisissez **éteindre** pour masquer le texte, **allumer** pour le faire réapparaître.',
+    ],
+    savoir: [
+      'Le texte est **gardé** : il revient tel quel avec « allumer ».',
+      'Le rétroéclairage de cet écran reste allumé : il ne se commande pas.',
+    ],
+    legende: '« Bonjour » s\'écrit au démarrage, puis le texte clignote : une seconde visible, une seconde masqué.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcd_texte', null, { TEXTE: T('Bonjour'), X: N(0), Y: N(0) })) }),
+      B('boucle_infinie', null, { DO: S(B('grove_lcd_alimenter', { ETAT: 'eteindre' }), ATT(1),
+        B('grove_lcd_alimenter', { ETAT: 'allumer' }), ATT(1)) })],
+  },
+  {
+    t: 'grove_lcdrgb_init',
+    titre: 'initialiser l\'écran LCD RGB (V4.0)',
+    sert: 'Prépare l\'**écran LCD RGB Grove** (version 4.0) : 2 lignes de 16 caractères, avec un fond lumineux dont on choisit la couleur.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs de l\'écran.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : L\'écran se branche sur un port **I2C** ; il est préparé tout seul à sa première utilisation. Le fond s\'allume alors en **blanc**.',
+      'D\'après la documentation de ce module, il a besoin d\'une alimentation **5 V**.',
+    ],
+    legende: 'L\'écran LCD RGB est préparé, puis « Bonjour » s\'écrit sur la première ligne.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcdrgb_init'),
+      B('grove_lcdrgb_texte', null, { TEXTE: T('Bonjour'), X: N(0), Y: N(0) })) })],
+  },
+  {
+    t: 'grove_lcdrgb_texte',
+    titre: 'LCD RGB : afficher … en x … y …',
+    sert: 'Écrit un **texte** ou un **nombre** sur l\'écran LCD RGB, à partir de la position choisie.',
+    util: [
+      'Écrivez le texte, ou mettez-y un bloc qui renvoie une valeur.',
+      'Choisissez la position : **x** de **0 à 15** (colonne), **y** **0** (ligne du haut) ou **1** (ligne du bas).',
+    ],
+    savoir: [
+      'Ce qui dépasse la fin de la ligne est **coupé**.',
+      'Le nouveau texte s\'écrit **par-dessus** l\'ancien sans l\'effacer : effacez d\'abord, ou complétez avec des espaces.',
+      'Évitez les **lettres accentuées** : l\'écran ne les connaît pas et affiche un autre signe à la place.',
+    ],
+    legende: 'Le fond passe au bleu, « Bonjour » s\'affiche, puis le rétroéclairage s\'éteint deux secondes plus tard.',
+  },
+  {
+    t: 'grove_lcdrgb_effacer',
+    titre: 'LCD RGB : effacer',
+    sert: '**Efface tout le texte** de l\'écran LCD RGB.',
+    util: [
+      'Placez-le avant d\'écrire un nouveau texte, pour ne pas garder de restes de l\'ancien.',
+    ],
+    savoir: [
+      'La couleur du fond ne change pas.',
+    ],
+    legende: '« Bonjour » s\'affiche deux secondes, puis l\'écran s\'efface.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcdrgb_texte', null, { TEXTE: T('Bonjour'), X: N(0), Y: N(0) }), ATT(2),
+      B('grove_lcdrgb_effacer')) })],
+  },
+  {
+    t: 'grove_lcdrgb_alimenter',
+    titre: 'LCD RGB : … l\'affichage',
+    sert: '**Masque** ou **fait réapparaître** les caractères de l\'écran LCD RGB, sans les effacer.',
+    util: [
+      'Choisissez **éteindre** pour masquer le texte, **allumer** pour le faire réapparaître.',
+    ],
+    savoir: [
+      'Le texte est **gardé** : il revient tel quel avec « allumer ».',
+      'Le fond lumineux se commande à part, avec le bloc « LCD RGB : … le rétroéclairage ».',
+    ],
+    legende: '« Bonjour » s\'écrit au démarrage, puis le texte clignote : une seconde visible, une seconde masqué.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcdrgb_texte', null, { TEXTE: T('Bonjour'), X: N(0), Y: N(0) })) }),
+      B('boucle_infinie', null, { DO: S(B('grove_lcdrgb_alimenter', { ETAT: 'eteindre' }), ATT(1),
+        B('grove_lcdrgb_alimenter', { ETAT: 'allumer' }), ATT(1)) })],
+  },
+  {
+    t: 'grove_lcdrgb_fond_couleur',
+    titre: 'LCD RGB : rétroéclairage …',
+    sert: 'Choisit la **couleur du fond** lumineux de l\'écran LCD RGB dans une liste.',
+    util: [
+      'Choisissez la couleur dans la liste du bloc.',
+    ],
+    savoir: [
+      'La couleur **noir** éteint le fond.',
+      'Pour composer votre propre couleur, utilisez le bloc « LCD RGB : rétroéclairage rouge … vert … bleu … ».',
+    ],
+    legende: 'Le fond passe au bleu, « Bonjour » s\'affiche, puis le rétroéclairage s\'éteint deux secondes plus tard.',
+  },
+  {
+    t: 'grove_lcdrgb_fond_rvb',
+    titre: 'LCD RGB : rétroéclairage rouge … vert … bleu …',
+    sert: 'Règle la **couleur du fond** de l\'écran LCD RGB en mélangeant du **rouge**, du **vert** et du **bleu**.',
+    util: [
+      'Écrivez la quantité de chaque couleur, de **0 à 255** (0, 0, 0 = fond éteint ; 255, 255, 255 = blanc).',
+    ],
+    savoir: [
+      'Une valeur hors de 0 à 255 est ramenée à 0 ou à 255.',
+      'Si le rétroéclairage est éteint, la couleur est gardée et apparaît au prochain « allumer le rétroéclairage ».',
+    ],
+    legende: 'Le fond prend une couleur orange (rouge 255, vert 128, bleu 0), puis « Orange » s\'affiche.',
+    exemple: [B('au_demarrage', null, { DO: S(B('grove_lcdrgb_fond_rvb', null, { R: N(255), V: N(128), B: N(0) }),
+      B('grove_lcdrgb_texte', null, { TEXTE: T('Orange'), X: N(0), Y: N(0) })) })],
+  },
+  {
+    t: 'grove_lcdrgb_retro',
+    titre: 'LCD RGB : … le rétroéclairage',
+    sert: '**Éteint** ou **rallume** le fond lumineux de l\'écran LCD RGB.',
+    util: [
+      'Choisissez **éteindre** ou **allumer**.',
+    ],
+    savoir: [
+      '« Allumer » rétablit la **dernière couleur** choisie.',
+      'Le texte reste écrit, mais il est difficile à lire sans fond lumineux.',
+    ],
+    legende: 'Le fond passe au bleu, « Bonjour » s\'affiche, puis le rétroéclairage s\'éteint deux secondes plus tard.',
+  },
+  {
+    t: 'grove_oled_init',
+    titre: 'initialiser l\'écran OLED 0,96"',
+    sert: 'Prépare le petit **écran OLED Grove** de 0,96 pouce : 8 lignes de 21 caractères.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs de l\'écran.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : L\'écran se branche sur un port **I2C** ; il est préparé tout seul à sa première utilisation.',
+    ],
+    legende: 'L\'écran OLED affiche deux lignes, attend deux secondes, puis s\'efface.',
+  },
+  {
+    t: 'grove_oled_texte',
+    titre: 'OLED : afficher … en colonne … ligne …',
+    sert: 'Écrit un **texte** ou un **nombre** sur l\'écran OLED, à partir de la position choisie.',
+    util: [
+      'Écrivez le texte, ou mettez-y un bloc qui renvoie une valeur.',
+      'Choisissez la **colonne**, de **0 à 20**, et la **ligne**, de **0 à 7** (0 = en haut).',
+    ],
+    savoir: [
+      'Ce qui dépasse la fin de la ligne est **coupé**.',
+      'Les lettres accentuées sont remplacées par la lettre simple (é devient e) ; les autres signes inconnus deviennent « ? ».',
+      'Le nouveau texte s\'écrit par-dessus l\'ancien : effacez d\'abord, ou complétez avec des espaces.',
+    ],
+    legende: 'L\'écran OLED affiche deux lignes, attend deux secondes, puis s\'efface.',
+  },
+  {
+    t: 'grove_oled_effacer',
+    titre: 'OLED : effacer l\'écran',
+    sert: '**Efface tout** l\'écran OLED.',
+    util: [
+      'Placez-le avant d\'écrire un nouveau texte, pour ne pas garder de restes de l\'ancien.',
+    ],
+    savoir: [
+      'L\'effacement prend un court instant : évitez de le répéter à chaque tour d\'une boucle rapide.',
+    ],
+    legende: 'L\'écran OLED affiche deux lignes, attend deux secondes, puis s\'efface.',
+  },
+  // ═══════════════ Grove : capteurs simples ═══════════════
+  {
+    t: 'grove_ultrason_cm',
+    titre: 'distance (cm) sur …',
+    sert: 'Renvoie la **distance** entre le capteur à ultrasons Grove et l\'obstacle le plus proche, en **centimètres**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la broche du capteur.',
+      'Affichez la valeur, ou comparez-la à un nombre dans un bloc « si » (par exemple pour réagir quand quelque chose s\'approche).',
+    ],
+    savoir: [
+      'Le capteur Grove à ultrasons n\'utilise **qu\'une broche** : celle choisie dans le bloc.',
+      'Il renvoie **0** quand l\'écho ne revient pas à temps (obstacle trop loin, ou surface qui absorbe le son).',
+      'Dans le simulateur, réglez la distance avec le curseur du tableau « Périphériques ».',
+    ],
+    legende: 'La distance mesurée par le capteur branché sur P0 s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_ultrason_pouces',
+    titre: 'distance (pouces) sur …',
+    sert: 'Renvoie la **distance** entre le capteur à ultrasons Grove et l\'obstacle le plus proche, en **pouces** (1 pouce = 2,54 cm).',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la broche du capteur.',
+    ],
+    savoir: [
+      'En France, on mesure plutôt en centimètres : utilisez de préférence le bloc « distance (cm) sur … ».',
+      'Le capteur Grove à ultrasons n\'utilise **qu\'une broche** : celle choisie dans le bloc.',
+      'Il renvoie **0** quand l\'écho ne revient pas à temps.',
+    ],
+    legende: 'La distance mesurée par le capteur branché sur P0 s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_joystick_valeur',
+    titre: 'valeur du joystick sur …',
+    sert: 'Renvoie la **position d\'un axe** du joystick Grove, de **0 à 1023** : environ 512 quand le manche est au repos.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la broche de l\'axe à lire : chaque axe (X ou Y) a sa propre broche.',
+    ],
+    savoir: [
+      'Le joystick se branche sur des entrées analogiques : **P0, P1 ou P2**.',
+      'Un appui sur le manche fait tomber l\'axe X presque à 0.',
+      'Dans le simulateur, poussez le manche dessiné dans le montage, ou utilisez les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'La valeur de l\'axe X (broche P0) s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_joystick_direction',
+    titre: 'joystick X … Y … vers …',
+    sert: 'Renvoie **vrai** quand le joystick est poussé dans la **direction** choisie (haut, bas, gauche, droite), ou quand il est **au centre**.',
+    valeur: 'logique',
+    util: [
+      'Choisissez les broches des axes **X** et **Y**, puis la direction.',
+      'Mettez ce bloc dans un bloc « si », dans le bloc « répéter indéfiniment ».',
+    ],
+    savoir: [
+      'Le joystick compte comme poussé quand l\'axe passe **sous 350** ou **au-dessus de 700** (sur 1023).',
+      'Pour une commande plus fine, lisez la valeur exacte avec le bloc « valeur du joystick sur … ».',
+    ],
+    legende: 'Un visage heureux s\'affiche quand le joystick (axes sur P0 et P1) est poussé vers le haut.',
+  },
+  {
+    t: 'grove_joystick_bouton',
+    titre: 'bouton du joystick sur … pressé',
+    sert: 'Renvoie **vrai** quand on **appuie sur le manche** du joystick Grove, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez la broche de l\'axe **X** du joystick.',
+      'Mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'L\'appui est reconnu parce qu\'il fait tomber l\'axe X **sous 250** : pousser le manche tout à gauche peut donner le même résultat.',
+    ],
+    legende: 'Un cœur s\'affiche quand on appuie sur le manche du joystick.',
+  },
+  {
+    t: 'grove_bouton_lorsque',
+    titre: 'lorsque le bouton poussoir sur … est appuyé',
+    sert: 'Exécute les blocs placés à l\'intérieur **à chaque appui** sur le bouton poussoir Grove.',
+    util: [
+      'Choisissez la broche du bouton.',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'Un appui ne déclenche le bloc **qu\'une fois**, même si le bouton reste enfoncé.',
+      'Le bouton est surveillé à chaque tour de la boucle principale du programme.',
+      'Dans le simulateur, cliquez sur le bouton dessiné dans le montage.',
+    ],
+    legende: 'Chaque appui sur le bouton poussoir (P0) ajoute 1 au compteur, qui s\'affiche.',
+  },
+  {
+    t: 'grove_bouton_appuye',
+    titre: 'bouton poussoir sur … appuyé',
+    sert: 'Renvoie **vrai** tant que le bouton poussoir Grove est enfoncé, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez la broche du bouton.',
+      'Mettez ce bloc dans un bloc « si », dans le bloc « répéter indéfiniment ».',
+    ],
+    savoir: [
+      'Pour réagir **une fois par appui**, utilisez plutôt le bloc « lorsque le bouton poussoir sur … est appuyé ».',
+      'Dans le simulateur, maintenez le clic sur le bouton dessiné dans le montage.',
+    ],
+    legende: 'Un cœur s\'affiche tant que le bouton poussoir (P0) est enfoncé.',
+  },
+  {
+    t: 'grove_lumiere',
+    titre: 'luminosité sur … en …',
+    sert: 'Renvoie la **lumière** reçue par le capteur de lumière Grove : plus il y a de lumière, plus la valeur est grande.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la broche du capteur : **P0, P1 ou P2** (entrées analogiques).',
+      'Choisissez l\'unité : la **valeur** de 0 à 1023, ou le **pourcentage** de 0 à 100 %.',
+    ],
+    savoir: [
+      'C\'est une mesure **relative** : elle sert à comparer (plus clair, plus sombre), pas à mesurer la lumière en lux.',
+      'Dans le simulateur, réglez la lumière avec le curseur « Lumière » du tableau « Périphériques ».',
+    ],
+    legende: 'La lumière mesurée sur P1, en pourcentage, s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_gestes_init',
+    titre: 'initialiser le capteur de gestes',
+    sert: 'Prépare le **capteur de gestes** Grove (PAJ7620), qui reconnaît les mouvements de la main devant lui.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : le capteur est préparé tout seul à sa première lecture.',
+      'Le capteur de gestes se branche sur un port **I2C**.',
+    ],
+    legende: 'Le capteur de gestes est préparé, puis le dernier geste détecté s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_gestes_est',
+    titre: 'le geste détecté est …',
+    sert: 'Renvoie **vrai** quand le capteur de gestes vient de détecter le **geste choisi** : vers le haut, le bas, la gauche, la droite, l\'avant, l\'arrière, une rotation dans un sens ou dans l\'autre, ou une vague.',
+    valeur: 'logique',
+    util: [
+      'Choisissez le geste, puis mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'Chaque lecture **consomme** le geste : il n\'est donné qu\'une fois. Pour tester plusieurs gestes, rangez d\'abord le résultat du bloc « geste détecté » dans une variable.',
+      'Passez la main à quelques centimètres du capteur, d\'un mouvement franc.',
+      'Dans le simulateur, choisissez le geste en cliquant sur le capteur dessiné dans le montage.',
+    ],
+    legende: 'Un visage heureux s\'affiche quand le capteur détecte un geste vers le haut.',
+  },
+  {
+    t: 'grove_gestes_lire',
+    titre: 'geste détecté',
+    sert: 'Renvoie le **nom du dernier geste** détecté (« haut », « gauche », « vague »…), ou un texte vide si aucun geste n\'a été fait depuis la lecture précédente.',
+    valeur: 'texte',
+    util: [
+      'Affichez le résultat, ou rangez-le dans une variable pour le comparer ensuite.',
+    ],
+    savoir: [
+      'Chaque lecture **consomme** le geste : il n\'est donné qu\'une fois. Pour tester plusieurs gestes, rangez d\'abord le résultat du bloc « geste détecté » dans une variable.',
+      'Les noms sont écrits sans accents : « arriere ».',
+    ],
+    legende: 'Le capteur de gestes est préparé, puis le dernier geste détecté s\'affiche chaque seconde.',
+  },
+  // ═══════════════ Grove : environnement, couleur, horloge ═══════════════
+  {
+    t: 'grove_th_init',
+    titre: 'initialiser le capteur température & humidité',
+    sert: 'Prépare le **capteur de température et d\'humidité** Grove I2C (puce AHT20, aussi vendue sous le nom DHT20).',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : le capteur est préparé tout seul à sa première mesure.',
+      'Le capteur se branche sur un port **I2C**.',
+    ],
+    legende: 'Le capteur est préparé, puis l\'humidité (en %) s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_th_mesure',
+    titre: 'capteur T&H : …',
+    sert: 'Renvoie la **température** (en °C ou en °F) ou l\'**humidité** de l\'air (en %) mesurée par le capteur de température et d\'humidité Grove I2C.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **température (°C)**, **température (°F)** ou **humidité (%)**.',
+    ],
+    savoir: [
+      'Le résultat peut être un nombre à virgule.',
+      'Dans le simulateur, réglez les valeurs avec les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'La température mesurée par le capteur s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_dht11_definir',
+    titre: 'définir le DHT11 sur …',
+    sert: 'Indique sur quelle broche est branché le capteur de température et d\'humidité **DHT11**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+      'Choisissez la broche du capteur.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le DHT11 est pris sur la broche **P1**.',
+      'Sur la carte **micro:bit V2**, la lecture du DHT est **expérimentale** : le bloc renvoie **-1** quand la mesure échoue, jamais une valeur fausse. Le capteur de température et d\'humidité I2C (AHT20/DHT20) est plus fiable.',
+    ],
+    legende: 'Le DHT11 est déclaré sur P1, puis la température s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_dht11_mesure',
+    titre: 'DHT11 : …',
+    sert: 'Renvoie la **température** (en °C ou en °F) ou l\'**humidité** (en %) mesurée par le capteur **DHT11**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **température (°C)**, **température (°F)** ou **humidité (%)**.',
+    ],
+    savoir: [
+      'Le DHT11 donne **une mesure par seconde** au plus : inutile de le lire plus souvent.',
+      'Sur la carte **micro:bit V2**, la lecture du DHT est **expérimentale** : le bloc renvoie **-1** quand la mesure échoue, jamais une valeur fausse. Le capteur de température et d\'humidité I2C (AHT20/DHT20) est plus fiable.',
+    ],
+    legende: 'Le DHT11 est déclaré sur P1, puis la température s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_dht22_definir',
+    titre: 'définir le DHT22 sur …',
+    sert: 'Indique sur quelle broche est branché le capteur de température et d\'humidité **DHT22**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+      'Choisissez la broche du capteur.',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : sans lui, le DHT22 est pris sur la broche **P1**.',
+      'Sur la carte **micro:bit V2**, la lecture du DHT est **expérimentale** : le bloc renvoie **-1** quand la mesure échoue, jamais une valeur fausse. Le capteur de température et d\'humidité I2C (AHT20/DHT20) est plus fiable.',
+    ],
+    legende: 'Le DHT22 est déclaré sur P1, puis la température s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_dht22_mesure',
+    titre: 'DHT22 : …',
+    sert: 'Renvoie la **température** (en °C ou en °F) ou l\'**humidité** (en %) mesurée par le capteur **DHT22**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **température (°C)**, **température (°F)** ou **humidité (%)**.',
+    ],
+    savoir: [
+      'Le DHT22 donne **une mesure toutes les 2 secondes** au plus : inutile de le lire plus souvent.',
+      'Sur la carte **micro:bit V2**, la lecture du DHT est **expérimentale** : le bloc renvoie **-1** quand la mesure échoue, jamais une valeur fausse. Le capteur de température et d\'humidité I2C (AHT20/DHT20) est plus fiable.',
+    ],
+    legende: 'Le DHT22 est déclaré sur P1, puis la température s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_scd30_init',
+    titre: 'initialiser le capteur CO₂ SCD30',
+    sert: 'Prépare le **capteur de CO₂ SCD30**, qui mesure aussi la température et l\'humidité.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : le capteur est préparé tout seul à sa première mesure.',
+      'Le capteur se branche sur un port **I2C**.',
+    ],
+    legende: 'Le capteur est préparé, puis le CO₂ (en ppm) s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_scd30_lire',
+    titre: 'SCD30 : …',
+    sert: 'Renvoie le **CO₂** (en ppm), la **température** (en °C) ou l\'**humidité** (en %) mesurés par le capteur SCD30.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **CO₂ (ppm)**, **température (°C)** ou **humidité (%)**.',
+    ],
+    savoir: [
+      'Le CO₂ se mesure en **ppm** (parties par million) : l\'air extérieur en contient environ 400 ppm ; plus la valeur monte dans une salle, plus il faut aérer.',
+      'Dans le simulateur, réglez les valeurs avec les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'Le CO₂ mesuré par le SCD30 s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_scd41_init',
+    titre: 'initialiser le capteur CO₂ SCD41',
+    sert: 'Prépare le **capteur de CO₂ SCD41**, qui mesure aussi la température et l\'humidité.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : le capteur est préparé tout seul à sa première mesure.',
+      'Le capteur se branche sur un port **I2C**.',
+    ],
+    legende: 'Le capteur est préparé, puis le CO₂ (en ppm) s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_scd41_lire',
+    titre: 'SCD41 : …',
+    sert: 'Renvoie le **CO₂** (en ppm), la **température** (en °C) ou l\'**humidité** (en %) mesurés par le capteur SCD41.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **CO₂ (ppm)**, **température (°C)** ou **humidité (%)**.',
+    ],
+    savoir: [
+      'Le CO₂ se mesure en **ppm** (parties par million) : l\'air extérieur en contient environ 400 ppm ; plus la valeur monte dans une salle, plus il faut aérer.',
+      'Dans le simulateur, réglez les valeurs avec les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'Le CO₂ mesuré par le SCD41 s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_bmp280',
+    titre: 'BMP280 : …',
+    sert: 'Renvoie la **pression de l\'air** (en hPa), la **température** (en °C) ou l\'**altitude** estimée (en m) mesurées par le capteur Grove BMP280.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **pression (hPa)**, **température (°C)** ou **altitude (m)**.',
+    ],
+    savoir: [
+      'Au niveau de la mer, la pression de l\'air est d\'environ **1013 hPa** ; elle baisse quand on monte.',
+      'L\'altitude est **calculée** à partir de la pression, en prenant 1013,25 hPa au niveau de la mer : elle varie aussi avec la météo.',
+      'Le capteur se branche sur un port **I2C**. ' + 'Dans le simulateur, réglez les valeurs avec les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'La pression de l\'air mesurée par le BMP280 s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_sgp30',
+    titre: 'qualité de l\'air SGP30 : …',
+    sert: 'Renvoie une mesure de la **qualité de l\'air** faite par le capteur Grove SGP30 : l\'**eCO₂** (en ppm) ou les **COV totaux** (en ppb).',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la grandeur : **eCO₂ (ppm)** ou **COV totaux (ppb)**.',
+    ],
+    savoir: [
+      'Les **COV** sont des composés organiques volatils (solvants, parfums, colles…) ; l\'**eCO₂** est une estimation du CO₂ calculée par le capteur, pas une vraie mesure de CO₂.',
+      'Pendant les **15 premières secondes**, le capteur chauffe : il renvoie 400 ppm et 0 ppb.',
+      'Le capteur se branche sur un port **I2C**. ' + 'Dans le simulateur, réglez les valeurs avec les curseurs du tableau « Périphériques ».',
+    ],
+    legende: 'Un visage triste s\'affiche quand les COV dépassent 500 ppb, un visage content sinon.',
+  },
+  {
+    t: 'grove_couleur_init',
+    titre: 'initialiser le capteur de couleur',
+    sert: 'Prépare le **capteur de couleur** Grove (VEML6040), qui mesure la quantité de rouge, de vert, de bleu et de lumière blanche.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+    ],
+    savoir: [
+      'Ce bloc est **facultatif** : le capteur est préparé tout seul à sa première mesure.',
+      'Le capteur se branche sur un port **I2C**.',
+    ],
+    legende: 'Le capteur de couleur est préparé, puis l\'intensité de rouge mesurée s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_couleur_lire',
+    titre: 'capteur de couleur : canal …',
+    sert: 'Renvoie la quantité de **rouge**, de **vert**, de **bleu** ou de lumière **blanche** reçue par le capteur de couleur.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le canal.',
+      'Pour reconnaître une couleur, comparez les canaux entre eux : par exemple, l\'objet est plutôt rouge si le rouge est plus grand que le vert et le bleu.',
+    ],
+    savoir: [
+      'Ce sont des **valeurs brutes** (de 0 à 65535) : elles dépendent beaucoup de l\'éclairage et de la distance de l\'objet.',
+      'Placez l\'objet tout près du capteur, toujours à la même distance.',
+    ],
+    legende: 'Le capteur de couleur est préparé, puis l\'intensité de rouge mesurée s\'affiche chaque seconde.',
+  },
+  {
+    t: 'grove_rtc_regler',
+    titre: 'régler l\'horloge au jour … mois … année … à … h … min … s',
+    sert: 'Met l\'**horloge temps réel** Grove (DS1307 ou DS3231) à la date et à l\'heure indiquées.',
+    util: [
+      'Écrivez la date (jour, mois, année) et l\'heure (heures de 0 à 23, minutes, secondes).',
+      'Placez ce bloc dans le bloc « au démarrage », téléversez le programme **une fois**, puis **retirez le bloc** et téléversez à nouveau.',
+    ],
+    savoir: [
+      'La **pile** du module garde l\'heure, même carte débranchée : si le bloc reste dans le programme, l\'horloge est remise à la même heure à chaque démarrage.',
+      'Le module se branche sur un port **I2C**.',
+      'Dans le simulateur, l\'horloge suit l\'heure de l\'ordinateur, décalée de ce que le programme a réglé.',
+    ],
+    legende: 'L\'horloge est réglée une fois au démarrage, puis l\'heure défile toutes les 5 secondes.',
+  },
+  {
+    t: 'grove_rtc_lire',
+    titre: 'horloge : …',
+    sert: 'Renvoie un élément de la date ou de l\'heure de l\'horloge temps réel : l\'**heure** (0 à 23), la **minute**, la **seconde**, le **jour**, le **mois** ou l\'**année**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez l\'élément à lire.',
+      'Comparez-le à un nombre dans un bloc « si » pour déclencher une action à une heure précise.',
+    ],
+    savoir: [
+      'Pour réagir à une heure précise (un réveil), testez **l\'heure et la minute** ensemble avec le bloc « et ».',
+      'L\'horloge doit d\'abord avoir été réglée avec le bloc « régler l\'horloge au … ».',
+    ],
+    legende: 'Le buzzer branché sur P0 sonne à 7 h 30.',
+  },
+  {
+    t: 'grove_rtc_texte',
+    titre: 'horloge : heure en texte (hh:mm:ss)',
+    sert: 'Renvoie l\'**heure** de l\'horloge temps réel sous forme de **texte** « hh:mm:ss », par exemple « 08:05:30 ».',
+    valeur: 'texte',
+    util: [
+      'Affichez le texte sur la matrice de LED (bloc « faire défiler ») ou sur un écran (LCD, OLED…).',
+    ],
+    savoir: [
+      'Les nombres plus petits que 10 sont écrits avec un **0 devant** : 8 h 5 devient « 08:05 ».',
+    ],
+    legende: 'L\'horloge est réglée une fois au démarrage, puis l\'heure défile toutes les 5 secondes.',
+  },
+  // ═══════════════ Logique ═══════════════
+  {
+    t: 'controls_if',
+    titre: 'si … faire … sinon …',
+    sert: 'Exécute les blocs de « faire » **seulement si** une condition est vraie ; sinon, il peut exécuter d\'autres blocs (« sinon »).',
+    util: [
+      'Accrochez une condition dans la case « si » : un bloc qui renvoie vrai ou faux (bouton appuyé, comparaison…).',
+      'Placez dans « faire » les blocs à exécuter quand la condition est vraie.',
+      'Pour ajouter « sinon » ou « sinon si », cliquez sur la **roue dentée** du bloc et faites glisser les éléments voulus.',
+    ],
+    savoir: [
+      'La condition est testée **une seule fois**, au passage du programme : placez le bloc dans le bloc « répéter indéfiniment » pour la surveiller sans arrêt.',
+      'Avec plusieurs « sinon si », seule la **première** condition vraie est exécutée.',
+    ],
+    legende: 'Un visage heureux s\'affiche tant que le bouton A est appuyé, un visage triste sinon.',
+    exemple: [LOOP(SI(BOUTON('a'), S(ICONE('HAPPY')), S(ICONE('SAD'))))],
+  },
+  {
+    t: 'logic_ternary',
+    titre: 'test … si vrai … si faux …',
+    sert: 'Renvoie **une valeur ou une autre** selon une condition : la valeur « si vrai » quand la condition est vraie, la valeur « si faux » sinon.',
+    valeur: 'texte',
+    util: [
+      'Accrochez la condition dans « test », puis une valeur dans « si vrai » et une autre dans « si faux ».',
+      'Placez ce bloc là où une valeur est attendue : afficher, ranger dans une variable…',
+    ],
+    savoir: [
+      'Le résultat a le type des valeurs choisies : un nombre, un texte… (ici, un texte).',
+      'C\'est une forme courte du bloc « si … sinon », quand il s\'agit seulement de choisir une valeur.',
+    ],
+    legende: 'Au démarrage, la carte fait défiler « Chaud » si la température dépasse 25 °C, « Frais » sinon.',
+    exemple: [START(DEFILE(B('logic_ternary', null, { IF: V(B('logic_compare', { OP: 'GT' }, { A: V(B('capteur_temperature')), B: N(25) })), THEN: T('Chaud'), ELSE: T('Frais') })))],
+  },
+  {
+    t: 'logic_compare',
+    titre: '… = …',
+    sert: 'Compare deux valeurs et renvoie **vrai** ou **faux** : égal (=), différent (≠), plus petit (<), plus petit ou égal (≤), plus grand (>), plus grand ou égal (≥).',
+    valeur: 'logique',
+    util: [
+      'Accrochez une valeur de chaque côté, puis choisissez la comparaison dans la liste du bloc.',
+      'Mettez ce bloc dans un bloc « si » ou « répéter tant que ».',
+    ],
+    savoir: [
+      'Avec une mesure qui change un peu tout le temps (température, lumière), préférez < ou > à = : la valeur exacte peut ne jamais être atteinte.',
+      'On peut aussi comparer deux textes : « = » vérifie qu\'ils sont identiques.',
+    ],
+    legende: 'Un visage triste s\'affiche quand la température de la carte dépasse 25 °C, un visage heureux sinon.',
+    exemple: [LOOP(SI(B('logic_compare', { OP: 'GT' }, { A: V(B('capteur_temperature')), B: N(25) }), S(ICONE('SAD')), S(ICONE('HAPPY'))), ATT(1))],
+  },
+  {
+    t: 'logic_operation',
+    titre: '… et …',
+    sert: 'Combine deux conditions : « **et** » renvoie vrai si les **deux** sont vraies ; « **ou** » renvoie vrai si **au moins une** est vraie.',
+    valeur: 'logique',
+    util: [
+      'Accrochez une condition de chaque côté, puis choisissez **et** ou **ou** dans la liste du bloc.',
+    ],
+    savoir: [
+      'Pour combiner plus de deux conditions, mettez un bloc « et » (ou « ou ») dans un autre.',
+    ],
+    legende: 'Un cœur s\'affiche seulement quand les boutons A et B sont appuyés ensemble.',
+    exemple: [LOOP(SI(B('logic_operation', { OP: 'AND' }, { A: V(BOUTON('a')), B: V(BOUTON('b')) }), S(ICONE('HEART')), S(B('effacer_ecran'))))],
+  },
+  {
+    t: 'logic_negate',
+    titre: 'non …',
+    sert: '**Inverse** une condition : renvoie vrai quand la condition est fausse, et faux quand elle est vraie.',
+    valeur: 'logique',
+    util: [
+      'Accrochez la condition à inverser.',
+    ],
+    savoir: [
+      '« non bouton A appuyé » est vrai tant qu\'on **n\'appuie pas** sur A.',
+    ],
+    legende: 'Un visage triste s\'affiche tant que le bouton A n\'est pas appuyé, un visage heureux sinon.',
+    exemple: [LOOP(SI(B('logic_negate', null, { BOOL: V(BOUTON('a')) }), S(ICONE('SAD')), S(ICONE('HAPPY'))))],
+  },
+  {
+    t: 'logic_boolean',
+    titre: 'vrai / faux',
+    sert: 'Renvoie la valeur **vrai** ou la valeur **faux**, choisie dans la liste du bloc.',
+    valeur: 'logique',
+    util: [
+      'Rangez-le dans une variable pour retenir un état : allumé ou éteint, partie en cours ou terminée…',
+    ],
+    savoir: [
+      'Avec le bloc « non », on passe facilement d\'un état à l\'autre : « définir allume à non allume ».',
+    ],
+    legende: 'Le bouton A allume ou éteint le cœur : la variable « allume » passe de vrai à faux, et inversement.',
+    exemple: [START(DEF('allume', V(B('logic_boolean', { BOOL: 'TRUE' })))),
+      QUAND('lorsque_bouton', { BOUTON: 'a' }, DEF('allume', V(B('logic_negate', null, { BOOL: V(VAR('allume')) })))),
+      LOOP(SI(VAR('allume'), S(ICONE('HEART')), S(B('effacer_ecran'))))],
+  },
+  {
+    t: 'logic_null',
+    titre: 'nul',
+    sert: 'Renvoie la valeur **nul** : « aucune valeur ».',
+    valeur: 'nombre',
+    util: [
+      'Rangez-le dans une variable pour indiquer qu\'elle ne contient encore rien.',
+    ],
+    savoir: [
+      'Dans le programme Python, nul s\'écrit **None**.',
+      'Ce bloc sert rarement : pour un nombre, on préfère souvent commencer à 0.',
+    ],
+    legende: 'Une variable reçoit la valeur nul au démarrage, puis elle est écrite dans la console (None).',
+    exemple: [START(DEF('mesure', V(B('logic_null'))), B('afficher_console', null, { VALEUR: V(VAR('mesure')) }))],
+  },
+
+  // ═══════════════ Maths ═══════════════
+  {
+    t: 'math_number',
+    titre: '123 (nombre)',
+    sert: 'Renvoie le **nombre** écrit dans le bloc.',
+    valeur: 'nombre',
+    util: [
+      'Cliquez dans le bloc pour écrire le nombre.',
+    ],
+    savoir: [
+      'Un nombre à virgule s\'écrit avec un **point** : 2.5.',
+      'Un nombre négatif s\'écrit avec le signe moins : -3.',
+    ],
+    legende: 'Le nombre 42 défile au démarrage.',
+    exemple: [START(DEFILE(B('math_number', { NUM: 42 })))],
+  },
+  {
+    t: 'math_constant',
+    titre: 'π',
+    sert: 'Renvoie une **constante mathématique** : π (pi), e, φ (nombre d\'or), √2, √½ ou ∞ (l\'infini).',
+    valeur: 'nombre',
+    util: [
+      'Choisissez la constante dans la liste du bloc.',
+    ],
+    savoir: [
+      'π vaut environ 3,14 : il sert à calculer le périmètre ou l\'aire d\'un cercle (périmètre = 2 × π × rayon).',
+    ],
+    legende: 'Au démarrage, la valeur de π défile sur la matrice de LED.',
+    exemple: [START(DEFILE(B('math_constant', { CONSTANT: 'PI' })))],
+  },
+  {
+    t: 'math_arithmetic',
+    titre: '… + …',
+    sert: 'Renvoie le résultat d\'un **calcul** entre deux nombres : addition (+), soustraction (−), multiplication (×), division (÷) ou puissance (^).',
+    valeur: 'nombre',
+    util: [
+      'Accrochez un nombre de chaque côté, puis choisissez l\'opération dans la liste du bloc.',
+      'Pour un calcul plus long, mettez un bloc de calcul dans un autre.',
+    ],
+    savoir: [
+      'La division donne un nombre à **virgule** : 7 ÷ 2 = 3.5.',
+      'Une division **par 0** arrête le programme avec une erreur.',
+      '« ^ » est la puissance : 2 ^ 3 = 2 × 2 × 2 = 8.',
+    ],
+    legende: 'Au démarrage, le résultat de 3 + 4 (soit 7) défile.',
+    exemple: [START(DEFILE(B('math_arithmetic', { OP: 'ADD' }, { A: N(3), B: N(4) })))],
+  },
+  {
+    t: 'math_modulo',
+    titre: 'reste de … ÷ …',
+    sert: 'Renvoie le **reste** de la division entière d\'un nombre par un autre : le reste de 17 ÷ 5 est 2 (17 = 3 × 5 + 2).',
+    valeur: 'nombre',
+    util: [
+      'Accrochez le nombre à diviser, puis le diviseur.',
+    ],
+    savoir: [
+      'Un nombre est **pair** quand le reste de sa division par 2 vaut **0**.',
+      'Le reste revient régulièrement à 0 : pratique pour faire une action tous les 5 tours, par exemple.',
+    ],
+    legende: 'Au démarrage, le reste de 17 ÷ 5 (soit 2) défile.',
+    exemple: [START(DEFILE(B('math_modulo', null, { DIVIDEND: N(17), DIVISOR: N(5) })))],
+  },
+  {
+    t: 'math_min_max',
+    titre: 'min de … et …',
+    sert: 'Renvoie le **plus petit** (min) ou le **plus grand** (max) de deux nombres.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez **min** ou **max**, puis accrochez les deux nombres.',
+    ],
+    savoir: [
+      '« max de mesure et 0 » empêche un résultat négatif : il ne descend jamais sous 0.',
+    ],
+    legende: 'Au démarrage, le plus grand de 3 et 7 (soit 7) s\'affiche.',
+  },
+  {
+    t: 'math_absolue',
+    titre: 'valeur absolue de …',
+    sert: 'Renvoie la **valeur absolue** d\'un nombre : le nombre sans son signe (−5 devient 5, 5 reste 5).',
+    valeur: 'nombre',
+    util: [
+      'Accrochez le nombre.',
+    ],
+    savoir: [
+      'Pratique pour connaître un **écart** sans se soucier du sens : valeur absolue de (mesure − consigne).',
+    ],
+    legende: 'Au démarrage, la valeur absolue de −5 (soit 5) s\'affiche.',
+  },
+  {
+    t: 'math_racine',
+    titre: 'racine carrée …',
+    sert: 'Renvoie la **racine carrée** d\'un nombre : la racine carrée de 16 est 4, car 4 × 4 = 16.',
+    valeur: 'nombre',
+    util: [
+      'Accrochez le nombre.',
+    ],
+    savoir: [
+      'Le résultat est un nombre à virgule (4.0).',
+      'La racine carrée d\'un nombre **négatif** arrête le programme avec une erreur.',
+    ],
+    legende: 'Au démarrage, la racine carrée de 16 (soit 4) s\'affiche.',
+  },
+  {
+    t: 'math_arrondi_custom',
+    titre: 'arrondi …',
+    sert: 'Renvoie un nombre **arrondi** à l\'entier : au plus proche (arrondi), au-dessus (arrondi supérieur) ou en dessous (arrondi inférieur).',
+    valeur: 'nombre',
+    util: [
+      'Choisissez le type d\'arrondi, puis accrochez le nombre.',
+    ],
+    savoir: [
+      '3.7 donne 4 avec « arrondi », 4 avec « arrondi supérieur » et 3 avec « arrondi inférieur ».',
+      'Utile avant d\'afficher une mesure à virgule sur la matrice de LED.',
+    ],
+    legende: 'Au démarrage, 3,7 arrondi (soit 4) s\'affiche.',
+  },
+  {
+    t: 'math_constrain',
+    titre: 'contraindre … entre … et …',
+    sert: 'Renvoie un nombre **ramené entre deux limites** : s\'il est trop petit, il devient la limite basse ; trop grand, la limite haute.',
+    valeur: 'nombre',
+    util: [
+      'Accrochez le nombre, puis la limite basse et la limite haute.',
+    ],
+    savoir: [
+      'Pratique pour éviter qu\'une valeur sorte de ce qu\'un module accepte, par exemple un angle de servomoteur entre 0 et 180.',
+    ],
+    legende: 'Au démarrage, 150 contraint entre 0 et 100 donne 100, qui s\'affiche.',
+    exemple: [START(DEFILE(B('math_constrain', null, { VALUE: N(150), LOW: N(0), HIGH: N(100) })))],
+  },
+  {
+    t: 'math_random_int',
+    titre: 'entier aléatoire entre … et …',
+    sert: 'Renvoie un **nombre entier au hasard** entre les deux limites choisies.',
+    valeur: 'nombre',
+    util: [
+      'Écrivez la plus petite et la plus grande valeur possibles.',
+    ],
+    savoir: [
+      'Les deux limites **peuvent sortir** : entre 1 et 6, le résultat peut être 1, 2, 3, 4, 5 ou 6, comme un dé.',
+      'Un nouveau nombre est tiré à **chaque** passage du programme sur ce bloc.',
+    ],
+    legende: 'Un nombre au hasard entre 1 et 6 s\'affiche, puis un autre 2 secondes plus tard, sans fin.',
+    exempleDe: 'afficher_valeur',
+  },
+  {
+    t: 'math_random_bool',
+    titre: 'choisir au hasard vrai ou faux',
+    sert: 'Renvoie **vrai** ou **faux** au hasard, une chance sur deux, comme un pile ou face.',
+    valeur: 'logique',
+    util: [
+      'Mettez ce bloc dans un bloc « si ».',
+    ],
+    savoir: [
+      'Un nouveau tirage est fait à **chaque** passage du programme sur ce bloc.',
+    ],
+    legende: 'Chaque appui sur le bouton A tire à pile ou face : visage heureux ou visage triste.',
+    exemple: [QUAND('lorsque_bouton', { BOUTON: 'a' }, SI(B('math_random_bool'), S(ICONE('HAPPY')), S(ICONE('SAD'))))],
+  },
+  {
+    t: 'math_map',
+    titre: 'projeter … de … et … à … et …',
+    sert: 'Transforme une valeur d\'une **plage** de départ vers une autre plage : par exemple une mesure de 0 à 1023 en une valeur de 0 à 4.',
+    valeur: 'nombre',
+    util: [
+      'Accrochez la valeur, puis les deux limites de la plage de départ, puis les deux limites de la plage d\'arrivée.',
+    ],
+    savoir: [
+      'Le résultat est souvent un nombre à **virgule** : arrondissez-le avec le bloc « arrondi » si besoin.',
+      'Une valeur **hors** de la plage de départ donne un résultat hors de la plage d\'arrivée : utilisez le bloc « contraindre » pour le limiter.',
+    ],
+    legende: 'Le niveau de lumière (0 à 255) est transformé en une valeur de 0 à 4, qui s\'affiche chaque seconde.',
+  },
+  {
+    t: 'math_convert',
+    titre: 'convertir … des degrés en radians',
+    sert: 'Convertit un **angle** de degrés en radians, ou de radians en degrés.',
+    valeur: 'nombre',
+    util: [
+      'Accrochez l\'angle, puis choisissez le sens de la conversion.',
+    ],
+    savoir: [
+      '180° correspondent à π radians (environ 3,14).',
+    ],
+    legende: 'Au démarrage, 180 degrés convertis en radians (environ 3,14) s\'affichent.',
+  },
+
+  // ═══════════════ Texte ═══════════════
+  {
+    t: 'text',
+    titre: '« … »',
+    sert: 'Renvoie le **texte** écrit dans le bloc.',
+    valeur: 'texte',
+    util: [
+      'Cliquez dans le bloc pour écrire le texte.',
+    ],
+    savoir: [
+      'Un texte qui contient des chiffres reste un texte : « 12 » ne se calcule pas comme le nombre 12.',
+      'La matrice de LED n\'affiche pas les lettres accentuées.',
+    ],
+    legende: 'Le texte « Bonjour ! » défile une fois au démarrage.',
+    exempleDe: 'faire_defiler',
+  },
+  {
+    t: 'text_join',
+    titre: 'créer un texte avec …',
+    sert: 'Renvoie un **texte** fait de plusieurs morceaux mis bout à bout : du texte, des nombres, des mesures…',
+    valeur: 'texte',
+    util: [
+      'Accrochez les morceaux dans les cases, dans l\'ordre.',
+      'Pour ajouter des cases, cliquez sur la **roue dentée** du bloc.',
+    ],
+    savoir: [
+      'Les morceaux sont collés **sans espace** : ajoutez les espaces dans vos textes (« Temp : » avec un espace à la fin).',
+    ],
+    legende: 'Au démarrage, la carte fait défiler « Temp : » suivi de la température.',
+    exemple: [START(DEFILE(Object.assign(B('text_join', null, { ADD0: T('Temp : '), ADD1: V(B('capteur_temperature')) }), { extraState: { itemCount: 2 } })))],
+  },
+
+  // ═══════════════ Variables ═══════════════
+  {
+    t: 'variables_set',
+    titre: 'définir … à …',
+    sert: '**Range une valeur** dans une variable : un nombre, un texte, une mesure… La variable garde cette valeur jusqu\'au prochain changement.',
+    util: [
+      'Créez d\'abord la variable avec le bouton « Créer une variable… » de la catégorie « Variables ».',
+      'Choisissez la variable dans la liste du bloc, puis accrochez la valeur.',
+    ],
+    savoir: [
+      'Donnez des **noms clairs** à vos variables : « score », « vitesse »… plutôt que « a » ou « b ».',
+      'Placez la valeur de départ dans le bloc « au démarrage ».',
+    ],
+    legende: 'Le compteur part de 0 ; chaque appui sur A lui ajoute 1, et sa valeur s\'affiche.',
+    exemple: [START(DEF('compteur', N(0)), AFF(VAR('compteur'))),
+      QUAND('lorsque_bouton', { BOUTON: 'a' }, B('math_change', { VAR: { name: 'compteur' } }, { DELTA: N(1) }), AFF(VAR('compteur')))],
+  },
+  {
+    t: 'variables_get',
+    titre: '… (variable)',
+    sert: 'Renvoie la **valeur rangée** dans la variable.',
+    valeur: 'nombre',
+    util: [
+      'Prenez le bloc de la variable dans la catégorie « Variables », puis placez-le là où la valeur est attendue.',
+    ],
+    savoir: [
+      'Une variable peut contenir un nombre, un texte ou vrai/faux : son type est celui de la dernière valeur rangée.',
+      'Une variable lue avant d\'avoir reçu une valeur vaut **nul** (None).',
+    ],
+    legende: 'Le compteur part de 0 ; chaque appui sur A lui ajoute 1, et sa valeur s\'affiche.',
+    exempleDe: 'variables_set',
+  },
+  {
+    t: 'math_change',
+    titre: 'incrémenter … de …',
+    sert: '**Ajoute** un nombre à la valeur d\'une variable : « incrémenter score de 1 » fait passer score de 4 à 5.',
+    util: [
+      'Choisissez la variable, puis écrivez le nombre à ajouter.',
+    ],
+    savoir: [
+      'Avec un nombre **négatif**, la variable diminue : « incrémenter vies de -1 ».',
+      'La variable doit déjà contenir un nombre : donnez-lui une valeur de départ dans le bloc « au démarrage ».',
+    ],
+    legende: 'Le compteur part de 0 ; chaque appui sur A lui ajoute 1, et sa valeur s\'affiche.',
+    exempleDe: 'variables_set',
+  },
+
+  // ═══════════════ Fonctions ═══════════════
+  {
+    t: 'procedures_defnoreturn',
+    titre: 'pour faire quelque chose',
+    sert: '**Crée une fonction** : une suite de blocs à laquelle on donne un nom, et que l\'on peut ensuite exécuter d\'un seul bloc, autant de fois que l\'on veut.',
+    util: [
+      'Cliquez sur « faire quelque chose » pour donner un nom clair à la fonction (« clignoter », « avancer »…).',
+      'Placez dans le bloc les blocs que la fonction doit exécuter.',
+      'Le bloc qui lance la fonction apparaît alors dans la catégorie « Fonctions ».',
+    ],
+    savoir: [
+      'Le bloc de la fonction se pose **seul** dans l\'espace de travail.',
+      'Pour donner des **paramètres** à la fonction, cliquez sur sa roue dentée.',
+      'Une fonction évite de recopier plusieurs fois les mêmes blocs : on la corrige à un seul endroit.',
+    ],
+    legende: 'La fonction « clignoter » fait clignoter le cœur une fois ; elle est lancée trois fois au démarrage.',
+    exemple: [B('procedures_defnoreturn', { NAME: 'clignoter' }, { STACK: S(ICONE('HEART'), ATT(0.5), B('effacer_ecran'), ATT(0.5)) }),
+      START(APPEL('clignoter'), APPEL('clignoter'), APPEL('clignoter'))],
+  },
+  {
+    t: 'procedures_defreturn',
+    titre: 'pour faire quelque chose … retourner …',
+    sert: '**Crée une fonction qui renvoie une valeur** : elle fait un calcul et donne le résultat au bloc qui l\'a lancée.',
+    util: [
+      'Donnez un nom clair à la fonction, puis placez dans le bloc les blocs du calcul.',
+      'Accrochez dans « retourner » la valeur à renvoyer.',
+      'Pour donner des **paramètres** à la fonction (les valeurs qu\'elle reçoit), cliquez sur sa roue dentée.',
+    ],
+    savoir: [
+      'Le bloc qui lance la fonction est un bloc **rond** : il se place là où une valeur est attendue.',
+      'Le bloc « si … retourner » permet de renvoyer une valeur plus tôt.',
+    ],
+    legende: 'La fonction « limiter » renvoie le nombre reçu, mais jamais plus de 9 : 25 donne 9, qui s\'affiche.',
+    exemple: [Object.assign(B('procedures_defreturn', { NAME: 'limiter' }, {
+        STACK: { block: Object.assign(B('procedures_ifreturn', null, { CONDITION: V(B('logic_compare', { OP: 'GT' }, { A: V(VAR('x')), B: N(9) })), VALUE: N(9) }), { extraState: '<mutation value="1"></mutation>' }) },
+        RETURN: V(VAR('x')) }), { extraState: { params: [{ name: 'x' }] } }),
+      START(AFF(Object.assign(B('procedures_callreturn', null, { ARG0: N(25) }), { extraState: { name: 'limiter', params: ['x'] } })))],
+  },
+  {
+    t: 'procedures_callnoreturn',
+    titre: 'faire quelque chose',
+    sert: '**Lance une fonction** : exécute tous les blocs de la fonction qui porte ce nom.',
+    util: [
+      'Prenez ce bloc dans la catégorie « Fonctions » : il y apparaît dès qu\'une fonction est créée.',
+      'Placez-le à l\'endroit où la fonction doit s\'exécuter.',
+    ],
+    savoir: [
+      'Après la fonction, le programme continue avec le bloc suivant.',
+      'Si la fonction a des paramètres, accrochez une valeur dans chaque case du bloc.',
+    ],
+    legende: 'La fonction « clignoter » fait clignoter le cœur une fois ; elle est lancée trois fois au démarrage.',
+    exempleDe: 'procedures_defnoreturn',
+  },
+  {
+    t: 'procedures_callreturn',
+    titre: 'faire quelque chose (avec résultat)',
+    sert: '**Lance une fonction qui renvoie une valeur**, et renvoie ce résultat.',
+    valeur: 'nombre',
+    util: [
+      'Prenez ce bloc dans la catégorie « Fonctions », puis placez-le là où une valeur est attendue.',
+      'Si la fonction a des paramètres, accrochez une valeur dans chaque case du bloc.',
+    ],
+    savoir: [
+      'Le type du résultat dépend de ce que la fonction renvoie : un nombre, un texte…',
+    ],
+    legende: 'La fonction « limiter » renvoie le nombre reçu, mais jamais plus de 9 : 25 donne 9, qui s\'affiche.',
+    exempleDe: 'procedures_defreturn',
+  },
+  {
+    t: 'procedures_ifreturn',
+    titre: 'si … retourner …',
+    sert: 'Dans une fonction qui renvoie une valeur, **renvoie tout de suite** la valeur indiquée **si** la condition est vraie ; la suite de la fonction n\'est alors pas exécutée.',
+    util: [
+      'Placez ce bloc **à l\'intérieur** d\'un bloc « pour faire quelque chose … retourner ».',
+      'Accrochez la condition, puis la valeur à renvoyer.',
+    ],
+    savoir: [
+      'Ce bloc ne peut être utilisé que dans une fonction.',
+    ],
+    legende: 'La fonction « limiter » renvoie le nombre reçu, mais jamais plus de 9 : 25 donne 9, qui s\'affiche.',
+    exempleDe: 'procedures_defreturn',
+  },
+  {
+    t: 'maqueen_v3_mode_T',
+    titre: 'Maqueen Plus v3 : aux intersections en T, avancer …',
+    sert: 'Choisit ce que fait le robot V3, pendant le suivi de ligne, quand il arrive à une **intersection en T** (la ligne s\'arrête et part à gauche et à droite) : tourner **à gauche**, tourner **à droite** ou s\'**arrêter**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant de démarrer le suiveur de ligne.',
+    ],
+    savoir: [
+      'Ce bloc demande un châssis **Maqueen Plus V3** : les châssis V1 et V2 n\'ont pas ce suiveur de ligne intégré.',
+      'Au T, aller tout droit est impossible : seuls « à gauche », « à droite » et « stop » sont proposés.',
+    ],
+    legende: 'Au démarrage, le robot V3 tourne à droite aux intersections en T, puis le suivi de ligne démarre.',
+    exemple: [START(B('maqueen_v3_mode_T', { MODE: '2' }), B('maqueen_v3_suiveur', { ACTIF: '1' }))],
   },
 ];
