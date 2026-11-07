@@ -3778,7 +3778,7 @@ try {
     Blockly.Blocks['grove_moteur_action'] = { init: function() {
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown([
-                ["arrêter", "arret"], ["freiner", "frein"], ["effacer le défaut de", "effacer_defaut"]
+                ["arrêter", "arret"], ["freiner", "frein"], ["effacer le défaut sur", "effacer_defaut"]
             ]), "ACTION")
             .appendField("le moteur canal").appendField(menuCanalMoteur(), "CANAL");
         this.setPreviousStatement(true, null);

@@ -1934,6 +1934,98 @@ window.FICHES_EN = {
     ],
     legende: 'The buzzer plugged into P1 beeps when the motion detector plugged into P0 sees movement.',
   },
+  // ═══════════════ Grove: motors and relay ═══════════════
+  grove_relais: {
+    titre: 'relay on … …',
+    sert: 'Controls the **Grove relay**: a switch driven by the board, which turns **another circuit** on or off (lamp, motor, pump…).',
+    util: [
+      'Choose the relay\'s pin.',
+      'Choose **closed (on)** to make the device work, **open (off)** to stop it.',
+    ],
+    savoir: [
+      'The relay stays in its state until the next block that controls it.',
+      'The controlled device has **its own power supply**, separate from the board: the relay only closes or opens its circuit. Never connect mains power without the help of a qualified adult.',
+      'In the simulator, the drawn contact closes or opens.',
+    ],
+    legende: 'The relay plugged into P0 turns the lamp on for two seconds, then off for two seconds, forever.',
+  },
+  grove_moteur_vitesse: {
+    titre: 'motor channel … speed …',
+    sert: 'Turns the motor plugged into channel **1** or **2** of the **Grove motor driver**, at the chosen speed.',
+    util: [
+      'Choose the motor\'s channel.',
+      'Type the speed, from **−63 to 63**: a **negative** number turns the other way, **0** stops.',
+    ],
+    savoir: [
+      'The Grove motor driver (DRV8830) plugs into an **I2C** port and drives **two motors**, on channels 1 and 2.',
+      'The motor **keeps turning** until another order: remember the ‘stop motor channel …’ block.',
+      'A speed outside −63 to 63 is brought back to the nearest limit.',
+    ],
+    legende: 'The channel 1 motor turns at speed 50 for two seconds, then stops.',
+  },
+  grove_moteur_action: {
+    titre: '… motor channel …',
+    sert: '**Stops** or **brakes** the motor on the chosen channel of the Grove motor driver, or **clears its fault** after an overload.',
+    util: [
+      'Choose the action, then the channel (1 or 2).',
+    ],
+    savoir: [
+      '**Stop** lets the motor slow down by itself; **brake** stops it faster.',
+      'After an overload (a blocked motor, for example), the driver protects itself: **clear the fault** to be able to start the motor again. The ‘motor channel … speed …’ block also does it every time.',
+      'The Grove motor driver (DRV8830) plugs into an **I2C** port and drives **two motors**, on channels 1 and 2.',
+    ],
+    legende: 'The channel 1 motor turns at speed 50 for two seconds, then stops.',
+  },
+  grove_moteur_defaut: {
+    titre: 'fault of motor channel …',
+    sert: 'Returns the **fault code** of the chosen channel of the Grove motor driver: **0** if all is well.',
+    util: [
+      'Compare the result with 0 in an ‘if’ block to detect a problem (blocked motor, overload…).',
+    ],
+    savoir: [
+      'A number other than 0 means a fault: then use the ‘clear the fault of motor channel …’ block.',
+      'The Grove motor driver (DRV8830) plugs into an **I2C** port and drives **two motors**, on channels 1 and 2.',
+    ],
+    legende: 'The fault code of channel 1 shows every second on the LED matrix.',
+  },
+  grove_pca_init: {
+    titre: 'set up the 16-servo driver at address …',
+    sert: 'Prepares the **16-servo driver** (PCA9685), which drives up to 16 servomotors.',
+    util: [
+      'Put this block in the ‘on start’ block.',
+      'Choose the address: **0x7F** for the Grove module, **0x40** for most other PCA9685 boards.',
+    ],
+    savoir: [
+      'With the Grove module (address 0x7F), this block is **optional**; with address 0x40, it is **required**.',
+      'The 16-servo driver (PCA9685) plugs into an **I2C** port; the servomotors plug into its **channels 0 to 15**.',
+    ],
+    legende: 'The servomotor plugged into channel 0 of the 16-servo driver goes from 0 to 180°, then back, forever.',
+  },
+  grove_pca_angle: {
+    titre: '16-servo driver: servo no. … to … °',
+    sert: 'Puts the **servomotor** plugged into a channel of the 16-servo driver at the chosen angle.',
+    util: [
+      'Type the channel number, from **0 to 15**, then the angle, from **0 to 180°**.',
+    ],
+    savoir: [
+      'A channel number or an angle outside the limits is brought back to the nearest limit.',
+      'The program **does not wait** for the servomotor to get there: add a ‘wait’ block.',
+      'In the simulator, the servomotor appears in the wiring as S0 to S15.',
+    ],
+    legende: 'The servomotor plugged into channel 0 of the 16-servo driver goes from 0 to 180°, then back, forever.',
+  },
+  grove_pca_continu: {
+    titre: '16-servo driver: continuous servo no. … to … %',
+    sert: 'Turns the **continuous rotation servomotor** plugged into a channel of the 16-servo driver, at the chosen speed.',
+    util: [
+      'Type the channel number, from **0 to 15**, then the speed, from **−100 to 100 %**: a negative number turns the other way, **0** stops.',
+    ],
+    savoir: [
+      'If the servomotor still turns slowly at 0 %, it needs adjusting: try a small value (1 or −1, for example).',
+      'The servomotor keeps turning until the next block that controls it.',
+    ],
+    legende: 'The continuous servomotor on channel 1 turns one way for two seconds, then the other way for two seconds.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

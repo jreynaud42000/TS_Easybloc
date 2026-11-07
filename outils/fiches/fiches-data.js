@@ -2182,4 +2182,104 @@ window.FICHES = [
     ],
     legende: 'Le buzzer branché sur P1 bipe quand le détecteur de mouvement branché sur P0 voit bouger.',
   },
+  // ═══════════════ Grove : moteurs et relais ═══════════════
+  {
+    t: 'grove_relais',
+    titre: 'relais sur … …',
+    sert: 'Commande le **relais Grove** : un interrupteur commandé par la carte, qui allume ou éteint un **autre circuit** (lampe, moteur, pompe…).',
+    util: [
+      'Choisissez la broche du relais.',
+      'Choisissez **fermé (marche)** pour faire fonctionner l\'appareil, **ouvert (arrêt)** pour l\'arrêter.',
+    ],
+    savoir: [
+      'Le relais reste dans son état jusqu\'au prochain bloc qui le commande.',
+      'L\'appareil commandé a **sa propre alimentation**, séparée de la carte : le relais ne fait que fermer ou ouvrir son circuit. Ne branchez jamais le secteur sans l\'aide d\'un adulte qualifié.',
+      'Dans le simulateur, le contact dessiné se ferme ou s\'ouvre.',
+    ],
+    legende: 'Le relais branché sur P0 allume la lampe deux secondes, puis l\'éteint deux secondes, sans fin.',
+  },
+  {
+    t: 'grove_moteur_vitesse',
+    titre: 'moteur canal … vitesse …',
+    sert: 'Fait tourner le moteur branché sur le canal **1** ou **2** du **pilote de moteurs Grove**, à la vitesse choisie.',
+    util: [
+      'Choisissez le canal du moteur.',
+      'Écrivez la vitesse, de **−63 à 63** : un nombre **négatif** fait tourner dans l\'autre sens, **0** arrête.',
+    ],
+    savoir: [
+      'Le pilote de moteurs Grove (DRV8830) se branche sur un port **I2C** et commande **deux moteurs**, sur les canaux 1 et 2.',
+      'Le moteur **continue de tourner** jusqu\'à un autre ordre : pensez au bloc « arrêter le moteur canal … ».',
+      'Une vitesse hors de −63 à 63 est ramenée à la limite la plus proche.',
+    ],
+    legende: 'Le moteur du canal 1 tourne à la vitesse 50 pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'grove_moteur_action',
+    titre: '… le moteur canal …',
+    sert: '**Arrête** ou **freine** le moteur du canal choisi du pilote de moteurs Grove, ou **efface son défaut** après une surcharge.',
+    util: [
+      'Choisissez l\'action, puis le canal (1 ou 2).',
+    ],
+    savoir: [
+      '**Arrêter** laisse le moteur ralentir tout seul ; **freiner** l\'arrête plus vite.',
+      'Après une surcharge (moteur bloqué, par exemple), le pilote se protège : **effacez le défaut** pour pouvoir redémarrer le moteur. Le bloc « moteur canal … vitesse … » le fait aussi à chaque fois.',
+      'Le pilote de moteurs Grove (DRV8830) se branche sur un port **I2C** et commande **deux moteurs**, sur les canaux 1 et 2.',
+    ],
+    legende: 'Le moteur du canal 1 tourne à la vitesse 50 pendant deux secondes, puis s\'arrête.',
+  },
+  {
+    t: 'grove_moteur_defaut',
+    titre: 'défaut du moteur canal …',
+    sert: 'Renvoie le **code de défaut** du canal choisi du pilote de moteurs Grove : **0** si tout va bien.',
+    valeur: 'nombre',
+    util: [
+      'Comparez le résultat à 0 dans un bloc « si » pour détecter un problème (moteur bloqué, surcharge…).',
+    ],
+    savoir: [
+      'Un autre nombre que 0 signale un défaut : utilisez alors le bloc « effacer le défaut sur le moteur canal … ».',
+      'Le pilote de moteurs Grove (DRV8830) se branche sur un port **I2C** et commande **deux moteurs**, sur les canaux 1 et 2.',
+    ],
+    legende: 'Le code de défaut du canal 1 s\'affiche chaque seconde sur la matrice de LED.',
+  },
+  {
+    t: 'grove_pca_init',
+    titre: 'initialiser le pilote 16 servos à l\'adresse …',
+    sert: 'Prépare le **pilote 16 servos** (PCA9685), qui commande jusqu\'à 16 servomoteurs.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage ».',
+      'Choisissez l\'adresse : **0x7F** pour le module Grove, **0x40** pour la plupart des autres cartes PCA9685.',
+    ],
+    savoir: [
+      'Avec le module Grove (adresse 0x7F), ce bloc est **facultatif** ; avec l\'adresse 0x40, il est **indispensable**.',
+      'Le pilote 16 servos (PCA9685) se branche sur un port **I2C** ; les servomoteurs se branchent sur ses **voies 0 à 15**.',
+    ],
+    legende: 'Le servomoteur branché sur la voie 0 du pilote 16 servos va de 0 à 180°, puis revient, sans fin.',
+  },
+  {
+    t: 'grove_pca_angle',
+    titre: 'pilote 16 servos : servo n° … à … °',
+    sert: 'Place le **servomoteur** branché sur une voie du pilote 16 servos à l\'angle choisi.',
+    util: [
+      'Écrivez le numéro de la voie, de **0 à 15**, puis l\'angle, de **0 à 180°**.',
+    ],
+    savoir: [
+      'Un numéro de voie ou un angle hors limites est ramené à la limite la plus proche.',
+      'Le programme **n\'attend pas** que le servomoteur soit arrivé : ajoutez un bloc « attendre ».',
+      'Dans le simulateur, le servomoteur apparaît dans le montage sous le nom S0 à S15.',
+    ],
+    legende: 'Le servomoteur branché sur la voie 0 du pilote 16 servos va de 0 à 180°, puis revient, sans fin.',
+  },
+  {
+    t: 'grove_pca_continu',
+    titre: 'pilote 16 servos : servo continu n° … à … %',
+    sert: 'Fait tourner le **servomoteur à rotation continue** branché sur une voie du pilote 16 servos, à la vitesse choisie.',
+    util: [
+      'Écrivez le numéro de la voie, de **0 à 15**, puis la vitesse, de **−100 à 100 %** : un nombre négatif fait tourner dans l\'autre sens, **0** arrête.',
+    ],
+    savoir: [
+      'Si le servomoteur tourne encore doucement à 0 %, c\'est qu\'il a besoin d\'un réglage : essayez une petite valeur (1 ou −1, par exemple).',
+      'Le servomoteur continue de tourner jusqu\'au prochain bloc qui le commande.',
+    ],
+    legende: 'Le servomoteur continu de la voie 1 tourne deux secondes dans un sens, puis deux secondes dans l\'autre.',
+  },
 ];

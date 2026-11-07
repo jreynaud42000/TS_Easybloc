@@ -800,7 +800,7 @@ window.DICO_EN = {
   "humidité (%)": "humidity (%)",
   "arrêter": "stop",
   "freiner": "brake",
-  "effacer le défaut de": "clear the fault of",
+  "effacer le défaut sur": "clear the fault of",
   "gauche": "left",
   "les deux": "both",
   "extrême gauche (L2)": "far left (L2)",
