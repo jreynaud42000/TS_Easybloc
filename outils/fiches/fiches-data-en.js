@@ -1563,9 +1563,128 @@ window.FICHES_EN = {
     ],
     legende: 'The receiver is connected on P8, then the last code received shows every second (−1 if nothing).',
   },
+  // ═══════════════ Radio ═══════════════
+  radio_activer: {
+    titre: 'turn on the radio',
+    sert: '**Turns on the board\'s radio**: it can then send and receive messages from other micro:bit boards.',
+    util: [
+      'Put this block in the ‘on start’ block, before all the other radio blocks.',
+    ],
+    savoir: [
+      'Without it, the board sends and receives **no** message.',
+      'Boards only hear each other if they have the **same group** and the **same frequency band**.',
+      'In the simulator, open the **radio multi-editor** (Radio menu): two simulated boards side by side talk by radio.',
+    ],
+    legende: 'The radio turns on at start; button A sends ‘Hi’ to the other boards of the same group.',
+  },
+  radio_groupe: {
+    titre: 'radio: set group …',
+    sert: 'Chooses the board\'s **radio group**, from **0 to 255**: only the boards of the same group receive its messages.',
+    util: [
+      'Put this block in the ‘on start’ block, just after the ‘turn on the radio’ block.',
+      'Give the same number to all the boards that must talk to each other.',
+    ],
+    savoir: [
+      'In class, give **a different group to each team**: the other teams\' messages will not disturb you.',
+      'Without this block, the board is in group **0**.',
+    ],
+    legende: 'The board joins group 5; button A sends ‘Hi’ to the boards of this group.',
+  },
+  radio_envoyer_nombre: {
+    titre: 'send the number … by radio',
+    sert: '**Sends a number** by radio to the other boards of the same group.',
+    util: [
+      'Type the number, or put in a block that returns a number (a measurement, a variable…).',
+    ],
+    savoir: [
+      'The receiving board uses the ‘when the radio receives a number’ block and the ‘radio: the number received’ block.',
+      'These messages are not understood by a board programmed with MakeCode: both boards must be programmed with EasyBloc.',
+    ],
+    legende: 'Button A sends the number 5 to the other boards of the same group.',
+  },
+  radio_envoyer_valeur: {
+    titre: 'send the value … = … by radio',
+    sert: '**Sends a value with its name** by radio, for example ‘temp = 21’: the receiving board knows which measurement it is.',
+    util: [
+      'Type the name in the first box (a short word, without ‘=’).',
+      'Put the value in the second box: a number, a text or a measurement.',
+    ],
+    savoir: [
+      'The message goes out as **name=value**.',
+      'The receiving board uses the ‘when the radio receives a named value’ block, then the ‘radio: the name received’ and ‘radio: the value received’ blocks.',
+    ],
+    legende: 'Button A sends the temperature under the name ‘temp’.',
+  },
+  radio_envoyer_texte: {
+    titre: 'send radio msg …',
+    sert: '**Sends a text** by radio to the other boards of the same group.',
+    util: [
+      'Type the text, or put in a block that returns a value.',
+    ],
+    savoir: [
+      'Keep messages **short**: the micro:bit radio carries small messages.',
+      'A text that contains ‘=’ is understood as a named value by the receiving board.',
+      'The receiving board uses the ‘when the radio receives text’ block and the ‘radio: the text received’ block.',
+    ],
+    legende: 'The radio turns on at start; button A sends ‘Hi’ to the other boards of the same group.',
+  },
+  radio_quand_recu: {
+    titre: 'when the radio receives …',
+    sert: 'Runs the blocks inside it when the board **receives a message** of the chosen type: a number, a named value or text.',
+    util: [
+      'Choose the type of message expected.',
+      'Put this block on its own in the workspace; inside, read the message with the ‘radio: …’ block.',
+    ],
+    savoir: [
+      'The type is recognised from the form of the message: ‘42’ is a number, ‘temp=21’ a named value, anything else text.',
+      'Do not forget the ‘turn on the radio’ block in the ‘on start’ block.',
+      'The radio is watched at each turn of the program\'s main loop.',
+      'In the simulator, type a message in the ‘Radio: message to receive’ field, then click ‘Simulate receiving’.',
+    ],
+    legende: 'When a number arrives by radio, it shows on the LED matrix.',
+  },
+  radio_lecture: {
+    titre: 'radio: …',
+    sert: 'Returns information about the **last message received**: the number, the name, the value, the text, or the signal strength.',
+    util: [
+      'Choose the information in the block\'s list.',
+      'Put this block **inside** a ‘when the radio receives …’ block.',
+    ],
+    savoir: [
+      '‘the number received’ and ‘the text received’ go with a message sent by ‘send the number’ or ‘send radio msg’; ‘the name received’ and ‘the value received’, with ‘send the value’.',
+      '‘the signal strength’ is a **negative** number: the closer it is to 0, the closer the other board is.',
+    ],
+    legende: 'When a number arrives by radio, it shows on the LED matrix.',
+  },
+  radio_puissance: {
+    titre: 'radio: transmit power …',
+    sert: 'Sets the **power** the board sends its messages with, from **0** (shortest range) to **7** (longest range).',
+    util: [
+      'Put this block in the ‘on start’ block, after the ‘turn on the radio’ block.',
+    ],
+    savoir: [
+      'A low power limits the range: handy so that a board only receives the boards **very close** to it.',
+      'Without this block, the power is **6**.',
+    ],
+    legende: 'The radio transmits at maximum power (7): the range is the largest.',
+  },
+  radio_canal: {
+    titre: 'radio: frequency band …',
+    sert: 'Chooses the **frequency band** used by the radio, from **0 to 83**.',
+    util: [
+      'Put this block in the ‘on start’ block, after the ‘turn on the radio’ block.',
+      'Give the same band to all the boards that must talk to each other.',
+    ],
+    savoir: [
+      'Two boards on different bands **do not hear each other**, even with the same group.',
+      'Without this block, the band is **7**.',
+    ],
+    legende: 'The radio uses band 7: the boards that must hear each other use the same band.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
+  'Salut': 'Hi',
   'Bonjour !': 'Hello!',
   'Démarrage': 'Start',
   'dé': 'die',

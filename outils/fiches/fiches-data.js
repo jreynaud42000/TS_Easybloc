@@ -1772,4 +1772,131 @@ window.FICHES = [
     ],
     legende: 'Le récepteur est connecté sur P8, puis le dernier code reçu s\'affiche chaque seconde (−1 si rien).',
   },
+  // ═══════════════ Radio ═══════════════
+  {
+    t: 'radio_activer',
+    titre: 'allumer la radio',
+    sert: '**Allume la radio** de la carte : elle peut ensuite envoyer et recevoir des messages des autres cartes micro:bit.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant tous les autres blocs radio.',
+    ],
+    savoir: [
+      'Sans lui, la carte n\'envoie et ne reçoit **aucun** message.',
+      'Les cartes ne s\'entendent que si elles ont le **même groupe** et la **même bande de fréquence**.',
+      'Dans le simulateur, ouvrez le **multi-éditeur radio** (menu Radio) : deux cartes simulées côte à côte communiquent par radio.',
+    ],
+    legende: 'La radio s\'allume au démarrage ; le bouton A envoie « Salut » aux autres cartes du même groupe.',
+  },
+  {
+    t: 'radio_groupe',
+    titre: 'radio : définir le groupe …',
+    sert: 'Choisit le **groupe radio** de la carte, de **0 à 255** : seules les cartes du même groupe reçoivent ses messages.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », juste après le bloc « allumer la radio ».',
+      'Donnez le même numéro à toutes les cartes qui doivent se parler.',
+    ],
+    savoir: [
+      'En classe, donnez un **groupe différent à chaque équipe** : les messages des autres équipes ne vous gêneront pas.',
+      'Sans ce bloc, la carte est dans le groupe **0**.',
+    ],
+    legende: 'La carte rejoint le groupe 5 ; le bouton A envoie « Salut » aux cartes de ce groupe.',
+  },
+  {
+    t: 'radio_envoyer_nombre',
+    titre: 'envoyer le nombre … par radio',
+    sert: '**Envoie un nombre** par radio aux autres cartes du même groupe.',
+    util: [
+      'Écrivez le nombre, ou mettez-y un bloc qui renvoie un nombre (une mesure, une variable…).',
+    ],
+    savoir: [
+      'La carte qui reçoit utilise le bloc « quand la radio reçoit un nombre » et le bloc « radio : le nombre reçu ».',
+      'Ces messages ne sont pas compris par une carte programmée avec MakeCode : les deux cartes doivent être programmées avec EasyBloc.',
+    ],
+    legende: 'Le bouton A envoie le nombre 5 aux autres cartes du même groupe.',
+  },
+  {
+    t: 'radio_envoyer_valeur',
+    titre: 'envoyer la valeur … = … par radio',
+    sert: '**Envoie une valeur avec son nom** par radio, par exemple « temp = 21 » : la carte qui reçoit sait de quelle mesure il s\'agit.',
+    util: [
+      'Écrivez le nom dans la première case (un mot court, sans « = »).',
+      'Mettez la valeur dans la seconde case : un nombre, un texte ou une mesure.',
+    ],
+    savoir: [
+      'Le message part sous la forme **nom=valeur**.',
+      'La carte qui reçoit utilise le bloc « quand la radio reçoit une valeur nommée », puis les blocs « radio : le nom reçu » et « radio : la valeur reçue ».',
+    ],
+    legende: 'Le bouton A envoie la température sous le nom « temp ».',
+  },
+  {
+    t: 'radio_envoyer_texte',
+    titre: 'envoyer msg radio …',
+    sert: '**Envoie un texte** par radio aux autres cartes du même groupe.',
+    util: [
+      'Écrivez le texte, ou mettez-y un bloc qui renvoie une valeur.',
+    ],
+    savoir: [
+      'Gardez des messages **courts** : la radio de la micro:bit transporte de petits messages.',
+      'Un texte qui contient « = » est compris comme une valeur nommée par la carte qui reçoit.',
+      'La carte qui reçoit utilise le bloc « quand la radio reçoit du texte » et le bloc « radio : le texte reçu ».',
+    ],
+    legende: 'La radio s\'allume au démarrage ; le bouton A envoie « Salut » aux autres cartes du même groupe.',
+  },
+  {
+    t: 'radio_quand_recu',
+    titre: 'quand la radio reçoit …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand la carte **reçoit un message** du type choisi : un nombre, une valeur nommée ou du texte.',
+    util: [
+      'Choisissez le type de message attendu.',
+      'Posez ce bloc seul dans l\'espace de travail ; à l\'intérieur, lisez le message avec le bloc « radio : … ».',
+    ],
+    savoir: [
+      'Le type est reconnu d\'après la forme du message : « 42 » est un nombre, « temp=21 » une valeur nommée, le reste du texte.',
+      'N\'oubliez pas le bloc « allumer la radio » dans le bloc « au démarrage ».',
+      'La radio est surveillée à chaque tour de la boucle principale du programme.',
+      'Dans le simulateur, écrivez un message dans le champ « Radio : message à recevoir », puis cliquez sur « Simuler la réception ».',
+    ],
+    legende: 'Quand un nombre arrive par radio, il s\'affiche sur la matrice de LED.',
+  },
+  {
+    t: 'radio_lecture',
+    titre: 'radio : …',
+    sert: 'Renvoie une information sur le **dernier message reçu** : le nombre, le nom, la valeur, le texte, ou la force du signal.',
+    util: [
+      'Choisissez l\'information dans la liste du bloc.',
+      'Placez ce bloc **dans** un bloc « quand la radio reçoit … ».',
+    ],
+    savoir: [
+      '« le nombre reçu » et « le texte reçu » vont avec un message envoyé par « envoyer le nombre » ou « envoyer msg radio » ; « le nom reçu » et « la valeur reçue », avec « envoyer la valeur ».',
+      '« la force du signal » est un nombre **négatif** : plus il est proche de 0, plus l\'autre carte est proche.',
+    ],
+    legende: 'Quand un nombre arrive par radio, il s\'affiche sur la matrice de LED.',
+  },
+  {
+    t: 'radio_puissance',
+    titre: 'radio : puissance d\'émission …',
+    sert: 'Règle la **puissance** avec laquelle la carte envoie ses messages, de **0** (portée la plus courte) à **7** (portée la plus longue).',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », après le bloc « allumer la radio ».',
+    ],
+    savoir: [
+      'Une faible puissance limite la portée : pratique pour qu\'une carte ne reçoive que les cartes **toutes proches**.',
+      'Sans ce bloc, la puissance est de **6**.',
+    ],
+    legende: 'La radio émet à la puissance maximale (7) : la portée est la plus grande.',
+  },
+  {
+    t: 'radio_canal',
+    titre: 'radio : bande de fréquence …',
+    sert: 'Choisit la **bande de fréquence** utilisée par la radio, de **0 à 83**.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », après le bloc « allumer la radio ».',
+      'Donnez la même bande à toutes les cartes qui doivent se parler.',
+    ],
+    savoir: [
+      'Deux cartes sur des bandes différentes **ne s\'entendent pas**, même avec le même groupe.',
+      'Sans ce bloc, la bande est la **7**.',
+    ],
+    legende: 'La radio utilise la bande 7 : les cartes qui doivent s\'entendre utilisent la même bande.',
+  },
 ];
