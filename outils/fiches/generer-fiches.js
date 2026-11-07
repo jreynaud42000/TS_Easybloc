@@ -158,7 +158,10 @@ function traduireAtelier(ws, ou) {
   carte.getAllVariables().forEach(function (v) { var nom = v.getName ? v.getName() : v.name, n = traduireTexte(nom, ou); if (n !== nom) carte.renameVariable(v, n); });
   ws.getAllBlocks(false).forEach(function (b) {
     b.inputList.forEach(function (e) { e.fieldRow.forEach(function (c) {
-      if (c instanceof Blockly.FieldTextInput && !(c instanceof Blockly.FieldNumber) && c.name) {
+      // Cases de texte, et nom de classe des blocs IA (menu qui accepte un texte libre)
+      var texteLibre = (c instanceof Blockly.FieldTextInput && !(c instanceof Blockly.FieldNumber)) ||
+                       (/^ia_/.test(b.type) && c.name === 'CLASSE');
+      if (texteLibre && c.name) {
         var t = c.getValue(), n = traduireTexte(t, ou); if (n !== t) c.setValue(n);
       }
     }); });

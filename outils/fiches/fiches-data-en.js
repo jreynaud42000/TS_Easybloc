@@ -1681,9 +1681,104 @@ window.FICHES_EN = {
     ],
     legende: 'The radio uses band 7: the boards that must hear each other use the same band.',
   },
+  // ═══════════════ AI ═══════════════
+  ia_lorsque_reconnu: {
+    titre: 'when the AI … recognises …',
+    sert: 'Runs the blocks inside it when the AI **recognises the chosen class**: an object, a gesture or a position with the camera (**vision**), a sound or a word with the microphone (**sound**).',
+    util: [
+      'Choose **vision** or **sound**.',
+      'Choose the class in the list: these are the classes created in the AI window. For a class not created yet, choose ‘✎ other name…’ and type its name.',
+      'Put this block on its own in the workspace: it does not attach to any other block.',
+    ],
+    savoir: [
+      'Recognition happens **on the computer** (PC camera or microphone, AI window): the board only receives the result, through the **USB cable**. Keep the board plugged in and EasyBloc open.',
+      'The block runs when the AI **switches** to this class; it does not run again while the class stays the same.',
+      'Accents and capital letters do not matter: ‘Cat’ and ‘cat’ are the same class.',
+    ],
+    legende: 'When the camera recognises the ‘Cat’ class, a heart shows; when the microphone recognises ‘Clap’, a ghost.',
+  },
+  ia_classe_est: {
+    titre: 'the AI … recognises …',
+    sert: 'Returns **true** while the last class recognised by the AI (camera or microphone) is the chosen one, **false** otherwise.',
+    util: [
+      'Choose **vision** or **sound**, then the class.',
+      'Put this block in an ‘if’ block, in the ‘forever’ block.',
+    ],
+    savoir: [
+      'Recognition happens **on the computer** (PC camera or microphone, AI window): the board only receives the result, through the **USB cable**. Keep the board plugged in and EasyBloc open.',
+      'It becomes **false** again when the AI\'s confidence drops below the **confidence threshold** set in the AI window.',
+    ],
+    legende: 'While the camera recognises ‘Cat’, a heart is shown; otherwise the screen is empty.',
+  },
+  ia_derniere_classe: {
+    titre: 'last class recognised by the AI …',
+    sert: 'Returns the **name of the last class** recognised by the AI (camera or microphone), or an empty text if nothing is recognised.',
+    util: [
+      'Choose **vision** or **sound**.',
+      'Show the result, or compare it with a text in an ‘if’ block.',
+    ],
+    savoir: [
+      'The name is written **without accents or capital letters**, with ‘_’ instead of spaces: ‘Black cat’ becomes ‘black_cat’.',
+      'A result that has not been confirmed for **1.5 seconds** is forgotten: the text becomes empty again.',
+      'Recognition happens **on the computer** (PC camera or microphone, AI window): the board only receives the result, through the **USB cable**. Keep the board plugged in and EasyBloc open.',
+    ],
+    legende: 'The name of the last class recognised by the camera is written in the console every second.',
+  },
+  ia_confiance: {
+    titre: 'AI confidence … (%)',
+    sert: 'Returns how **sure** the AI is about the last class recognised, from **0 to 100 %**.',
+    util: [
+      'Choose **vision** or **sound**.',
+      'Compare the value with a number to act only when the AI is **sure** (for example more than 80 %).',
+    ],
+    savoir: [
+      'The value is updated when it **changes clearly**, not at every image.',
+      'It goes back to **0** when nothing is recognised.',
+      'Recognition happens **on the computer** (PC camera or microphone, AI window): the board only receives the result, through the **USB cable**. Keep the board plugged in and EasyBloc open.',
+    ],
+    legende: 'How sure the AI is about the recognised sound is written in the console every second.',
+  },
+  ia_qr_lorsque_lu: {
+    titre: 'when a QR code is read',
+    sert: 'Runs the blocks inside it **at each new QR code** (or barcode) read by the computer\'s camera.',
+    util: [
+      'Put this block on its own in the workspace; inside, read the text with the ‘text of the last QR code read’ block.',
+    ],
+    savoir: [
+      'Reading happens **on the computer**: in the AI window, ‘QR code’ tab, click ‘▶ Read the codes’. The board receives the text through the **USB cable**.',
+      'The same code shown continuously does not run the block again: take it away, then show it again.',
+    ],
+    legende: 'Each new code read scrolls its text on the LED matrix.',
+  },
+  ia_qr_visible: {
+    titre: 'a QR code is visible',
+    sert: 'Returns **true** while the computer\'s camera sees a QR code (or a barcode), **false** otherwise.',
+    util: [
+      'Put this block in an ‘if’ block, in the ‘forever’ block.',
+    ],
+    savoir: [
+      'Reading happens **on the computer**: in the AI window, ‘QR code’ tab, click ‘▶ Read the codes’. The board receives the text through the **USB cable**.',
+      'It becomes false again **less than a second** after the code disappears.',
+    ],
+    legende: 'A happy face shows while a code is visible; otherwise the screen is empty.',
+  },
+  ia_qr_texte: {
+    titre: 'text of the last QR code read',
+    sert: 'Returns the **text** contained in the last QR code (or barcode) read, or an empty text if no code has been read.',
+    util: [
+      'Put this block in the ‘when a QR code is read’ block to react to each code.',
+    ],
+    savoir: [
+      'The text arrives **without accents** (‘Élève’ becomes ‘Eleve’) and cut at **60 characters**.',
+      'It stays available after the code disappears, until the next code.',
+      'Reading happens **on the computer**: in the AI window, ‘QR code’ tab, click ‘▶ Read the codes’. The board receives the text through the **USB cable**.',
+    ],
+    legende: 'Each new code read scrolls its text on the LED matrix.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',
+  'Chat': 'Cat',
   'Salut': 'Hi',
   'Bonjour !': 'Hello!',
   'Démarrage': 'Start',

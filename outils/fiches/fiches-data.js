@@ -1899,4 +1899,115 @@ window.FICHES = [
     ],
     legende: 'La radio utilise la bande 7 : les cartes qui doivent s\'entendre utilisent la même bande.',
   },
+  // ═══════════════ IA ═══════════════
+  {
+    t: 'ia_lorsque_reconnu',
+    titre: 'lorsque l\'IA … reconnaît …',
+    sert: 'Exécute les blocs placés à l\'intérieur quand l\'IA **reconnaît la classe choisie** : un objet, un geste ou une position avec la caméra (**vision**), un son ou un mot avec le micro (**son**).',
+    util: [
+      'Choisissez **vision** ou **son**.',
+      'Choisissez la classe dans la liste : ce sont les classes créées dans la fenêtre IA. Pour une classe pas encore créée, choisissez « ✎ autre nom… » et écrivez son nom.',
+      'Posez ce bloc seul dans l\'espace de travail : il ne s\'accroche à aucun autre bloc.',
+    ],
+    savoir: [
+      'La reconnaissance se fait **sur l\'ordinateur** (caméra ou micro du PC, fenêtre IA) : la carte reçoit seulement le résultat, par le **câble USB**. Gardez la carte branchée et EasyBloc ouvert.',
+      'Le bloc se déclenche quand l\'IA **passe** à cette classe ; il ne se redéclenche pas tant que la classe reste la même.',
+      'Les accents et les majuscules ne comptent pas : « Chat » et « chat » sont la même classe.',
+    ],
+    legende: 'Quand la caméra reconnaît la classe « Chat », un cœur s\'affiche ; quand le micro reconnaît « Clap », un fantôme.',
+  },
+  {
+    t: 'ia_classe_est',
+    titre: 'l\'IA … reconnaît …',
+    sert: 'Renvoie **vrai** tant que la dernière classe reconnue par l\'IA (caméra ou micro) est celle choisie, **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Choisissez **vision** ou **son**, puis la classe.',
+      'Mettez ce bloc dans un bloc « si », dans le bloc « répéter indéfiniment ».',
+    ],
+    savoir: [
+      'La reconnaissance se fait **sur l\'ordinateur** (caméra ou micro du PC, fenêtre IA) : la carte reçoit seulement le résultat, par le **câble USB**. Gardez la carte branchée et EasyBloc ouvert.',
+      'Il redevient **faux** quand la confiance de l\'IA passe sous le **seuil de confiance** réglé dans la fenêtre IA.',
+    ],
+    legende: 'Tant que la caméra reconnaît « Chat », un cœur est affiché ; sinon l\'écran est vide.',
+  },
+  {
+    t: 'ia_derniere_classe',
+    titre: 'dernière classe reconnue par l\'IA …',
+    sert: 'Renvoie le **nom de la dernière classe** reconnue par l\'IA (caméra ou micro), ou un texte vide si rien n\'est reconnu.',
+    valeur: 'texte',
+    util: [
+      'Choisissez **vision** ou **son**.',
+      'Affichez le résultat, ou comparez-le à un texte dans un bloc « si ».',
+    ],
+    savoir: [
+      'Le nom est écrit **sans accents ni majuscules**, avec « _ » à la place des espaces : « Chat noir » devient « chat_noir ».',
+      'Un résultat qui n\'a pas été confirmé depuis **1,5 seconde** est oublié : le texte redevient vide.',
+      'La reconnaissance se fait **sur l\'ordinateur** (caméra ou micro du PC, fenêtre IA) : la carte reçoit seulement le résultat, par le **câble USB**. Gardez la carte branchée et EasyBloc ouvert.',
+    ],
+    legende: 'Le nom de la dernière classe reconnue par la caméra s\'écrit dans la console chaque seconde.',
+  },
+  {
+    t: 'ia_confiance',
+    titre: 'confiance de l\'IA … (%)',
+    sert: 'Renvoie la **certitude** de l\'IA pour la dernière classe reconnue, de **0 à 100 %**.',
+    valeur: 'nombre',
+    util: [
+      'Choisissez **vision** ou **son**.',
+      'Comparez la valeur à un nombre pour n\'agir que lorsque l\'IA est **sûre** d\'elle (par exemple plus de 80 %).',
+    ],
+    savoir: [
+      'La valeur est mise à jour quand elle **change nettement**, pas à chaque image.',
+      'Elle revient à **0** quand rien n\'est reconnu.',
+      'La reconnaissance se fait **sur l\'ordinateur** (caméra ou micro du PC, fenêtre IA) : la carte reçoit seulement le résultat, par le **câble USB**. Gardez la carte branchée et EasyBloc ouvert.',
+    ],
+    legende: 'La certitude de l\'IA pour le son reconnu s\'écrit dans la console chaque seconde.',
+  },
+  {
+    t: 'ia_qr_lorsque_lu',
+    titre: 'lorsqu\'un code QR est lu',
+    sert: 'Exécute les blocs placés à l\'intérieur **à chaque nouveau QR code** (ou code-barres) lu par la caméra de l\'ordinateur.',
+    util: [
+      'Posez ce bloc seul dans l\'espace de travail ; à l\'intérieur, lisez le texte avec le bloc « texte du dernier code QR lu ».',
+    ],
+    savoir: [
+      'La lecture se fait **sur l\'ordinateur** : dans la fenêtre IA, onglet « QR code », cliquez sur « ▶ Lire les codes ». La carte reçoit le texte par le **câble USB**.',
+      'Le même code montré en continu ne redéclenche pas le bloc : il faut l\'enlever, puis le montrer à nouveau.',
+    ],
+    legende: 'Chaque nouveau code lu fait défiler son texte sur la matrice de LED.',
+    exemple: [B('ia_qr_lorsque_lu', null, { DO: S(B('faire_defiler', null, { VALEUR: V(B('ia_qr_texte')) })) })],
+  },
+  {
+    t: 'ia_qr_visible',
+    titre: 'un code QR est visible',
+    sert: 'Renvoie **vrai** tant que la caméra de l\'ordinateur voit un QR code (ou un code-barres), **faux** sinon.',
+    valeur: 'logique',
+    util: [
+      'Mettez ce bloc dans un bloc « si », dans le bloc « répéter indéfiniment ».',
+    ],
+    savoir: [
+      'La lecture se fait **sur l\'ordinateur** : dans la fenêtre IA, onglet « QR code », cliquez sur « ▶ Lire les codes ». La carte reçoit le texte par le **câble USB**.',
+      'Il redevient faux **moins d\'une seconde** après la disparition du code.',
+    ],
+    legende: 'Un visage heureux s\'affiche tant qu\'un code est visible ; sinon l\'écran est vide.',
+    exemple: [B('boucle_infinie', null, { DO: S(
+      B('controls_if', null, { IF0: V(B('ia_qr_visible')), DO0: S(ICONE('HAPPY')) }),
+      B('controls_if', null, { IF0: V(B('logic_negate', null, { BOOL: V(B('ia_qr_visible')) })), DO0: S(B('effacer_ecran')) })) })],
+  },
+  {
+    t: 'ia_qr_texte',
+    titre: 'texte du dernier code QR lu',
+    sert: 'Renvoie le **texte** contenu dans le dernier QR code (ou code-barres) lu, ou un texte vide si aucun code n\'a été lu.',
+    valeur: 'texte',
+    util: [
+      'Placez ce bloc dans le bloc « lorsqu\'un code QR est lu » pour réagir à chaque code.',
+    ],
+    savoir: [
+      'Le texte arrive **sans accents** (« Élève » devient « Eleve ») et coupé à **60 caractères**.',
+      'Il reste disponible après la disparition du code, jusqu\'au code suivant.',
+      'La lecture se fait **sur l\'ordinateur** : dans la fenêtre IA, onglet « QR code », cliquez sur « ▶ Lire les codes ». La carte reçoit le texte par le **câble USB**.',
+    ],
+    legende: 'Chaque nouveau code lu fait défiler son texte sur la matrice de LED.',
+    exempleDe: 'ia_qr_lorsque_lu',
+  },
 ];
