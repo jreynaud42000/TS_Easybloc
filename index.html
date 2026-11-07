@@ -820,6 +820,15 @@
     #tuto-bulle button { font-size: 12px; padding: 5px 10px; margin: 0; background: #4a4a4a; color: #fff; }
     #tuto-bulle button:hover { background: #5e5e5e; }
     #tuto-bulle #tuto-suivant.pret { background: #27ae60; }
+    /* Decor d'une visite (tuto.js) : menu du clic droit simule, construit a partir du vrai menu, et pointeur. */
+    .tuto-faux { position: fixed; z-index: 9001; pointer-events: none; }
+    .tuto-faux-menu { background: #fff; color: #000; border-radius: 4px; padding: 4px 0; min-width: 190px; font-size: 13px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35); }
+    .tuto-faux-menu div { padding: 6px 20px 6px 14px; white-space: nowrap; }
+    .tuto-faux-menu .inactif { color: #aaa; }
+    .tuto-faux-menu .surligne { background: #fff3bf; outline: 2px solid #f59f00; outline-offset: -2px; font-weight: 700; }
+    .tuto-faux-curseur { width: 22px; height: 22px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5)); }
+    :root[data-contrast="high"] .tuto-faux-menu { border: 2px solid #000; box-shadow: none; }
     /* Message d'accueil de tuto.js : propose de visiter le menu Fichier (visites guidees). */
     #tuto-accueil { position: fixed; z-index: 9003; width: 320px; max-width: calc(100vw - 16px); box-sizing: border-box;
         padding: 14px 16px; background: #fffdf5; color: #1b2733; border: 2px solid #ff5501; border-radius: 10px;
