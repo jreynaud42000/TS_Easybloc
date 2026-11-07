@@ -1775,6 +1775,165 @@ window.FICHES_EN = {
     ],
     legende: 'Each new code read scrolls its text on the LED matrix.',
   },
+  // ═══════════════ Grove: LED, bar, strip, buzzer ═══════════════
+  grove_led_luminosite: {
+    titre: '[LED] set the brightness to … on pin …',
+    sert: 'Sets the **brightness** of the Grove LED module plugged into a pin, from **0** (off) to **1023** (maximum).',
+    util: [
+      'Type the level, or put in a block that returns a number (a potentiometer measurement, for example).',
+      'Choose the module\'s pin.',
+    ],
+    savoir: [
+      'A level below 0 or above 1023 is brought back to 0 or 1023.',
+      'The LED actually blinks very fast: the eye sees a stronger or weaker light.',
+      'To simply turn on or off, the ‘[LED] set the LED to …’ block is enough.',
+    ],
+    legende: 'The LED plugged into P0 is set to half its brightness (512 out of 1023).',
+  },
+  grove_barre_niveau: {
+    titre: 'LED Bar on … level … (0 to 10)',
+    sert: 'Lights up the LEDs of the **Grove LED bar** from the first one up to the chosen **level**, from **0** (all off) to **10** (all on), like a gauge.',
+    util: [
+      'Choose the **Grove port** the bar is plugged into (P0 / P14, P1 / P15…).',
+      'Put a number in the box, or a measurement brought between 0 and 10 (for example the light divided by 100).',
+    ],
+    savoir: [
+      'The bar uses **two pins**: those of the chosen port.',
+      'It has 10 LEDs: 8 green, 1 orange and 1 red.',
+      'A decimal number is rounded down; above 10, all the LEDs are on.',
+    ],
+    legende: 'The LED bar (port P0 / P14) shows the light measured on P1: the more light, the more LEDs on.',
+  },
+  grove_barre_led: {
+    titre: 'LED Bar on … LED no. … …',
+    sert: 'Turns **one LED** of the Grove LED bar on or off, without touching the others.',
+    util: [
+      'Choose the bar\'s port, then type the number of the LED, from **1 to 10**.',
+      'Choose **on** or **off**.',
+    ],
+    savoir: [
+      'A number outside 1 to 10 does nothing.',
+      'The bar uses **two pins**: those of the chosen port.',
+    ],
+    legende: 'The LEDs of the bar light up one after the other, like a chaser.',
+  },
+  grove_ruban_definir: {
+    titre: 'set the RGB Strip on … with … LED(s)',
+    sert: 'Tells which pin the Grove **RGB LED strip** is plugged into, and **how many LEDs** it has.',
+    util: [
+      'Put this block in the ‘on start’ block, before the other strip blocks.',
+      'Choose the pin, then type the number of LEDs, from **1 to 64**.',
+    ],
+    savoir: [
+      'Without the ‘set the RGB Strip on …’ block, the strip is taken on pin **P1** with **16 LEDs**.',
+      'Give the **real number** of LEDs: otherwise part of the strip stays off, or an LED number that is too big causes an error.',
+    ],
+    legende: 'A strip of 16 LEDs is set on P0, its brightness is set to 50 %, then it lights up in red.',
+  },
+  grove_ruban_couleur: {
+    titre: 'colour the whole strip …',
+    sert: 'Lights up **all the LEDs** of the RGB strip in the chosen **colour**.',
+    util: [
+      'Choose the colour in the block\'s list.',
+    ],
+    savoir: [
+      'The colour takes into account the brightness set with the ‘strip brightness to … %’ block.',
+      'Without the ‘set the RGB Strip on …’ block, the strip is taken on pin **P1** with **16 LEDs**.',
+    ],
+    legende: 'The whole strip lights up in red for two seconds, then turns off.',
+  },
+  grove_ruban_effacer: {
+    titre: 'turn off the strip',
+    sert: '**Turns off all the LEDs** of the RGB strip.',
+    util: [
+      'Put it where the strip must turn off.',
+    ],
+    savoir: [
+      'To turn off one LED only, use the ‘turn off LED no. …’ block.',
+    ],
+    legende: 'The whole strip lights up in red for two seconds, then turns off.',
+  },
+  grove_ruban_couleur_index: {
+    titre: 'colour LED no. … as …',
+    sert: 'Lights up **one LED** of the RGB strip in the chosen **colour**, without touching the others.',
+    util: [
+      'Type the number of the LED, or put in a variable (to make a light move along, for example).',
+      'Choose the colour in the block\'s list.',
+    ],
+    savoir: [
+      'The LEDs are numbered **from 0**: with 16 LEDs, from 0 to 15. On the board, a number that is too big **stops the program** with an error; the simulator ignores it.',
+    ],
+    legende: 'LED number 0 lights up in green and LED number 1 in blue.',
+  },
+  grove_ruban_effacer_index: {
+    titre: 'turn off LED no. …',
+    sert: '**Turns off one LED** of the RGB strip, without touching the others.',
+    util: [
+      'Type the number of the LED to turn off.',
+    ],
+    savoir: [
+      'The LEDs are numbered **from 0**: with 16 LEDs, from 0 to 15. On the board, a number that is too big **stops the program** with an error; the simulator ignores it.',
+    ],
+    legende: 'The whole strip lights up in red, then LED number 0 turns off two seconds later.',
+  },
+  grove_ruban_perso: {
+    titre: 'colour the whole strip R … V … B …',
+    sert: 'Lights up **all the LEDs** of the strip in a colour you mix with **red (R)**, **green (V on the block)** and **blue (B)**.',
+    util: [
+      'Type the amount of red, green and blue, each from **0 to 255** (0, 0, 0 = off; 255, 255, 255 = white).',
+    ],
+    savoir: [
+      'Mixing colours: red + green = yellow, red + blue = purple, green + blue = cyan.',
+      'The colour takes into account the brightness set with the ‘strip brightness to … %’ block.',
+    ],
+    legende: 'Red 255, green 128, blue 0: the strip lights up in orange.',
+  },
+  grove_ruban_perso_index: {
+    titre: 'colour LED no. … R … V … B …',
+    sert: 'Lights up **one LED** of the strip in a colour you mix with **red (R)**, **green (V on the block)** and **blue (B)**.',
+    util: [
+      'Type the number of the LED, then the amount of red, green and blue, each from **0 to 255**.',
+    ],
+    savoir: [
+      'The LEDs are numbered **from 0**: with 16 LEDs, from 0 to 15. On the board, a number that is too big **stops the program** with an error; the simulator ignores it.',
+    ],
+    legende: 'LED number 0 takes a purple colour (red 255, green 0, blue 128).',
+  },
+  grove_ruban_luminosite: {
+    titre: 'strip brightness to … %',
+    sert: 'Sets the **brightness** of the RGB strip\'s colours, from **0 %** (off) to **100 %** (maximum).',
+    util: [
+      'Put this block **before** the blocks that colour the strip.',
+    ],
+    savoir: [
+      'The brightness applies to the colours sent **afterwards**: the LEDs already lit do not change until they are coloured again.',
+      'A lower brightness is easier on the eyes and uses less energy.',
+    ],
+    legende: 'A strip of 16 LEDs is set on P0, its brightness is set to 50 %, then it lights up in red.',
+  },
+  grove_buzzer_etat: {
+    titre: 'buzzer on … …',
+    sert: 'Makes the Grove buzzer **sound** (**on**) or **stop** (**off**).',
+    util: [
+      'Choose the buzzer\'s pin, then **on** or **off**.',
+    ],
+    savoir: [
+      'When on, the buzzer **keeps sounding** until the ‘buzzer on … off’ block.',
+      'The Grove buzzer always makes the **same sound**: to play notes, you need a speaker (blocks of the ‘Actuators (Audio)’ category).',
+    ],
+    legende: 'The buzzer plugged into P0 sounds for one second, is quiet for one second, and so on.',
+  },
+  grove_buzzer_bip: {
+    titre: 'beep the buzzer on … for … ms',
+    sert: 'Makes the Grove buzzer **sound** for the chosen **time**, then stops it.',
+    util: [
+      'Choose the buzzer\'s pin, then type the time in **milliseconds** (1000 ms = 1 second).',
+    ],
+    savoir: [
+      'The program **waits for the end of the beep** before moving on to the next block.',
+    ],
+    legende: 'The buzzer plugged into P1 beeps when the motion detector plugged into P0 sees movement.',
+  },
 };
 window.EXEMPLES_EN = {
   'Prêt': 'Ready',

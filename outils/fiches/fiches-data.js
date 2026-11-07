@@ -2010,4 +2010,176 @@ window.FICHES = [
     legende: 'Chaque nouveau code lu fait défiler son texte sur la matrice de LED.',
     exempleDe: 'ia_qr_lorsque_lu',
   },
+  // ═══════════════ Grove : LED, barre, ruban, buzzer ═══════════════
+  {
+    t: 'grove_led_luminosite',
+    titre: '[LED] régler la luminosité à … sur la broche …',
+    sert: 'Règle la **luminosité** du module LED Grove branché sur une broche, de **0** (éteinte) à **1023** (au maximum).',
+    util: [
+      'Écrivez le niveau, ou mettez-y un bloc qui renvoie un nombre (une mesure de potentiomètre, par exemple).',
+      'Choisissez la broche du module.',
+    ],
+    savoir: [
+      'Un niveau plus petit que 0 ou plus grand que 1023 est ramené à 0 ou à 1023.',
+      'La LED clignote en réalité très vite : l\'œil voit une lumière plus ou moins forte.',
+      'Pour seulement allumer ou éteindre, le bloc « [LED] contrôler la LED à … » suffit.',
+    ],
+    legende: 'La LED branchée sur P0 est réglée à la moitié de sa luminosité (512 sur 1023).',
+  },
+  {
+    t: 'grove_barre_niveau',
+    titre: 'barre de LED sur … niveau … (0 à 10)',
+    sert: 'Allume les LED de la **barre de LED Grove** de la première jusqu\'au **niveau** choisi, de **0** (toutes éteintes) à **10** (toutes allumées), comme une jauge.',
+    util: [
+      'Choisissez le **port Grove** où la barre est branchée (P0 / P14, P1 / P15…).',
+      'Mettez dans la case un nombre, ou une mesure ramenée entre 0 et 10 (par exemple la lumière divisée par 100).',
+    ],
+    savoir: [
+      'La barre occupe **deux broches** : celles du port choisi.',
+      'Elle compte 10 LED : 8 vertes, 1 orange et 1 rouge.',
+      'Un nombre à virgule est arrondi à l\'entier inférieur ; au-delà de 10, toutes les LED sont allumées.',
+    ],
+    legende: 'La barre de LED (port P0 / P14) montre la lumière mesurée sur P1 : plus il y a de lumière, plus il y a de LED allumées.',
+  },
+  {
+    t: 'grove_barre_led',
+    titre: 'barre de LED sur … LED n° … …',
+    sert: 'Allume ou éteint **une seule LED** de la barre de LED Grove, sans toucher aux autres.',
+    util: [
+      'Choisissez le port de la barre, puis écrivez le numéro de la LED, de **1 à 10**.',
+      'Choisissez **allumée** ou **éteinte**.',
+    ],
+    savoir: [
+      'Un numéro en dehors de 1 à 10 ne fait rien.',
+      'La barre occupe **deux broches** : celles du port choisi.',
+    ],
+    legende: 'Les LED de la barre s\'allument l\'une après l\'autre, comme un chenillard.',
+  },
+  {
+    t: 'grove_ruban_definir',
+    titre: 'définir le ruban RGB sur … avec … LED(s)',
+    sert: 'Indique sur quelle broche le **ruban de LED RGB** Grove est branché, et **combien de LED** il compte.',
+    util: [
+      'Placez ce bloc dans le bloc « au démarrage », avant les autres blocs du ruban.',
+      'Choisissez la broche, puis écrivez le nombre de LED, de **1 à 64**.',
+    ],
+    savoir: [
+      'Sans le bloc « définir le ruban RGB sur … », le ruban est pris sur la broche **P1** avec **16 LED**.',
+      'Indiquez le **vrai nombre** de LED : sinon une partie du ruban reste éteinte, ou un numéro de LED trop grand provoque une erreur.',
+    ],
+    legende: 'Un ruban de 16 LED est défini sur P0, sa luminosité est réglée à 50 %, puis il s\'allume en rouge.',
+  },
+  {
+    t: 'grove_ruban_couleur',
+    titre: 'colorer tout le ruban en …',
+    sert: 'Allume **toutes les LED** du ruban RGB dans la **couleur** choisie.',
+    util: [
+      'Choisissez la couleur dans la liste du bloc.',
+    ],
+    savoir: [
+      'La couleur tient compte de la luminosité réglée avec le bloc « luminosité du ruban à … % ».',
+      'Sans le bloc « définir le ruban RGB sur … », le ruban est pris sur la broche **P1** avec **16 LED**.',
+    ],
+    legende: 'Tout le ruban s\'allume en rouge deux secondes, puis s\'éteint.',
+  },
+  {
+    t: 'grove_ruban_effacer',
+    titre: 'éteindre le ruban',
+    sert: '**Éteint toutes les LED** du ruban RGB.',
+    util: [
+      'Placez-le où le ruban doit s\'éteindre.',
+    ],
+    savoir: [
+      'Pour éteindre une seule LED, utilisez le bloc « éteindre la LED n° … ».',
+    ],
+    legende: 'Tout le ruban s\'allume en rouge deux secondes, puis s\'éteint.',
+  },
+  {
+    t: 'grove_ruban_couleur_index',
+    titre: 'colorer la LED n° … en …',
+    sert: 'Allume **une seule LED** du ruban RGB dans la **couleur** choisie, sans toucher aux autres.',
+    util: [
+      'Écrivez le numéro de la LED, ou mettez-y une variable (pour faire avancer une lumière, par exemple).',
+      'Choisissez la couleur dans la liste du bloc.',
+    ],
+    savoir: [
+      'Les LED sont numérotées **à partir de 0** : avec 16 LED, de 0 à 15. Sur la carte, un numéro trop grand **arrête le programme** avec une erreur ; le simulateur, lui, l\'ignore.',
+    ],
+    legende: 'La LED n° 0 s\'allume en vert et la LED n° 1 en bleu.',
+  },
+  {
+    t: 'grove_ruban_effacer_index',
+    titre: 'éteindre la LED n° …',
+    sert: '**Éteint une seule LED** du ruban RGB, sans toucher aux autres.',
+    util: [
+      'Écrivez le numéro de la LED à éteindre.',
+    ],
+    savoir: [
+      'Les LED sont numérotées **à partir de 0** : avec 16 LED, de 0 à 15. Sur la carte, un numéro trop grand **arrête le programme** avec une erreur ; le simulateur, lui, l\'ignore.',
+    ],
+    legende: 'Tout le ruban s\'allume en rouge, puis la LED n° 0 s\'éteint deux secondes plus tard.',
+  },
+  {
+    t: 'grove_ruban_perso',
+    titre: 'colorer tout le ruban en R … V … B …',
+    sert: 'Allume **toutes les LED** du ruban dans une couleur que vous composez avec du **rouge (R)**, du **vert (V)** et du **bleu (B)**.',
+    util: [
+      'Écrivez la quantité de rouge, de vert et de bleu, chacune de **0 à 255** (0, 0, 0 = éteint ; 255, 255, 255 = blanc).',
+    ],
+    savoir: [
+      'Mélanger les couleurs : rouge + vert = jaune, rouge + bleu = violet, vert + bleu = cyan.',
+      'La couleur tient compte de la luminosité réglée avec le bloc « luminosité du ruban à … % ».',
+    ],
+    legende: 'Rouge 255, vert 128, bleu 0 : le ruban s\'allume en orange.',
+  },
+  {
+    t: 'grove_ruban_perso_index',
+    titre: 'colorer la LED n° … en R … V … B …',
+    sert: 'Allume **une seule LED** du ruban dans une couleur que vous composez avec du **rouge (R)**, du **vert (V)** et du **bleu (B)**.',
+    util: [
+      'Écrivez le numéro de la LED, puis la quantité de rouge, de vert et de bleu, chacune de **0 à 255**.',
+    ],
+    savoir: [
+      'Les LED sont numérotées **à partir de 0** : avec 16 LED, de 0 à 15. Sur la carte, un numéro trop grand **arrête le programme** avec une erreur ; le simulateur, lui, l\'ignore.',
+    ],
+    legende: 'La LED n° 0 prend une couleur violette (rouge 255, vert 0, bleu 128).',
+  },
+  {
+    t: 'grove_ruban_luminosite',
+    titre: 'luminosité du ruban à … %',
+    sert: 'Règle la **luminosité** des couleurs du ruban RGB, de **0 %** (éteint) à **100 %** (au maximum).',
+    util: [
+      'Placez ce bloc **avant** les blocs qui colorent le ruban.',
+    ],
+    savoir: [
+      'La luminosité s\'applique aux couleurs envoyées **ensuite** : les LED déjà allumées ne changent pas tant qu\'on ne les recolore pas.',
+      'Une luminosité réduite fatigue moins les yeux et consomme moins d\'énergie.',
+    ],
+    legende: 'Un ruban de 16 LED est défini sur P0, sa luminosité est réglée à 50 %, puis il s\'allume en rouge.',
+  },
+  {
+    t: 'grove_buzzer_etat',
+    titre: 'buzzer sur … …',
+    sert: 'Fait **sonner** le buzzer Grove (**marche**) ou le fait **taire** (**arrêt**).',
+    util: [
+      'Choisissez la broche du buzzer, puis **marche** ou **arrêt**.',
+    ],
+    savoir: [
+      'En marche, le buzzer **sonne sans s\'arrêter** jusqu\'au bloc « buzzer sur … arrêt ».',
+      'Le buzzer Grove fait toujours le **même son** : pour jouer des notes, il faut un haut-parleur (blocs de la catégorie « Actionneurs (Audio) »).',
+    ],
+    legende: 'Le buzzer branché sur P0 sonne une seconde, se tait une seconde, et ainsi de suite.',
+  },
+  {
+    t: 'grove_buzzer_bip',
+    titre: 'bip du buzzer sur … pendant … ms',
+    sert: 'Fait **sonner** le buzzer Grove pendant la **durée** choisie, puis l\'arrête.',
+    util: [
+      'Choisissez la broche du buzzer, puis écrivez la durée en **millisecondes** (1000 ms = 1 seconde).',
+    ],
+    savoir: [
+      'Le programme **attend la fin du bip** avant de passer au bloc suivant.',
+    ],
+    legende: 'Le buzzer branché sur P1 bipe quand le détecteur de mouvement branché sur P0 voit bouger.',
+  },
 ];
