@@ -1180,6 +1180,47 @@ function dessinDht(x, y, modele) {
     return s.join('\n');
 }
 
+/** Horloge temps reel Grove RTC DS1307 (absente du modele ; dessinee d'apres la photo du wiki Seeed, prise de biais,
+    nov. 2026). Circuit 2,0 x 4,0 cm (fiche technique Seeed). Proportions estimees sur la photo, vue de face, prise a
+    gauche comme les autres capteurs I2C : prise Grove couchee (GND VCC SDA SCL), quartz X1 couche, puce DS1307 (SOIC 8),
+    resistances R1 a R3, support de pile bouton CR1225 avec sa languette doree. Oreilles placees comme le BMP280 (choix). */
+function dessinRtc(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const s = [oreille(X(10.0), Y(-0.6), 1.75 * k), oreille(X(10.0), Y(20.6), 1.75 * k), oreille(X(40.4), Y(9.9), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Prise Grove couchee (meme dessin que le BMP280) : pattes, boitier blanc, creux d'entree a gauche
+    const pattes = [6.85, 8.83, 10.9, 12.9];
+    pattes.forEach(v => s.push(rect(8.3, v - 0.35, 11.2, v + 0.35, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.6"`)));
+    s.push(`<path d="M ${X(0.25)} ${Y(3.4)} H ${X(10.1)} V ${Y(4.9)} H ${X(8.5)} V ${Y(12.2)} H ${X(10.0)} V ${Y(15.2)} H ${X(8.5)} V ${Y(16.1)} H ${X(0.25)} Z"
+                  fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2" stroke-linejoin="round"/>`,
+           rect(1.9, 4.9, 4.0, 12.2, `fill="${C_PRISE.creux}"`), rect(3.0, 6.3, 4.0, 10.6, 'fill="#efede7"'),
+           rect(0.6, 15.4, 3.6, 16.1, 'fill="#9aa1a5"'));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(11.5, pattes[i], t, 1.05)));
+    // Quartz X1 : cylindre metallique couche, pattes vers la puce
+    s.push(rect(15.0, 2.6, 21.0, 4.6, 'rx="3" fill="#c3c8cd" stroke="#7d848a" stroke-width="0.8"'),
+           rect(15.6, 2.9, 20.4, 3.3, 'rx="1" fill="#eef1f3"'), T(15.0, 1.4, 'X1', 1.0));
+    // Puce DS1307 (SOIC 8) : 4 pattes en haut, 4 en bas
+    [15.9, 17.17, 18.44, 19.71].forEach(v => s.push(rect(v - 0.3, 6.3, v + 0.3, 7.1, `fill="${C_MODULE.metal}"`),
+        rect(v - 0.3, 11.1, v + 0.3, 11.9, `fill="${C_MODULE.metal}"`)));
+    s.push(rect(15.0, 7.1, 20.6, 11.1, 'rx="1" fill="#1f1f1f"'),
+           `<circle cx="${X(15.7)}" cy="${Y(10.4)}" r="${0.3 * k}" fill="#3a3a3a"/>`,
+           `<text x="${X(17.8)}" y="${Y(9.1)}" font-family="Inter, Segoe UI, Arial" font-size="${0.85 * k}" fill="#9a9a9a"
+                  text-anchor="middle" dominant-baseline="central">DS1307</text>`);
+    // Resistances R1 a R3, couchees sous la puce
+    [14.6, 16.2, 17.8].forEach((v, i) => s.push(composantCMS(X, Y, k, 13.6, v, 2.4, 0.9), T(16.6, v + 0.45, 'R' + (i + 1), 0.95)));
+    // Support de pile CR1225 : barrette de contact a gauche, boitier gris, languette doree vers le bas a droite
+    s.push(rect(22.0, 2.4, 23.4, 17.6, 'rx="1" fill="#c9a54a" stroke="#8c6f2a" stroke-width="0.8"'),
+           `<circle cx="${X(30.6)}" cy="${Y(10)}" r="${7.4 * k}" fill="#8e9195" stroke="#5f6366" stroke-width="1.2"/>`,
+           `<circle cx="${X(30.6)}" cy="${Y(10)}" r="${6.3 * k}" fill="#a3a6aa" stroke="#6f7377" stroke-width="0.8"/>`,
+           `<path d="M ${X(27.6)} ${Y(7.4)} H ${X(31.4)} V ${Y(9.0)} H ${X(33.6)} V ${Y(11.0)} H ${X(31.4)} L ${X(36.4)} ${Y(16.6)}
+                     L ${X(35.4)} ${Y(17.4)} L ${X(30.4)} ${Y(12.6)} H ${X(27.6)} Z" fill="#d4b25a" stroke="#8c6f2a" stroke-width="0.8" stroke-linejoin="round"/>`,
+           rect(28.4, 8.6, 30.6, 11.4, 'fill="none" stroke="#a88a3c" stroke-width="0.8"'),
+           T(24.4, 18.8, 'BT1', 0.95));
+    return s.join('\n');
+}
+
 /** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
     cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
     boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
@@ -1446,6 +1487,9 @@ export const DESSINS_MODULES = {
            dessin: (x, y) => dessinDht(x, y, '11') },
     dht22: { largeur: 40, hauteur: 20, connecteur: { x: 0.8, y: 9.9, sens: 'gauche', contacts: [13.05, 10.91, 8.87, 6.72] },
            dessin: (x, y) => dessinDht(x, y, '22') },
+    // Horloge RTC DS1307 (dessin d'apres photo) : prise couchee a gauche, GND VCC SDA SCL de haut en bas
+    rtc: { largeur: 40, hauteur: 20, connecteur: { x: 0.3, y: 9.9, sens: 'gauche', contacts: [12.9, 10.9, 8.83, 6.85] },
+           dessin: (x, y) => dessinRtc(x, y) },
     // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
     // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
     servo: { largeur: 42, hauteur: 20,
