@@ -1389,6 +1389,44 @@ function dessinOled(x, y) {
     return s.join('\n');
 }
 
+/** Ecran LCD 16 x 2 Grove « Grove-16x2 LCD (White on Blue) V1.0 » (JHD1802, I2C 0x3E ; absent du modele, dessine
+    d'apres le plan cote du wiki Seeed, nov. 2026) : circuit 80 x 40 mm, 4 trous de 2,5 mm a 2 mm des bords, cadre noir
+    de 71 x 24 mm (x 2,4 / y 4,41), zone visible 64,5 x 18 mm, zone active 57,7 x 14,5 mm, deux lignes de caracteres sur
+    9,4 mm a partir de y 11,71 ; languette du retroeclairage a droite ; prise J1 au bord bas (GND VCC SDA SCL).
+    montage.js (lcd) colore la vitre .mv-lcd-fond et ecrit les deux lignes .mv-lcd comme l'ecran de « Peripheriques ». */
+function dessinLcd16x2(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const txt = (tx, ty, t, taille, attr) => `<text x="${X(tx)}" y="${Y(ty)}" font-family="Consolas, 'Segoe UI', monospace" font-size="${taille * k}"
+              font-weight="700" fill="#ffffff" dominant-baseline="central" ${attr || ''}>${t}</text>`;
+    const s = [rect(0, 0, 80, 40, `rx="${0.6 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"`)];
+    // Trous de fixation (pastille doree de 3,5 mm, trou de 2,5 mm)
+    [[2, 2], [78, 2], [2, 38], [78, 38]].forEach(([hx, hy]) => s.push(
+        `<circle cx="${X(hx)}" cy="${Y(hy)}" r="${1.75 * k}" fill="#d9b85c" stroke="#a8862f" stroke-width="0.8"/>
+         <circle cx="${X(hx)}" cy="${Y(hy)}" r="${1.25 * k}" class="mod-encoche"/>`));
+    // Languette metallique du retroeclairage, a droite du cadre
+    s.push(rect(73.4, 9.2, 76.0, 23.6, 'rx="1.5" fill="#d3d7da" stroke="#9aa1a5" stroke-width="0.8"'),
+           `<path d="M ${X(74.9)} ${Y(10.2)} V ${Y(22.6)}" stroke="#b7bcc0" stroke-width="2"/>`);
+    // Cadre noir et ses doubles filets, vitre (zone visible), cases des caracteres et les deux lignes
+    s.push(rect(2.4, 4.41, 73.4, 28.41, `rx="${0.4 * k}" fill="#1b1b1b" stroke="#000" stroke-width="1.2"`));
+    [5.3, 6.2, 26.6, 27.5].forEach(v => s.push(`<path d="M ${X(3.4)} ${Y(v)} H ${X(72.4)}" stroke="#3c3c3c" stroke-width="1.4"/>`));
+    s.push(rect(5.65, 7.41, 70.15, 25.41, 'class="mv-lcd-fond" fill="#2747c9"'));
+    const pas = 57.7 / 16;
+    [11.71, 16.76].forEach(ly => { for (let i = 0; i < 16; i++) s.push(rect(9.05 + i * pas + 0.3, ly, 9.05 + i * pas + 3.3, ly + 4.35, 'fill="#ffffff" opacity="0.07"')); });
+    [13.9, 18.95].forEach((ly, l) => s.push(`<text class="mv-lcd" data-l="${l}" x="${X(9.05 + 0.3)}" y="${Y(ly)}" textLength="${(57.7 - 0.6) * k}" lengthAdjust="spacing"
+              font-family="Consolas, 'Courier New', monospace" font-size="${4.3 * k}" font-weight="600" fill="#f2f6fb" dominant-baseline="central"
+              style="white-space: pre"></text>`));
+    // Prise Grove J1 au bord bas (ouverture vers la gauche), contacts, noms et inscriptions
+    s.push(rect(15.5, 29.1, 22.3, 39.2, `rx="2" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"`),
+           rect(16.3, 30.6, 21.1, 37.7, `rx="1.5" fill="${C_PRISE.creux}"`), rect(16.3, 32.5, 17.9, 35.8, `rx="1" fill="${C_PRISE.fond}"`));
+    [['GND', 31.2], ['VCC', 33.1], ['SDA', 35.2], ['SCL', 37.1]].forEach(([t, py]) => s.push(
+        `<circle cx="${X(23.2)}" cy="${Y(py)}" r="${0.45 * k}" fill="#c9a84a"/>`, txt(24.3, py, t, 1.5, 'font-family="Inter, Segoe UI, Arial"')));
+    s.push(txt(13.1, 33.6, 'J1', 1.9, 'text-anchor="middle" font-family="Inter, Segoe UI, Arial"'),
+           txt(32.6, 33.1, 'Grove-16x2 LCD (White on Blue)', 2.2, `textLength="${41.3 * k}" lengthAdjust="spacingAndGlyphs"`),
+           txt(73.4, 36.8, 'V1.0', 1.9, 'text-anchor="end"'));
+    return s.join('\n');
+}
+
 /** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
     cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
     boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
@@ -1671,6 +1709,10 @@ export const DESSINS_MODULES = {
     // SCL SDA VCC GND de haut en bas
     oled: { largeur: 40, hauteur: 20, deborde: 2.4, afficheur: true, connecteur: { x: -1.4, y: 9.9, sens: 'gauche', contacts: [6.9, 8.9, 10.9, 12.9] },
            dessin: (x, y) => dessinOled(x, y) },
+    // Ecran LCD 16 x 2 (plan cote Seeed) : jamais tourne ; prise J1 sur la face, au bord bas (les fils passent dessus
+    // comme pour le LCD RGB), GND VCC SDA SCL de haut en bas
+    lcd: { largeur: 80, hauteur: 40, afficheur: true, filsDessus: true, connecteur: { x: 15.5, y: 34.15, sens: 'gauche', contacts: [37.1, 35.2, 33.1, 31.2] },
+           dessin: (x, y) => dessinLcd16x2(x, y) },
     // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
     // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
     servo: { largeur: 42, hauteur: 20,
