@@ -133,8 +133,8 @@ function branchementBitmaker(pins) {
     const res = { fils: ports.flatMap(filsPortBitmaker), etiquette: ports.concat(sans).join(' + '),
                   // Port et broches : sur cette carte, P1 et P2 sortent chacune sur deux ports.
                   occupe: ports.map(n => 'port ' + n).concat(pins) };
-    if (sans.includes('P13')) res.alerte = '⚠ P13 réservée aux LED de la carte';
-    else if (sans.length) res.alerte = '⚠ ' + sans.join(', ') + ' sans port sur cette carte';
+    if (sans.includes('P13')) res.alerte = 'P13 réservée aux LED de la carte';
+    else if (sans.length) res.alerte = sans.join(', ') + ' sans port sur cette carte';
     return res;
 }
 
@@ -194,9 +194,9 @@ function branchementMotorbit(pins, servo) {
     let alerte = '';
     pins.forEach((p, i) => {
         const n = Number(p.slice(3));
-        if (RESERVEES_MOTORBIT[n]) { alerte = '⚠ P' + n + ' : moteur ' + RESERVEES_MOTORBIT[n]; return; }
-        if (n === 0) { alerte = '⚠ P0 : buzzer de la carte'; return; }
-        if (!GAUCHE_MOTORBIT.includes(n) && !DROITE_MOTORBIT.includes(n)) { alerte = '⚠ P' + n + ' absente de la carte'; return; }
+        if (RESERVEES_MOTORBIT[n]) { alerte = 'P' + n + ' : moteur ' + RESERVEES_MOTORBIT[n]; return; }
+        if (n === 0) { alerte = 'P0 : buzzer de la carte'; return; }
+        if (!GAUCHE_MOTORBIT.includes(n) && !DROITE_MOTORBIT.includes(n)) { alerte = 'P' + n + ' absente de la carte'; return; }
         const rang = filsBrocheMotorbit(n, [servo ? F.orange : (fils.length ? F.blanc : F.jaune), F.rouge, servo ? F.marron : F.noir]);
         fils.push(...(fils.length ? rang.slice(0, 1) : rang));
     });
@@ -298,7 +298,7 @@ function lireMontage() {
     // Deux modules sur le meme port (ou la meme broche) : possible dans le programme, pas sur la table.
     const parPort = {};
     for (const m of modules.values()) for (const k of new Set(m.occupe || [])) (parPort[k] = parPort[k] || []).push(m);
-    for (const liste of Object.values(parPort)) if (liste.length > 1) liste.forEach(m => { m.alerte = m.alerte || '⚠ port partagé'; });
+    for (const liste of Object.values(parPort)) if (liste.length > 1) liste.forEach(m => { m.alerte = m.alerte || 'port partagé'; });
     const i2c = [...modules.values()].filter(m => m.i2c);
     if (i2c.length > 1) i2c.forEach(m => { m.note = 'bus I2C partagé'; });
 
@@ -1039,7 +1039,7 @@ function finirRedessin(etat) {
     }
     resume.innerHTML = etat.modules.length
         ? etat.modules.map(m => '<li>' + echap(m.nom) + ' : ' + echap(m.etiquette) + (m.note ? ' (' + echap(m.note) + ')' : '') +
-                                (m.alerte ? ' — ' + echap(m.alerte.replace('⚠ ', '')) : '') + '</li>').join('')
+                                (m.alerte ? ' — ' + echap(m.alerte) : '') + '</li>').join('')
         : '<li>Aucun module branché pour l\'instant.</li>';
     majReglages();
     rubanSurCarte = !!etat.modules.find(m => m.surCarte);
@@ -1776,7 +1776,7 @@ function appliquerMode() {
     cadreCarte.classList.toggle('montage-carte-absente', mode === 'grand' && !enColonne);
     bouton.hidden = true;   // « Voir le montage » : la scene est toujours visible dans la colonne
     bouton.setAttribute('aria-expanded', String(mode === 'grand'));
-    bouton.textContent = mode === 'grand' ? '🔌 Fermer le montage' : '🔌 Voir le montage';
+    bouton.innerHTML = window.icone('prise') + (mode === 'grand' ? 'Fermer le montage' : 'Voir le montage');
     if (boutonAgrandir) {
         const grand = mode === 'grand';
         boutonAgrandir.innerHTML = (grand ? ICONE_FERMER : ICONE_AGRANDIR) + '<span class="sim-lib">' + (grand ? 'Fermer' : 'Agrandir') + '</span>';

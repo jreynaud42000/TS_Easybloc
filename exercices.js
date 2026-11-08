@@ -402,20 +402,20 @@ function afficherPanneau() {
             html += '<ol class="ex-indices">' + indices.slice(0, session.indices).map(t => '<li>' + esc(t) + '</li>').join('') + '</ol>';
         }
         if (session.valide) {
-            html += '<p class="ex-ok">✔ Bien joué ! ' + etoiles(etoilesPour(session)) + (session.solution ? ' (solution vue)' : '') + '</p>';
-            html += '<div class="ex-boutons"><button class="ex-primaire" data-act="suivant">' + (plat[plat.findIndex(x => x.id === e.id) + 1] ? 'Exercice suivant ▶' : 'Terminer 🎉') + '</button>' +
+            html += '<p class="ex-ok">✓ Bien joué ! ' + etoiles(etoilesPour(session)) + (session.solution ? ' (solution vue)' : '') + '</p>';
+            html += '<div class="ex-boutons"><button class="ex-primaire" data-act="suivant">' + (plat[plat.findIndex(x => x.id === e.id) + 1] ? 'Exercice suivant ▶' : 'Terminer') + '</button>' +
                 '<button data-act="recommencer">Recommencer</button><button data-act="liste">Liste</button>' +
-                (seance ? '<button data-act="rendre">📤 Rendre mon travail</button>' : '') + '</div>';
+                (seance ? '<button data-act="rendre">' + window.icone('envoyer') + 'Rendre mon travail</button>' : '') + '</div>';
         } else if (!e.regle) {
             html += '<p class="ex-attente">Cet exercice sera corrigé par ton professeur : clique sur « J\'ai terminé » quand ton programme est prêt.</p>';
-            html += '<div class="ex-boutons"><button class="ex-primaire" data-act="termine">✔ J\'ai terminé</button>' +
-                (session.indices < indices.length ? '<button data-act="indice">💡 Indice (' + session.indices + '/' + indices.length + ')</button>' : '') +
+            html += '<div class="ex-boutons"><button class="ex-primaire" data-act="termine">✓ J\'ai terminé</button>' +
+                (session.indices < indices.length ? '<button data-act="indice">' + window.icone('ampoule') + 'Indice (' + session.indices + '/' + indices.length + ')</button>' : '') +
                 (e.solution ? '<button data-act="solution">Solution</button>' : '') +
                 '<button data-act="recommencer">Recommencer</button><button data-act="passer">Passer</button><button data-act="liste">Liste</button></div>';
         } else {
             html += '<p class="ex-attente">Le contrôle se fait tout seul : pose tes blocs, la validation apparaît quand c\'est bon.</p>';
             html += '<div class="ex-boutons">' +
-                (session.indices < indices.length ? '<button data-act="indice">💡 Indice (' + session.indices + '/' + indices.length + ')</button>' : '') +
+                (session.indices < indices.length ? '<button data-act="indice">' + window.icone('ampoule') + 'Indice (' + session.indices + '/' + indices.length + ')</button>' : '') +
                 (e.solution ? '<button data-act="solution">Solution</button>' : '') +
                 '<button data-act="recommencer">Recommencer</button><button data-act="passer">Passer</button><button data-act="liste">Liste</button></div>';
         }
@@ -423,21 +423,21 @@ function afficherPanneau() {
     } else {
         const e = exo(session.liste[session.idx]);
         const s = session;
-        html += '<div id="ex-entete" class="ex-eval"><span class="ex-titre">📝 Évaluation — ' + esc(s.nom) + ' — ' + (s.idx + 1) + '/' + s.liste.length + '</span>' +
+        html += '<div id="ex-entete" class="ex-eval"><span class="ex-titre">' + window.icone('evaluation') + 'Évaluation — ' + esc(s.nom) + ' — ' + (s.idx + 1) + '/' + s.liste.length + '</span>' +
             '<span id="ex-chrono">' + esc(chronoEval()) + '</span><button data-act="reduire" title="Réduire / agrandir">–</button></div>';
         html += '<div class="ex-corps"><div class="ex-niveau">' + esc(e.id) + ' · ' + esc(e.titre) + ' · ' + e.points + ' pt' + (e.points > 1 ? 's' : '') + '</div>';
         html += '<p class="ex-consigne">' + esc(e.consigne) + '</p>';
         if (s.etat === 'remis') {
-            html += '<p class="ex-ok">✔ Exercice remis : ton professeur le corrigera.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
+            html += '<p class="ex-ok">✓ Exercice remis : ton professeur le corrigera.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
                 (s.idx + 1 >= s.liste.length ? 'Terminer ▶' : 'Exercice suivant ▶') + '</button></div>';
         } else if (s.etat === 'reussi') {
-            html += '<p class="ex-ok">✔ Exercice validé.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
+            html += '<p class="ex-ok">✓ Exercice validé.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
                 (s.idx + 1 >= s.liste.length ? 'Terminer ▶' : 'Exercice suivant ▶') + '</button></div>';
         } else if (s.etat === 'echec') {
-            html += '<p class="ex-ko">✘ Trois essais utilisés : l\'exercice est terminé.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
+            html += '<p class="ex-ko">✕ Trois essais utilisés : l\'exercice est terminé.</p><div class="ex-boutons"><button class="ex-primaire" data-act="suivant-eval">' +
                 (s.idx + 1 >= s.liste.length ? 'Terminer ▶' : 'Exercice suivant ▶') + '</button></div>';
         } else {
-            html += (s.etat === 'retente' ? '<p class="ex-ko">✘ Ce n\'est pas encore ça. Relis la consigne.</p>' : '') +
+            html += (s.etat === 'retente' ? '<p class="ex-ko">✕ Ce n\'est pas encore ça. Relis la consigne.</p>' : '') +
                 '<p class="ex-attente">Essai ' + (s.essais + 1) + ' sur ' + ESSAIS_MAX + '. Clique sur « Valider » quand ton programme est prêt.</p>' +
                 '<div class="ex-boutons"><button class="ex-primaire" data-act="valider">Valider</button>' +
                 '<button data-act="passer-eval">Passer</button><button data-act="abandonner">Arrêter</button></div>';
@@ -470,7 +470,7 @@ async function ouvrirFenetre(onglet = 'exercices') {
     let contenu = '<div class="ex-haut"><h2>' + esc(defs.titre || 'Exercices') + '</h2><button class="ex-x" data-f="fermer" title="Fermer">✕</button></div>';
     if (seance) {
         contenu += '<div class="ex-seance">' + esc(seance.def.classe ? seance.def.classe + ' · ' : '') + esc(seance.groupe) + ' · <b>' + esc(seance.eleves.join(', ')) + '</b>' +
-            '<span class="ex-boutons"><button class="ex-primaire" data-a="rendre">📤 Rendre mon travail</button><button data-a="quitter-seance">Quitter la séance</button></span></div>';
+            '<span class="ex-boutons"><button class="ex-primaire" data-a="rendre">' + window.icone('envoyer') + 'Rendre mon travail</button><button data-a="quitter-seance">Quitter la séance</button></span></div>';
     }
     contenu += '<div class="ex-profil"' + (seance ? ' hidden' : '') + '><label>Nom de l\'élève <input id="ex-nom" type="text" value="' + esc(nomActuel) + '" maxlength="40" list="ex-noms" autocomplete="off"></label>' +
         '<datalist id="ex-noms">' + noms.map(n => '<option value="' + esc(n) + '">').join('') + '</datalist>' +
@@ -539,7 +539,7 @@ function htmlExercices() {
         for (const e of n.exercices) {
             const idx = i++;
             const f = fait(e.id), ouvert = accessible(idx);
-            const marque = f ? (f.passe ? '↷ passé' : etoiles(f.etoiles)) : ouvert ? '▶ à faire' : '🔒';
+            const marque = f ? (f.passe ? '↷ passé' : etoiles(f.etoiles)) : ouvert ? '▶ à faire' : '<span class="ex-verrou" role="img" aria-label="verrouillé" title="verrouillé">' + window.icone('cadenas') + '</span>';
             h += '<button class="ex-carte' + (f && !f.passe ? ' fait' : '') + '" data-exo="' + esc(e.id) + '"' + (ouvert ? '' : ' disabled') + '>' +
                 '<b>' + esc(e.id) + '</b> ' + esc(e.titre) + '<span>' + marque + '</span></button>';
         }
@@ -553,7 +553,7 @@ function htmlEvaluation() {
     if (evalSeance()) {
         const min = Number(seance.def.minutes) || 0;
         return evalRendue()
-            ? '<p class="ex-ok">✔ Ton évaluation est terminée. Le résultat est dans l\'onglet « Résultats ».</p>' +
+            ? '<p class="ex-ok">✓ Ton évaluation est terminée. Le résultat est dans l\'onglet « Résultats ».</p>' +
               '<p class="ex-note">Pense à rendre ton travail si ce n\'est pas déjà fait.</p>'
             : '<p>Cette séance est une <b>évaluation</b> : ' + plat.length + ' exercice' + (plat.length > 1 ? 's' : '') +
               (min ? ', ' + min + ' minutes' : ', sans limite de temps') + ', ' + ESSAIS_MAX + ' essais par exercice, ni indice ni solution.</p>' +
@@ -589,7 +589,7 @@ function htmlResultats() {
             const der = donnees.evaluations.filter(r => r.nom === n).slice(-1)[0];
             return '<tr><td>' + esc(n) + '</td>' + plat.map(e => '<td>' + (f[e.id] ? (f[e.id].passe ? '↷' : f[e.id].etoiles + '★') : '·') + '</td>').join('') + '<td>' + (der ? der.note + '/20' : '—') + '</td></tr>';
         }).join('') + '</table></div>';
-    h += '<div class="ex-boutons ex-noprint"><button data-a="imprimer">🖨 Imprimer</button><button data-a="csv-classe">Exporter la classe (CSV)</button>' +
+    h += '<div class="ex-boutons ex-noprint"><button data-a="imprimer">' + window.icone('imprimante') + 'Imprimer</button><button data-a="csv-classe">Exporter la classe (CSV)</button>' +
         '<button data-a="export">Exporter ma progression</button><button data-a="import">Importer des progressions…</button>' +
         '<input id="ex-import-fichier" type="file" accept=".json,application/json" multiple hidden>' +
         '<button class="ex-danger" data-a="effacer">Effacer cet élève</button></div>' +
@@ -599,14 +599,14 @@ function htmlResultats() {
 
 function ouvrirRapport(r) {
     if (!r) return;
-    const lignes = r.details.map(d => '<tr><td>' + esc(d.id) + '</td><td>' + esc(d.titre) + '</td><td>' + (d.nonFait ? 'non traité' : d.aCorriger ? '✎ à corriger' : d.ok ? '✔ réussi' : d.essais === 0 ? '↷ passé' : '✘ échec') +
+    const lignes = r.details.map(d => '<tr><td>' + esc(d.id) + '</td><td>' + esc(d.titre) + '</td><td>' + (d.nonFait ? 'non traité' : d.aCorriger ? '✎ à corriger' : d.ok ? '✓ réussi' : d.essais === 0 ? '↷ passé' : '✕ échec') +
         '</td><td>' + d.essais + '</td><td>' + fmt(d.secondes) + '</td><td>' + d.points + ' / ' + d.sur + '</td></tr>').join('');
     const v = voile('<div class="ex-haut"><h2>Rapport d\'évaluation</h2><button class="ex-x ex-noprint" data-f="fermer" title="Fermer">✕</button></div>' +
         '<p><b>' + esc(r.nom) + '</b> — ' + esc(new Date(r.date).toLocaleString('fr-FR')) + ' — durée ' + fmt(r.secondes) + (r.motif ? ' (' + esc(r.motif) + ')' : '') + '</p>' +
         '<p class="ex-grand">Note : <b>' + r.note + ' / 20</b> <small>(' + r.points + ' point' + (r.points > 1 ? 's' : '') + ' sur ' + r.total + ')</small></p>' +
         '<table class="ex-table"><tr><th>N°</th><th>Exercice</th><th>Résultat</th><th>Essais</th><th>Temps</th><th>Points</th></tr>' + lignes + '</table>' +
-        '<div class="ex-boutons ex-noprint">' + (seance ? '<button class="ex-primaire" data-a="rendre">📤 Rendre mon travail</button>' : '') +
-        '<button' + (seance ? '' : ' class="ex-primaire"') + ' data-a="imprimer">🖨 Imprimer</button><button data-a="csv">Exporter (CSV)</button>' +
+        '<div class="ex-boutons ex-noprint">' + (seance ? '<button class="ex-primaire" data-a="rendre">' + window.icone('envoyer') + 'Rendre mon travail</button>' : '') +
+        '<button' + (seance ? '' : ' class="ex-primaire"') + ' data-a="imprimer">' + window.icone('imprimante') + 'Imprimer</button><button data-a="csv">Exporter (CSV)</button>' +
         '<button data-a="json">Exporter (JSON)</button><button data-f="fermer">Fermer</button></div>', 'ex-rapport');
     v.addEventListener('click', ev => {
         if (ev.target.closest('[data-f="fermer"]')) fermerFenetres();

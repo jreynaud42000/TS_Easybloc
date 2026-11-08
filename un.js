@@ -4103,7 +4103,7 @@ try {
     };
     const MENU_TOUCHE_NOIRE = [
         ["Power", "power"], ["Vol +", "vol_plus"], ["Fonction/Stop", "fonction"],
-        ["◄◄", "precedent"], ["Pause", "pause"], ["►►", "suivant"],
+        ["◀◀", "precedent"], ["Pause", "pause"], ["▶▶", "suivant"],
         ["Bas", "bas"], ["Vol -", "vol_moins"], ["Haut", "haut"],
         ["0", "touche0"], ["EQ", "eq"], ["Répéter", "repeter"],
         ["1", "touche1"], ["2", "touche2"], ["3", "touche3"], ["4", "touche4"], ["5", "touche5"],
@@ -4122,7 +4122,7 @@ try {
     };
     const MENU_TOUCHE_GRISE = [
         ["CH-", "ch_moins"], ["CH", "ch"], ["CH+", "ch_plus"],
-        ["|◄◄", "precedent"], ["►►|", "suivant"], ["►❙❙", "lecture"],
+        ["|◀◀", "precedent"], ["▶▶|", "suivant"], ["▶ II", "lecture"],
         ["-", "moins"], ["+", "plus"], ["EQ", "eq"],
         ["0", "touche0"], ["100+", "cent_plus"], ["200+", "deuxcent_plus"],
         ["1", "touche1"], ["2", "touche2"], ["3", "touche3"], ["4", "touche4"], ["5", "touche5"],
@@ -6531,7 +6531,8 @@ try {
         const btnMasquer = document.createElement('button');
         btnMasquer.className = 'icone-admin';
         btnMasquer.title = estMasque ? 'Afficher aux élèves' : 'Masquer aux élèves';
-        btnMasquer.textContent = estMasque ? '🚫' : '👁';
+        btnMasquer.innerHTML = window.icone(estMasque ? 'oeilBarre' : 'oeil');
+        btnMasquer.setAttribute('aria-label', btnMasquer.title);
         btnMasquer.addEventListener('click', e => { e.stopPropagation(); onBasculerMasque(); });
         ligne.appendChild(btnMasquer);
 
@@ -6799,7 +6800,8 @@ try {
                 const btnSuppr = document.createElement('button');
                 btnSuppr.className = 'icone-admin';
                 btnSuppr.title = 'Supprimer ce sous-menu (les blocs reviennent au niveau supérieur)';
-                btnSuppr.textContent = '🗑';
+                btnSuppr.innerHTML = window.icone('corbeille');
+                btnSuppr.setAttribute('aria-label', btnSuppr.title);
                 btnSuppr.addEventListener('click', () => {
                     configAdmin.sousMenus = configAdmin.sousMenus.filter(s => s !== sm);
                     sauvegarderConfigAdmin(); appliquerToolbox(); remplirZoneSousMenus(nomParent);
@@ -8130,7 +8132,7 @@ try {
     function majBoutonsConsole() {
         const connecte = !!portSerie;
         if (btnConsoleCarte) {
-            btnConsoleCarte.textContent = connecte ? '🔌 Déconnecter' : '🔌 Connecter';
+            btnConsoleCarte.innerHTML = window.icone('prise') + (connecte ? 'Déconnecter' : 'Connecter');
             btnConsoleCarte.classList.toggle('connecte', connecte);
         }
         if (champConsole) champConsole.disabled = !connecte;
@@ -9340,11 +9342,11 @@ try {
         "des valeurs, leurs courbes sont séparées. Les 600 derniers points de chaque courbe sont tracés.\n" +
         "• Pour tracer une mesure, écrivez-la avec « afficher dans la console » dans une boucle avec une pause.\n\n" +
         "EXPORTER VERS EXCEL\n" +
-        "• Le bouton 📊 enregistre toutes les lignes affichées dans un fichier Excel (.xlsx).\n" +
+        "• Le bouton d'export (icône de tableur) enregistre toutes les lignes affichées dans un fichier Excel (.xlsx).\n" +
         "• Colonnes : numéro, heure, source (Simulateur, Carte ou Information), texte, et une colonne « Valeur " +
         "numérique » remplie quand la ligne est un nombre : pratique pour tracer une courbe de mesures.\n\n" +
         "AUTRES BOUTONS\n" +
-        "• 🗑 efface toute la console, y compris les lignes de la carte.";
+        "• La corbeille efface toute la console, y compris les lignes de la carte.";
 
     function ouvrirAideConsole() {
         if (!voileAide) return;
@@ -9370,12 +9372,12 @@ try {
         "1. APPRENDRE SES CLASSES : onglet « IA » (sans entraînement, sans Internet)\n" +
         "• Choisissez ce que l'IA doit reconnaître : des objets ou des images, des signes de la main, des positions des bras " +
         "(caméra), ou des sons ou des mots (micro).\n" +
-        "• La caméra s'allume à l'ouverture de la fenêtre. Sur la carte d'une classe : « 📸 Une photo » ajoute un exemple à " +
-        "chaque clic, « 🎞 Plusieurs photos » en ajoute en rafale jusqu'à « ■ Arrêter », « 📁 Ajouter des images » prend des " +
-        "fichiers .png ou .jpg. Pour les sons : « 🎤 Enregistrer », faites le son (ou dites le mot) plusieurs fois avec un court " +
-        "silence entre deux, puis « ■ Arrêter » : chaque son détecté devient un exemple.\n" +
+        "• La caméra ne s'allume que si vous cliquez « Allumer la caméra ». Sur la carte d'une classe : « Une photo » ajoute un exemple à " +
+        "chaque clic, « Plusieurs photos » en ajoute en rafale jusqu'à « Arrêter », « Ajouter des images » prend des " +
+        "fichiers .png ou .jpg. Pour les sons : « Enregistrer », faites le son (ou dites le mot) plusieurs fois avec un court " +
+        "silence entre deux, puis « Arrêter » : chaque son détecté devient un exemple.\n" +
         "• Chaque exemple a sa vignette sur la carte de sa classe (photo pour les objets, squelette pour les gestes et positions, " +
-        "dessin du timbre pour les sons). Cliquer sur une vignette supprime cet exemple seulement ; 🧹 efface tous les " +
+        "dessin du timbre pour les sons). Cliquer sur une vignette supprime cet exemple seulement ; le balai efface tous les " +
         "exemples de la classe ; ✕ supprime la classe ; « Tout effacer » (en bas) repart de deux classes vides.\n" +
         "• Chaque exemple compte aussitôt : « ▶ Démarrer » dès que 2 classes ont des exemples. Renommer une classe met à " +
         "jour les blocs qui l'utilisent.\n" +
@@ -11959,7 +11961,7 @@ try {
         const r = reglagesRadio();
         if (!busRadio || !r.allumee) return;
         busRadio.postMessage({ id: ID_RADIO, groupe: r.groupe, canal: r.canal, message: String(message) });
-        if (typeof window.consoleAjouterLigne === 'function') window.consoleAjouterLigne('📡 envoyé : ' + message, 'info');
+        if (typeof window.consoleAjouterLigne === 'function') window.consoleAjouterLigne('Radio, envoyé : ' + message, 'info');
     };
     // Messages recus en file, un seul par declenchement (comme « Simuler la reception », qui poursuit la simulation
     // en cours ou la lance) ; 60 ms entre deux messages pour que chacun soit traite par le programme.
@@ -11967,7 +11969,7 @@ try {
     function distribuerRadio() {
         if (!fileRadio.length) return;
         messageRadioEnAttente = fileRadio.shift();
-        if (typeof window.consoleAjouterLigne === 'function') window.consoleAjouterLigne('📡 reçu : ' + messageRadioEnAttente, 'info');
+        if (typeof window.consoleAjouterLigne === 'function') window.consoleAjouterLigne('Radio, reçu : ' + messageRadioEnAttente, 'info');
         window.simu_continuerOuLancer();
         messageRadioEnAttente = '';
         if (fileRadio.length) setTimeout(distribuerRadio, 60);

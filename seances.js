@@ -236,7 +236,7 @@ async function htmlCreer() {
             (e.depart ? 'point de départ' : e.regle ? 'solution, contrôle automatique' : 'solution, correction par vous') + '</td><td>' + e.points +
             '</td><td><button class="se-petit" data-a="suppr-perso" data-i="' + i + '">Retirer</button></td></tr>').join('') + '</table>'
         : '<p class="ex-note">Aucun pour l\'instant.</p>';
-    h += '<details class="se-nouveau"><summary>✚ Ajouter un exercice à partir du programme ouvert</summary>' +
+    h += '<details class="se-nouveau"><summary>+ Ajouter un exercice à partir du programme ouvert</summary>' +
         '<div class="se-form"><label>Titre <input id="se-p-titre" type="text" maxlength="50" placeholder="Feu tricolore"></label>' +
         '<label>Points <input id="se-p-points" type="number" min="1" max="10" value="1"></label></div>' +
         '<label class="se-libre">Consigne <textarea id="se-p-consigne" rows="2" placeholder="Programme un feu tricolore : vert 3 s, orange 1 s, rouge 3 s."></textarea></label>' +
@@ -353,7 +353,7 @@ async function ajouterRendus(fichiers) {
     return ajoutes;
 }
 
-const SYMBOLES = { 'réussi': '✔', 'à corriger': '✎', 'commencé': '…', 'passé': '↷', 'échec': '✘', 'non fait': '·' };
+const SYMBOLES = { 'réussi': '✓', 'à corriger': '✎', 'commencé': '…', 'passé': '↷', 'échec': '✕', 'non fait': '·' };
 function cellule(e) {
     let t = SYMBOLES[e.statut] || '·';
     if (e.statut === 'réussi' && e.etoiles) t += ' ' + e.etoiles + '★';
@@ -388,10 +388,10 @@ function htmlRamasser() {
         }
         h += '</table></div>';
     }
-    h += '<p class="ex-note">✔ réussi (★ étoiles) · ✎ à corriger par vous · … commencé · ↷ passé · ✘ échec · · non fait. ' +
+    h += '<p class="ex-note">✓ réussi (★ étoiles) · ✎ à corriger par vous · … commencé · ↷ passé · ✕ échec · · non fait. ' +
         'Cliquez sur une case pour ouvrir le programme de l\'élève. * Note provisoire : les exercices « à corriger » comptent 0 tant que vous ne les avez pas notés.</p>';
     h += '<div class="ex-boutons ex-noprint"><button data-a="choisir">Ajouter des fichiers…</button><button data-a="csv">Exporter (CSV)</button>' +
-        '<button data-a="imprimer">🖨 Imprimer</button><button class="ex-danger" data-a="vider">Vider la liste</button></div>';
+        '<button data-a="imprimer">' + window.icone('imprimante') + 'Imprimer</button><button class="ex-danger" data-a="vider">Vider la liste</button></div>';
     return h;
 }
 
