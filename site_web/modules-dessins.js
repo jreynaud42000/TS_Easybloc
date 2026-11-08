@@ -1358,6 +1358,37 @@ function dessinScd41(x, y) {
     return s.join('\n');
 }
 
+/** Ecran OLED 0,96″ Grove « OLED Display 128x64 v1.1 » (SSD1308Z, 128 x 64 ; absent du modele, dessine d'apres la photo
+    de face du wiki Seeed, nov. 2026). Circuit 2 x 4 cm (proportions de la photo) ; dalle de 26,7 x 19,26 mm et zone
+    affichee de 21,74 x 11,175 mm (fiche Seeed), place de la zone dans la dalle estimee sur la photo ; nappe noire en
+    haut ; logo Grove, roue dentee et « OLED Display 128x64 v1.1 » a gauche. La prise est au dos : son bout depasse du
+    bord gauche (fils SCL, SDA, VCC, GND de haut en bas, photo). L'image .mv-oled reprend l'ecran de « Peripheriques ». */
+function dessinOled(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const s = [rect(-1.4, 4.9, 2.0, 14.9, 'rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"'),
+        oreille(X(10.5), Y(-0.6), 1.75 * k), oreille(X(10.5), Y(20.6), 1.75 * k), oreille(X(40.4), Y(9.6), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    // Logo Grove (noeuds relies) et roue dentee
+    const cx = 2.4, cy = 3.4;
+    [[0, -1.5], [1.4, -0.45], [0.9, 1.25], [-0.9, 1.25], [-1.4, -0.45]].forEach(([dx, dy]) => s.push(
+        `<path d="M ${X(cx)} ${Y(cy)} L ${X(cx + dx)} ${Y(cy + dy)}" stroke="#e8f1f8" stroke-width="${0.25 * k}"/>`,
+        `<circle cx="${X(cx + dx)}" cy="${Y(cy + dy)}" r="${0.42 * k}" fill="none" stroke="#e8f1f8" stroke-width="${0.22 * k}"/>`));
+    s.push(`<circle cx="${X(cx)}" cy="${Y(cy)}" r="${0.5 * k}" fill="#e8f1f8"/>`,
+           `<circle cx="${X(8.0)}" cy="${Y(3.4)}" r="${1.35 * k}" fill="none" stroke="#e8f1f8" stroke-width="${0.6 * k}" stroke-dasharray="${0.55 * k} ${0.4 * k}"/>`,
+           `<circle cx="${X(8.0)}" cy="${Y(3.4)}" r="${0.95 * k}" fill="#e8f1f8"/>`, `<circle cx="${X(8.0)}" cy="${Y(3.4)}" r="${0.45 * k}" fill="${C_MODULE.pcb}"/>`);
+    // Serigraphie verticale (lue de haut en bas)
+    s.push(T(5.0, 11.6, 'OLED Display', 1.15, 'middle', 90), T(2.9, 11.6, '128x64', 1.15, 'middle', 90), T(7.4, 16.6, 'v1.1', 0.95, 'middle', 90));
+    // Dalle de verre, nappe en haut, cadre noir, zone affichee (image de l'ecran de « Peripheriques »)
+    s.push(rect(12.0, 0.37, 38.7, 19.63, 'rx="0.5" fill="#3a3f45" stroke="#62686e" stroke-width="1"'),
+           rect(16.3, -0.6, 31.9, 3.0, 'rx="0.6" fill="#1b1b1b" stroke="#000" stroke-width="0.6"'),
+           rect(12.9, 3.6, 37.8, 19.0, 'rx="0.4" fill="#05070a"'),
+           rect(14.48, 6.0, 36.22, 17.175, 'fill="#05070a"'),
+           `<image class="mv-oled" x="${X(14.48)}" y="${Y(6.0)}" width="${21.74 * k}" height="${11.175 * k}" preserveAspectRatio="none"/>`);
+    return s.join('\n');
+}
+
 /** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
     cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
     boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
@@ -1636,6 +1667,10 @@ export const DESSINS_MODULES = {
     // SCD41 (d'apres photos) : prise au dos, bout depassant du bord gauche, SCL SDA VCC GND de haut en bas
     scd41: { largeur: 20, hauteur: 20, deborde: 2.4, connecteur: { x: -1.4, y: 9.65, sens: 'gauche', contacts: [6.7, 8.7, 10.6, 12.6] },
            dessin: (x, y) => dessinScd41(x, y) },
+    // Ecran OLED 0,96″ (d'apres photo) : jamais tourne (afficheur) ; prise au dos, bout depassant du bord gauche,
+    // SCL SDA VCC GND de haut en bas
+    oled: { largeur: 40, hauteur: 20, deborde: 2.4, afficheur: true, connecteur: { x: -1.4, y: 9.9, sens: 'gauche', contacts: [6.9, 8.9, 10.9, 12.9] },
+           dessin: (x, y) => dessinOled(x, y) },
     // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
     // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
     servo: { largeur: 42, hauteur: 20,
