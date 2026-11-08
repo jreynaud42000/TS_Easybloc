@@ -63,7 +63,7 @@ const MODULES = [
     { motif: /^grove_couleur_/,               nom: 'Capteur de couleur',    i2c: true, picto: 'couleur' },
     { motif: /^grove_moteur_/,                nom: 'Pilote de moteurs I2C', i2c: true, picto: 'pilote' },
     { motif: /^grove_scd30_/,                 nom: 'Capteur CO₂ SCD30',     i2c: true, picto: 'scd30', large: true },
-    { motif: /^grove_scd41_/,                 nom: 'Capteur CO₂ SCD41',     i2c: true, picto: 'puce' },
+    { motif: /^grove_scd41_/,                 nom: 'Capteur CO₂ SCD41',     i2c: true, picto: 'scd41' },
 ];
 const BLOC_EXTENSION = /^(grove_|servo_|dfr_|motorbit_)/;
 // Lecteur de l'etat en direct (majVivant) quand il differe du dessin : plusieurs capteurs partagent le dessin « puce ».

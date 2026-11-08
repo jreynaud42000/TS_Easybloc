@@ -1221,6 +1221,143 @@ function dessinRtc(x, y) {
     return s.join('\n');
 }
 
+/** Prise Grove droite vue de dessus (boitier blanc, creux, broches carrees), en mm : sur le pilote de moteurs. */
+function priseDroite(X, Y, k, x0, y0, x1, y1, broches, bx) {
+    const rect = (a, b, c, d, attr) => `<rect x="${X(a)}" y="${Y(b)}" width="${(c - a) * k}" height="${(d - b) * k}" ${attr}/>`;
+    return rect(x0, y0, x1, y1, `rx="1" fill="${C_PRISE.fond}" stroke="${C_PRISE.bord}" stroke-width="1.2"`)
+        + rect(x0 + 0.7, y0 + 0.8, x1 - 1.2, y1 - 0.8, `fill="${C_PRISE.creux}"`)
+        + broches.map(v => rect(bx - 0.3, v - 0.3, bx + 0.3, v + 0.3, 'fill="#8b949b"')).join('');
+}
+
+/** Pilote de moteurs Grove Mini I2C Motor Driver v1.0 (deux DRV8830 ; absent du modele, dessine d'apres la photo de face
+    du wiki Seeed, nov. 2026). Format Grove 2 x 4 cm deduit des proportions de la photo (2 pour 1). Prise I2C droite a
+    gauche (GND VCC SDA SCL de haut en bas), adresses serigraphiees (ADDR1 0XC4, ADDR2 0XC0), deux condensateurs
+    tantale, self « 220 », colonnes de resistances avec les LED CH1_FAULT et CH2_FAULT, les deux puces DRV8830, LED
+    FW et BW de chaque voie, prises moteur CH1 et CH2 a droite. Oreilles et encoches comme le BMP280 (photo). */
+function dessinPiloteMoteurs(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const res = (x0, y0, l, h) => composantCMS(X, Y, k, x0, y0, l, h);
+    const condo = (x0, y0, l, h) => condensateur(X, Y, k, x0, y0, l, h);
+    const s = [oreille(X(10.0), Y(-0.6), 1.75 * k), oreille(X(10.0), Y(20.6), 1.75 * k), oreille(X(40.4), Y(9.5), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    const xe = 29.3, re = 2.6 * k;
+    s.push(`<path class="mod-encoche" d="M ${X(xe) - re} ${Y(0) - 2} V ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)} V ${Y(0) - 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(0)} A ${re} ${re} 0 0 0 ${X(xe) + re} ${Y(0)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>
+            <path class="mod-encoche" d="M ${X(xe) - re} ${Y(20) + 2} V ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)} V ${Y(20) + 2} Z"/>
+            <path d="M ${X(xe) - re} ${Y(20)} A ${re} ${re} 0 0 1 ${X(xe) + re} ${Y(20)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Pastilles J1 et J2 (cavaliers d'adresse) et adresses serigraphiees
+    [1.4, 18.4].forEach(v => s.push(`<circle cx="${X(2.3)}" cy="${Y(v)}" r="${0.9 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>`,
+        `<circle cx="${X(2.3)}" cy="${Y(v)}" r="${0.45 * k}" class="mod-encoche"/>`));
+    s.push(T(3.8, 1.3, 'ADDR1:', 0.85), T(3.8, 2.6, '0XC4(W)', 0.85), T(1.3, 3.5, 'J1', 0.85),
+           T(3.8, 16.8, 'ADDR2:', 0.85), T(3.8, 18.1, '0XC0(W)', 0.85), T(1.3, 16.1, 'J2', 0.85));
+    // Prise I2C droite (vue de dessus), noms des broches le long
+    s.push(priseDroite(X, Y, k, 0.3, 4.5, 6.0, 14.5, [6.5, 8.5, 10.5, 12.5], 2.75), T(6.9, 9.5, 'SCL SDA VCC GND', 0.85, 'middle', -90));
+    // Condensateurs tantale (jaunes, bande de polarite) et self « 220 »
+    s.push(rect(8.8, 2.0, 13.1, 4.8, 'rx="0.5" fill="#e3b54a" stroke="#a9832c" stroke-width="0.8"'), rect(12.5, 2.0, 13.1, 4.8, 'fill="#c97a2a"'),
+           rect(8.8, 13.1, 13.1, 15.9, 'rx="0.5" fill="#e3b54a" stroke="#a9832c" stroke-width="0.8"'), rect(8.8, 13.1, 9.4, 15.9, 'fill="#c97a2a"'),
+           rect(8.2, 6.25, 13.1, 11.9, 'rx="1" fill="#3a3a3a"'),
+           `<circle cx="${X(10.65)}" cy="${Y(9.07)}" r="${2.3 * k}" fill="#1c1c1c" stroke="#555" stroke-width="0.8"/>`,
+           `<text x="${X(10.65)}" y="${Y(9.07)}" font-family="Inter, Segoe UI, Arial" font-size="${1.3 * k}" font-weight="700" fill="#8a8a8a"
+                  text-anchor="middle" dominant-baseline="central">220</text>`);
+    // Colonnes de resistances, avec la LED de defaut de chaque voie (orange)
+    const led = (x0, y0) => rect(x0, y0, x0 + 2.4, y0 + 1.0, 'rx="0.3" fill="#f0efe9"') + rect(x0 + 0.8, y0 + 0.15, x0 + 1.6, y0 + 0.85, 'fill="#e8873a"');
+    s.push(led(15.4, 1.2), led(15.4, 16.7), T(13.4, 0.8, 'CH1_FAULT', 0.8), T(13.2, 19.2, 'CH2_FAULT', 0.8));
+    [2.9, 4.5, 6.1, 7.8, 10.0, 11.7, 13.4, 15.1].forEach(v => s.push(res(15.4, v, 2.4, 1.0)));
+    // Les deux puces DRV8830 (5 pattes de chaque cote), leur condensateur et leurs resistances R5 R6 / R12 R13
+    [[3.1, 1.3, 6.6], [12.5, 10.6, 15.9]].forEach(([yp, yc, yr]) => {
+        [0, 0.6, 1.2, 1.8, 2.4].forEach(d => s.push(rect(19.8, yp + 0.25 + d, 20.5, yp + 0.55 + d, `fill="${C_MODULE.metal}"`),
+            rect(25.0, yp + 0.25 + d, 25.7, yp + 0.55 + d, `fill="${C_MODULE.metal}"`)));
+        s.push(rect(20.5, yp, 25.0, yp + 3.0, 'rx="0.4" fill="#1f1f1f"'), condo(21.6, yc, 2.8, 1.0),
+               res(21.6, yr, 2.9, 0.9), res(21.6, yr + 1.4, 2.9, 0.9));
+    });
+    s.push(T(21.0, 7.0, 'R5', 0.85, 'end'), T(21.0, 8.4, 'R6', 0.85, 'end'), T(21.0, 16.3, 'R12', 0.85, 'end'), T(21.0, 17.7, 'R13', 0.85, 'end'));
+    // LED FW / BW de chaque voie, diodes, resistances de la colonne de droite
+    [[3.4, 5.2, 7.3, 8.6, 'FW1', 'BW1'], [11.0, 13.3, 15.3, 16.7, 'FW2', 'BW2']].forEach(([d1, l1, l2, d2, t1, t2]) => s.push(
+        rect(29.2, d1, 31.6, d1 + 1.1, 'rx="0.3" fill="#1f1f1f"'), rect(29.2, d2, 31.6, d2 + 1.1, 'rx="0.3" fill="#1f1f1f"'),
+        led(29.0, l1 - 0.5), led(29.0, l2 - 0.5), T(28.6, l1, t1, 0.85, 'end'), T(28.6, l2, t2, 0.85, 'end'),
+        res(32.0, d1, 1.0, 1.7), res(33.6, d1, 1.0, 1.7), res(32.0, d1 + 2.6, 1.0, 1.7), res(33.6, d1 + 2.6, 1.0, 1.7)));
+    // Prises moteur CH1 et CH2 (2 broches), a droite
+    s.push(priseDroite(X, Y, k, 35.5, 1.4, 39.8, 7.9, [3.9, 5.5], 37.4), priseDroite(X, Y, k, 35.5, 11.6, 39.8, 18.2, [13.9, 15.5], 37.4),
+           T(37.6, 8.9, 'CH1', 0.9, 'middle'), T(37.6, 10.7, 'CH2', 0.9, 'middle'));
+    return s.join('\n');
+}
+
+/** Capteur de couleur Grove Color Sensor V3.0 (VEML6040, I2C 0x10 ; absent du modele, dessine d'apres la photo de face
+    du wiki Seeed, nov. 2026). Circuit carre de 2 x 2 cm (proportions de la photo), oreilles en haut et en bas, encoche a
+    droite ; prise Grove a gauche (GND VCC SDA SCL de haut en bas), deux adaptateurs de niveau SOT-23, regulateur
+    « 562K », resistances et condensateurs ; « VEML6040 » et « I2C Address: 0x10 » serigraphies. Le capteur est au dos :
+    le cadre .mv-couleur autour du circuit prend la couleur lue (montage.js). */
+function dessinCouleur(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const res = (x0, y0, x1, y1) => composantCMS(X, Y, k, x0, y0, x1 - x0, y1 - y0);
+    const condo = (x0, y0, x1, y1) => condensateur(X, Y, k, x0, y0, x1 - x0, y1 - y0);
+    const s = [rect(-1.0, -1.0, 21.0, 21.0, `class="mv-couleur" rx="${1.6 * k}" fill="none" stroke="none" stroke-width="${0.7 * k}"`),
+        oreille(X(9.7), Y(-0.6), 1.75 * k), oreille(X(9.7), Y(20.6), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${20 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    const re = 1.7 * k, ye = Y(10.3);
+    s.push(`<path class="mod-encoche" d="M ${X(20) + 2} ${ye - re} H ${X(20)} A ${re} ${re} 0 0 0 ${X(20)} ${ye + re} H ${X(20) + 2} Z"/>
+            <path d="M ${X(20)} ${ye - re} A ${re} ${re} 0 0 0 ${X(20)} ${ye + re}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Prise Grove (boitier blanc, creux, broches), pattes sorties a droite et noms
+    const pattes = [6.8, 8.9, 11.0, 12.9];
+    pattes.forEach(v => s.push(rect(5.6, v - 0.35, 7.9, v + 0.35, `rx="1" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.6"`)));
+    s.push(rect(2.5, 14.9, 4.95, 16.7, 'fill="#9aa1a5"'), rect(3.0, 3.0, 4.95, 3.9, 'fill="#9aa1a5"'),
+           priseDroite(X, Y, k, 1.5, 3.3, 6.6, 16.2, pattes, 3.7));
+    ['GND', 'VCC', 'SDA', 'SCL'].forEach((t, i) => s.push(T(8.25, pattes[i], t, 1.05)));
+    s.push(T(2.0, 1.65, 'VEML6040', 1.0), T(4.4, 18.2, 'I2C Address: 0x10', 1.0));
+    // Adaptateurs de niveau (SOT-23) et leurs composants
+    const sot = (y0) => rect(12.0, y0 + 0.65, 12.6, y0 + 1.15, `fill="${C_MODULE.metal}"`) + rect(14.4, y0 + 0.2, 15.0, y0 + 0.6, `fill="${C_MODULE.metal}"`)
+        + rect(14.4, y0 + 1.2, 15.0, y0 + 1.6, `fill="${C_MODULE.metal}"`) + rect(12.6, y0, 14.4, y0 + 1.8, 'rx="0.3" fill="#1f1f1f"');
+    s.push(sot(2.6), sot(6.2), res(10.6, 3.3, 11.6, 5.9), res(10.3, 2.4 - 0.1, 11.75, 3.0), res(12.7, 1.3, 14.1, 1.95), res(12.5, 5.1, 14.0, 5.7),
+           res(15.2, 2.65, 15.95, 4.4), res(15.2, 6.4, 15.95, 8.1), res(11.0, 6.4, 11.75, 8.1));
+    s.push(condo(11.6, 8.6, 12.85, 11.0), condo(14.05, 9.5, 15.0, 11.1), res(11.6, 11.4, 13.2, 12.1), res(13.4, 12.3, 15.0, 13.1), res(11.6, 12.5, 13.0, 13.2));
+    // Regulateur « 562K » (SOT-23) et ses condensateurs
+    s.push(rect(10.65, 14.9, 11.6, 15.8, `fill="${C_MODULE.metal}"`), rect(13.0, 14.0, 13.95, 14.75, `fill="${C_MODULE.metal}"`),
+           rect(13.0, 15.95, 13.95, 16.7, `fill="${C_MODULE.metal}"`), rect(11.6, 13.95, 13.0, 16.7, 'rx="0.3" fill="#1f1f1f"'),
+           condo(14.25, 13.9, 15.6, 16.5), res(15.8, 14.5, 16.6, 16.0));
+    return s.join('\n');
+}
+
+/** Capteur de CO2, temperature et humidite Grove SCD41 (I2C 0x62 ; absent du modele, dessine d'apres les photos du
+    wiki Seeed, nov. 2026). Circuit carre de 2 x 2 cm (photo de dos), oreilles en haut et en bas, encoche a droite. Vue
+    de face : le capteur Sensirion (boitier metallique de 10,1 x 10,1 mm, fiche Sensirion) sur son support vert, le logo
+    Grove, la rangee de 4 trous SCL SDA VCC GND, la LED PWR. La prise Grove est au dos : son bout depasse du bord gauche
+    (fils SCL, SDA, VCC, GND de haut en bas, d'apres la photo de dos). */
+function dessinScd41(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const rect = (x0, y0, x1, y1, attr) => `<rect x="${X(x0)}" y="${Y(y0)}" width="${(x1 - x0) * k}" height="${(y1 - y0) * k}" ${attr}/>`;
+    const s = [rect(-1.4, 2.8, 2.0, 16.7, 'rx="2" fill="#ece9e1" stroke="#9c978a" stroke-width="1.2"'),
+        oreille(X(10), Y(-0.6), 1.75 * k), oreille(X(10), Y(20.6), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${20 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    const re = 1.7 * k, ye = Y(10);
+    s.push(`<path class="mod-encoche" d="M ${X(20) + 2} ${ye - re} H ${X(20)} A ${re} ${re} 0 0 0 ${X(20)} ${ye + re} H ${X(20) + 2} Z"/>
+            <path d="M ${X(20)} ${ye - re} A ${re} ${re} 0 0 0 ${X(20)} ${ye + re}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Logo Grove (noeuds relies) en haut a gauche
+    const cx = 3.6, cy = 4.0;
+    [[0, -1.6], [1.5, -0.5], [0.95, 1.3], [-0.95, 1.3], [-1.5, -0.5]].forEach(([dx, dy]) => s.push(
+        `<path d="M ${X(cx)} ${Y(cy)} L ${X(cx + dx)} ${Y(cy + dy)}" stroke="#e8f1f8" stroke-width="${0.25 * k}"/>`,
+        `<circle cx="${X(cx + dx)}" cy="${Y(cy + dy)}" r="${0.45 * k}" fill="none" stroke="#e8f1f8" stroke-width="${0.22 * k}"/>`));
+    s.push(`<circle cx="${X(cx)}" cy="${Y(cy)}" r="${0.55 * k}" fill="#e8f1f8"/>`);
+    // Capteur SCD41 : support vert, boitier metallique 10,1 mm, membrane blanche
+    s.push(rect(7.0, 1.8, 18.2, 13.0, 'rx="0.6" fill="#3f7a4a" stroke="#2b5634" stroke-width="0.8"'),
+           rect(7.55, 2.35, 17.65, 12.45, 'rx="1.2" fill="#b9bec3" stroke="#6f767c" stroke-width="1"'),
+           rect(8.1, 2.9, 17.1, 11.9, 'rx="1" fill="none" stroke="#dfe3e6" stroke-width="0.8"'),
+           rect(9.6, 4.4, 15.6, 10.4, 'rx="0.8" fill="#f4f4f2" stroke="#c9cdd0" stroke-width="0.8"'),
+           T(19.1, 4.6, 'SCD41', 0.9, 'middle', 90));
+    // Rangee de 4 trous (GND carre) et leurs noms, LED PWR
+    [['SCL', 4.0], ['SDA', 6.5], ['VCC', 9.0], ['GND', 11.5]].forEach(([t, v], i) => s.push(T(v, 15.0, t, 0.85, 'middle'),
+        i === 3 ? rect(v - 0.7, 16.0, v + 0.7, 17.4, `rx="0.2" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"`)
+                : `<circle cx="${X(v)}" cy="${Y(16.7)}" r="${0.7 * k}" fill="${C_MODULE.metal}" stroke="#8b949b" stroke-width="0.8"/>`,
+        `<circle cx="${X(v)}" cy="${Y(16.7)}" r="${0.35 * k}" class="mod-encoche"/>`));
+    s.push(rect(14.4, 17.0, 16.4, 18.0, 'rx="0.3" fill="#f0efe9" stroke="#e8f1f8" stroke-width="0.8"'), rect(15.0, 17.15, 15.8, 17.85, 'fill="#d8443a"'),
+           T(15.4, 15.9, 'PWR', 0.85, 'middle'));
+    return s.join('\n');
+}
+
 /** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
     cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
     boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
@@ -1490,6 +1627,15 @@ export const DESSINS_MODULES = {
     // Horloge RTC DS1307 (dessin d'apres photo) : prise couchee a gauche, GND VCC SDA SCL de haut en bas
     rtc: { largeur: 40, hauteur: 20, connecteur: { x: 0.3, y: 9.9, sens: 'gauche', contacts: [12.9, 10.9, 8.83, 6.85] },
            dessin: (x, y) => dessinRtc(x, y) },
+    // Pilote de moteurs I2C (2 DRV8830, d'apres photo) : prise droite a gauche, GND VCC SDA SCL de haut en bas
+    pilote: { largeur: 40, hauteur: 20, connecteur: { x: 0.3, y: 9.5, sens: 'gauche', contacts: [12.5, 10.5, 8.5, 6.5] },
+           dessin: (x, y) => dessinPiloteMoteurs(x, y) },
+    // Capteur de couleur VEML6040 (d'apres photo) : prise a gauche, GND VCC SDA SCL de haut en bas ; cadre .mv-couleur
+    couleur: { largeur: 20, hauteur: 20, deborde: 2.4, connecteur: { x: 1.5, y: 9.85, sens: 'gauche', contacts: [12.9, 11.0, 8.9, 6.8] },
+           dessin: (x, y) => dessinCouleur(x, y) },
+    // SCD41 (d'apres photos) : prise au dos, bout depassant du bord gauche, SCL SDA VCC GND de haut en bas
+    scd41: { largeur: 20, hauteur: 20, deborde: 2.4, connecteur: { x: -1.4, y: 9.65, sens: 'gauche', contacts: [6.7, 8.7, 10.6, 12.6] },
+           dessin: (x, y) => dessinScd41(x, y) },
     // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
     // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
     servo: { largeur: 42, hauteur: 20,
