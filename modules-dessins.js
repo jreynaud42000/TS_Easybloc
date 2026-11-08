@@ -1427,6 +1427,32 @@ function dessinLcd16x2(x, y) {
     return s.join('\n');
 }
 
+/** Hub I2C Grove (circuit passif de 40 x 20 mm, fiche Seeed ; absent du modele, dessine d'apres la photo du wiki Seeed,
+    prise de biais, nov. 2026) : 4 prises Grove droites J1 a J4 reliees entre elles, alignees le long du circuit, noms
+    GND VCC SDA SCL a cote de chacune. Place des oreilles et des encoches estimee sur la photo. montage.js branche le
+    cable de la carte sur J1 (connecteur) et ceux des modules sur J2, J3, J4 (HUB_PRISES : centre de chaque prise, en mm). */
+export const HUB_PRISES = [5.9, 14.9, 23.9, 32.9], HUB_BAS_PRISE = 14.5;
+function dessinHub(x, y) {
+    const k = K_MODULE, X = v => x + v * k, Y = v => y + v * k;
+    const T = (tx, ty, t, taille, ancre, rot) => serigraphie(X, Y, k, tx, ty, t, taille, ancre, rot);
+    const s = [oreille(X(30.0), Y(-0.6), 1.75 * k), oreille(X(30.0), Y(20.6), 1.75 * k), oreille(X(-0.4), Y(10), 1.75 * k),
+        `<rect x="${X(0)}" y="${Y(0)}" width="${40 * k}" height="${20 * k}" rx="${0.8 * k}" fill="${C_MODULE.pcb}" stroke="${C_MODULE.bord}" stroke-width="1.2"/>`];
+    const re = 2.0 * k;
+    [[10, 0, 1], [10, 20, -1]].forEach(([ex, ey, sens]) => s.push(
+        `<path class="mod-encoche" d="M ${X(ex) - re} ${Y(ey) - sens * 2} V ${Y(ey)} A ${re} ${re} 0 0 ${sens > 0 ? 0 : 1} ${X(ex) + re} ${Y(ey)} V ${Y(ey) - sens * 2} Z"/>
+         <path d="M ${X(ex) - re} ${Y(ey)} A ${re} ${re} 0 0 ${sens > 0 ? 0 : 1} ${X(ex) + re} ${Y(ey)}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`));
+    s.push(`<path class="mod-encoche" d="M ${X(40) + 2} ${Y(10) - re} H ${X(40)} A ${re} ${re} 0 0 0 ${X(40)} ${Y(10) + re} H ${X(40) + 2} Z"/>
+            <path d="M ${X(40)} ${Y(10) - re} A ${re} ${re} 0 0 0 ${X(40)} ${Y(10) + re}" fill="none" stroke="${C_MODULE.bord}" stroke-width="1"/>`);
+    // Pistes du bus qui relient les 4 prises
+    [6.5, 8.5, 10.5, 12.5].forEach(v => s.push(`<path d="M ${X(5.9)} ${Y(v)} H ${X(32.9)}" stroke="#1d5f9e" stroke-width="${0.5 * k}"/>`));
+    HUB_PRISES.forEach((cx, i) => {
+        s.push(priseDroite(X, Y, k, cx - 2.7, 4.5, cx + 2.7, 14.5, [6.5, 8.5, 10.5, 12.5], cx - 0.4));
+        [['GND', 6.5], ['VCC', 8.5], ['SDA', 10.5], ['SCL', 12.5]].forEach(([t, v]) => s.push(T(cx + 3.1, v, t, 0.75)));
+        s.push(T(cx, 16.4, 'J' + (i + 1), 1.0, 'middle'));
+    });
+    return s.join('\n');
+}
+
 /** Corps d'un servomoteur vu de dessus (dessin libre du modele « corpsServo », nov. 2026) : prise Grove au bout de son
     cable a gauche (GND, VCC, NC, SIG), 3 fils (marron GND, rouge VCC, orange signal), pattes de fixation percees,
     boitier, tourelle et axe a droite (x 30,4 mm). sansPrise : branche par 3 fils sur les broches de la carte (DFR0548,
@@ -1713,6 +1739,10 @@ export const DESSINS_MODULES = {
     // comme pour le LCD RGB), GND VCC SDA SCL de haut en bas
     lcd: { largeur: 80, hauteur: 40, afficheur: true, filsDessus: true, connecteur: { x: 15.5, y: 34.15, sens: 'gauche', contacts: [37.1, 35.2, 33.1, 31.2] },
            dessin: (x, y) => dessinLcd16x2(x, y) },
+    // Hub I2C : cable de la carte sur J1 (arrive par le haut) ; les modules partent de J2, J3, J4 (montage.js, HUB_PRISES).
+    // Jamais tourne (afficheur) : ses modules sont toujours sur la rangee du dessous, leurs cables partent par le bas.
+    hub: { largeur: 40, hauteur: 20, afficheur: true, connecteur: { x: 5.9, y: 4.5, sens: 'haut', contacts: [7.4, 6.4, 5.4, 4.4] },
+           dessin: (x, y) => dessinHub(x, y) },
     // Servomoteur : prise Grove a gauche au bout de son cable (GND VCC NC SIG de haut en bas) ; sur DFR0548 et Motor:bit,
     // 3 fils (signal, +, -) jusqu'a l'entree du boitier (orange, rouge, marron)
     servo: { largeur: 42, hauteur: 20,

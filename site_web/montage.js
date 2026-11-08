@@ -18,7 +18,7 @@
 // connecteur), la BitMaker V2 (57 x 70 mm) la photo de dessus du fabricant, la DFR0548 le schema « Board
 // Overview » de DFRobot, tournee d'un demi-tour pour que la micro:bit reste a l'endroit.
 
-import { K_MODULE, DESSINS_MODULES, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb, allumerGestes, allumerServo } from './modules-dessins.js';
+import { K_MODULE, DESSINS_MODULES, HUB_PRISES, HUB_BAS_PRISE, COULEURS_LED, defsModules, allumerLed, allumerRelais, allumerBouton, allumerLumiere, allumerPir, allumerPotentiometre, allumerJoystick, allumerBarreLed, allumerQuatreDigits, allumerRuban, allumerLcdRgb, allumerGestes, allumerServo } from './modules-dessins.js';
 
 const $ = id => document.getElementById(id);
 const NS = 'http://www.w3.org/2000/svg';
@@ -300,11 +300,55 @@ function lireMontage() {
     for (const m of modules.values()) for (const k of new Set(m.occupe || [])) (parPort[k] = parPort[k] || []).push(m);
     for (const liste of Object.values(parPort)) if (liste.length > 1) liste.forEach(m => { m.alerte = m.alerte || 'port partagé'; });
     const i2c = [...modules.values()].filter(m => m.i2c);
-    if (i2c.length > 1) i2c.forEach(m => { m.note = 'bus I2C partagé'; });
+    let liste = [...modules.values()];
+    if (i2c.length > 1 && !dfr && !motorbit) liste = avecHubs(liste, i2c);
+    else if (i2c.length > 1) i2c.forEach(m => { m.note = 'bus I2C partagé'; });
 
     // Sans bloc d'extension : la micro:bit seule dans la scene (carte « aucune »), comme la simulation du modele.
     const carte = !utile ? 'aucune' : dfr ? 'dfr' : motorbit ? 'motorbit' : bitmaker ? 'bitmaker' : 'grove';
-    return { utile, imposee, carte, modules: [...modules.values()] };
+    return { utile, imposee, carte, modules: liste };
+}
+
+/** Plusieurs modules I2C sur une carte a prises Grove (Grove Shield, BitMaker) : une prise ne prend qu'un cable, on
+    intercale un Hub I2C Grove (choix de l'utilisateur, nov. 2026). Cable de la carte sur J1 du premier hub, un module
+    par prise J2, J3, J4 ; au-dela de 3 modules, hubs chaines (J4 d'un hub vers J1 du suivant, « Chainable » chez
+    Seeed). m.source : hub et prise d'ou part le cable du module (relierHubs, une fois les places connues) ;
+    m.niveau : rangee du module (le hub avant ses modules, disposer). */
+function avecHubs(liste, i2c) {
+    const nbHubs = Math.max(1, Math.ceil((i2c.length - 3) / 2) + 1);
+    const hubs = [];
+    for (let h = 1; h <= nbHubs; h++) {
+        hubs.push({ id: 'hub' + h, nom: 'Hub I2C', picto: 'hub', hub: h, niveau: h - 1,
+            etiquette: h === 1 ? 'I2C' : 'J4 du hub ' + (h - 1),
+            fils: i2c[0].fils.map(f => Object.assign({}, f)),
+            source: h > 1 ? { hub: 'hub' + (h - 1), prise: 4 } : null });
+    }
+    let i = 0;
+    hubs.forEach((hub, h) => {
+        for (const prise of h < nbHubs - 1 ? [2, 3] : [2, 3, 4]) {
+            const m = i2c[i++];
+            if (!m) break;
+            m.source = { hub: hub.id, prise };
+            m.niveau = h + 1;
+            m.note = 'hub I2C' + (nbHubs > 1 ? ' ' + (h + 1) : '') + ', J' + prise;
+        }
+    });
+    // Ordre : les autres modules, puis chaque hub suivi de ses modules
+    const autres = liste.filter(m => !m.i2c);
+    const ordonnes = [];
+    hubs.forEach(hub => ordonnes.push(hub, ...i2c.filter(m => m.source.hub === hub.id)));
+    return autres.concat(ordonnes);
+}
+/** Cables des modules branches sur un hub : ils partent de la prise (J2 a J4) du hub, une fois celui-ci place. */
+function relierHubs(modules) {
+    for (const m of modules) {
+        if (!m.source) continue;
+        const hub = modules.find(x => x.id === m.source.hub), geo = hub && geometrie(hub);
+        if (!geo) continue;
+        const a = geo.rot * Math.PI / 180, d = [Math.round(-Math.sin(a)), Math.round(Math.cos(a))];
+        const cx = HUB_PRISES[m.source.prise - 1];
+        m.fils = GROVE.map((c, i) => { const p = geo.point(cx + (i - 1.5) * 1.3, HUB_BAS_PRISE); return { x: p.x, y: p.y, d, c }; });
+    }
 }
 
 function filsPort(p) {
@@ -374,7 +418,7 @@ function disposer(modules, basCarte) {
     let bas = basCarte;
     for (const c of ['g', 'd']) {
         let y = 16;
-        cotes[c].sort((a, b) => a.ancre[1] - b.ancre[1]).forEach(m => {
+        cotes[c].sort((a, b) => (a.niveau || 0) - (b.niveau || 0) || a.ancre[1] - b.ancre[1]).forEach(m => {
             m.y = Math.max(y, m.ancre[1] - 60);
             m.x = c === 'g' ? 30 : LARGEUR - 30 - MODULE.l;
             y = m.y + hauteurModule(m, c === 'g' ? 'droite' : 'gauche') + 96;
@@ -385,12 +429,13 @@ function disposer(modules, basCarte) {
     // Chaque ligne est centree sous ses ports, sans sortir de la scene.
     // Chaque module prend sa largeur reelle (au moins une case) : l'ecran LCD RGB (80 mm) ne chevauche pas ses voisins.
     const [xMin, xMax, ecart] = [30, LARGEUR - 30, 20];
-    const tries = cotes.b.sort((a, b) => a.ancre[0] - b.ancre[0]);
+    // Hub I2C : chaque niveau (hub, puis ses modules) commence une nouvelle ligne
+    const tries = cotes.b.sort((a, b) => (a.niveau || 0) - (b.niveau || 0) || a.ancre[0] - b.ancre[0]);
     const lignes = [];
     for (const m of tries) {
         const l = largeurModule(m, 'haut'), ligne = lignes[lignes.length - 1];
-        if (ligne && ligne.largeur + ecart + l <= xMax - xMin) { ligne.modules.push(m); ligne.largeur += ecart + l; }
-        else lignes.push({ modules: [m], largeur: l });
+        if (ligne && ligne.niveau === (m.niveau || 0) && ligne.largeur + ecart + l <= xMax - xMin) { ligne.modules.push(m); ligne.largeur += ecart + l; }
+        else lignes.push({ modules: [m], largeur: l, niveau: m.niveau || 0 });
     }
     let yLigne = basCarte + 90;
     for (const { modules: ligne, largeur } of lignes) {
@@ -774,6 +819,7 @@ function dessinerScene(etat) {
         m.cote = m.y + MODULE.h / 2 > basCarte ? 'b' : m.x + MODULE.l / 2 < LARGEUR / 2 ? 'g' : 'd';
         hauteur = Math.max(hauteur, m.y + hauteurModule(m) + 96);
     }
+    relierHubs(etat.modules);
     // Effets communs des modules dessines (halo des LED), en tete de la scene
     let bas = defsModules() + { dfr: dessinCarteDfr, motorbit: dessinCarteMotorbit, bitmaker: dessinCarteBitmaker, grove: dessinCarteGrove }[etat.carte]();
     // Ruban sur les LED de la BitMaker : legende sous la carte, a la place du module et de son cable.
@@ -820,9 +866,13 @@ function dessinerScene(etat) {
             ? ` role="slider" tabindex="0" aria-valuemin="0" aria-valuemax="1023" aria-label="${echap(m.nom)} ${echap(m.etiquette)} : tourner le bouton (flèches du clavier)"` : '';
         // Ruban fixe au-dessus de la carte : ses libelles au-dessus de lui (sous lui, il y a la carte)
         const yLib = m.fixe ? m.y - 92 : m.y + hMod;
+        // Hub I2C : ses libelles a droite, les cables de ses modules partent par le bas
+        const geoHub = m.hub && geometrie(m);
+        const xLib = geoHub ? geoHub.cx + (geoHub.rot % 180 ? geoHub.h0 : geoHub.w0) / 2 + 14 : cx;
+        const ancreLib = geoHub ? 'start' : 'middle', yLibH = geoHub ? geoHub.cy - 30 : yLib;
         bas += `<g class="montage-module${appui ? ' montage-appui' : ''}" data-id="${echap(m.id || '')}" data-vivant="${vivant}" data-cle="${echap(m.cle || '')}" data-zone="${m.zone || ''}"${m.fixe ? ' data-fixe="1"' : ''}${appui}${reglable}>${dessinModule(m, cx, cy)}` +
-               texte(cx, yLib + 22, echap(m.nom), 'class="montage-libelle" text-anchor="middle"') +
-               texte(cx, yLib + 42, echap(m.etiquette), 'class="montage-note" text-anchor="middle"');
+               texte(xLib, yLibH + 22, echap(m.nom), `class="montage-libelle" text-anchor="${ancreLib}"`) +
+               texte(xLib, yLibH + 42, echap(m.etiquette), `class="montage-note" text-anchor="${ancreLib}"`);
         bas += texte(cx, yLib + 62, '', 'class="montage-valeur" text-anchor="middle"');
         const note = [m.alerte, m.note].filter(Boolean).join(' · ');
         if (note) bas += texte(cx, yLib + 82, echap(note), `class="montage-note${m.alerte ? ' alerte' : ''}" text-anchor="middle"`);
