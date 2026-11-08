@@ -525,6 +525,7 @@ const largeurPcb = m => (m.large ? 150 : 74);
 const r = (x, y, l, h, att) => `<rect x="${x}" y="${y}" width="${l}" height="${h}" ${att || ''}/>`;
 const cercle = (x, y, rayon, att) => `<circle cx="${x}" cy="${y}" r="${rayon}" ${att || ''}/>`;
 const texte = (x, y, t, att) => `<text x="${x}" y="${y}" ${att || ''}>${t}</text>`;
+const trTexte = t => (window.trTexte ? window.trTexte(String(t)) : String(t));
 const echap = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function trou(x, y) { return cercle(x, y, 9, 'fill="#c9a54a"') + cercle(x, y, 5, 'fill="#0b0b0b"'); }
@@ -1088,8 +1089,9 @@ function finirRedessin(etat) {
         choixAuto.textContent = (etat.imposee === 'motorbit' ? 'Carte Motor:bit' : 'Carte DFR0548') + ' : choisie car le programme utilise ses blocs.';
     }
     resume.innerHTML = etat.modules.length
-        ? etat.modules.map(m => '<li>' + echap(m.nom) + ' : ' + echap(m.etiquette) + (m.note ? ' (' + echap(m.note) + ')' : '') +
-                                (m.alerte ? ' — ' + echap(m.alerte) : '') + '</li>').join('')
+        // Chaque morceau traduit a part (en anglais) : la ligne entiere ne correspond a aucune cle du dictionnaire
+        ? etat.modules.map(m => '<li>' + echap(trTexte(m.nom)) + (window.LANGUE === 'en' ? ': ' : ' : ') + echap(trTexte(m.etiquette)) + (m.note ? ' (' + echap(trTexte(m.note)) + ')' : '') +
+                                (m.alerte ? ' — ' + echap(trTexte(m.alerte)) : '') + '</li>').join('')
         : '<li>Aucun module branché pour l\'instant.</li>';
     majReglages();
     rubanSurCarte = !!etat.modules.find(m => m.surCarte);

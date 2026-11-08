@@ -71,8 +71,11 @@ function construireMotifs() {
         const source = cle.replace(/[.*+?^$()|[\]\\]/g, '\\$&')
             .replace(/\{(\w+)\}/g, (m, n) => { noms.push(n); return '([\\s\\S]*?)'; });
         if (!source.replace(/\(\[\\s\\S\]\*\?\)/g, '').trim()) return;   // un motif fait seulement de repères : jamais
-        motifs.push({ re: new RegExp('^' + source + '$'), noms, cle });
+        motifs.push({ re: new RegExp('^' + source + '$'), noms, cle, fixe: cle.replace(/\{\w+\}/g, '').length });
     });
+    // Le motif le plus precis (le plus de texte fixe) d'abord : « {n} · {e} » ne doit pas masquer
+    // « {n}/{t} exercices · {e} / {s} étoiles ».
+    motifs.sort((p, q) => q.fixe - p.fixe);
 }
 
 /** Traduit un message complet (console, fenêtre du navigateur…) : texte exact, sinon
@@ -261,6 +264,9 @@ if (anglais) {
     window.addEventListener('DOMContentLoaded', () => {
         window.traduirePage(document.body);
         document.title = window.trTexte(document.title);
+        // Nom du programme : son texte (celui de l'eleve) n'est jamais traduit, mais son nom pour les lecteurs d'ecran oui
+        const nomFichier = document.getElementById('nom-fichier');
+        if (nomFichier) nomFichier.setAttribute('aria-label', window.tr('Nom du fichier'));
         obs.observe(document.body, OPTIONS_OBS);
     });
 }

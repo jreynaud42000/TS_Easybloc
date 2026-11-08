@@ -1800,10 +1800,13 @@ try {
         return '_grove_ruban()[' + index + '] = (0, 0, 0)\n_grove_ruban().show()\n';
     };
 
+    // Composante verte des couleurs R V B : « G » en anglais (pas de cle « V » dans le dictionnaire : la serigraphie
+    // « V » des cartes, dans le montage, ne doit pas changer).
+    const VERT_RGB = window.LANGUE === 'en' ? 'G' : 'V';
     Blockly.Blocks['grove_ruban_perso'] = { init: function() {
         this.appendDummyInput().appendField("colorer tout le ruban en R");
         this.appendValueInput("R").setCheck("Number");
-        this.appendValueInput("V").setCheck("Number").appendField("V");
+        this.appendValueInput("V").setCheck("Number").appendField(VERT_RGB);
         this.appendValueInput("B").setCheck("Number").appendField("B");
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
@@ -1821,7 +1824,7 @@ try {
     Blockly.Blocks['grove_ruban_perso_index'] = { init: function() {
         this.appendValueInput("INDEX").setCheck("Number").appendField("colorer la LED n°");
         this.appendValueInput("R").setCheck("Number").appendField("en R");
-        this.appendValueInput("V").setCheck("Number").appendField("V");
+        this.appendValueInput("V").setCheck("Number").appendField(VERT_RGB);
         this.appendValueInput("B").setCheck("Number").appendField("B");
         this.setInputsInline(false);
         this.setPreviousStatement(true, null);
@@ -5148,7 +5151,7 @@ try {
         this.appendValueInput("INDEX").setCheck("Number");
         this.appendDummyInput().appendField("à R");
         this.appendValueInput("R").setCheck("Number");
-        this.appendDummyInput().appendField("V");
+        this.appendDummyInput().appendField(VERT_RGB);
         this.appendValueInput("V").setCheck("Number");
         this.appendDummyInput().appendField("B");
         this.appendValueInput("B").setCheck("Number");
@@ -7764,7 +7767,7 @@ try {
         const d = new Date(ms), p = (n, l = 2) => String(n).padStart(l, '0');
         return p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + '.' + p(d.getMilliseconds(), 3);
     };
-    const NOMS_SOURCES = { sim: 'Simulateur', carte: 'Carte', info: 'Information' };
+    const NOMS_SOURCES = { sim: window.tr('Simulateur'), carte: window.tr('Carte'), info: window.tr('Information') };
 
     /** Lignes actuellement affichees dans la console, avec heure, source et valeur numerique eventuelle. */
     function lignesPourExport() {
@@ -7780,7 +7783,7 @@ try {
 
     function creerXlsxConsole(lignes) {
         const texteCell = t => '<c t="inlineStr"><is><t xml:space="preserve">' + echapperXml(t) + '</t></is></c>';
-        const lignesXml = ['<row r="1">' + ['N°', 'Heure', 'Source', 'Texte', 'Valeur numérique'].map(texteCell).join('') + '</row>'];
+        const lignesXml = ['<row r="1">' + ['N°', 'Heure', 'Source', 'Texte', 'Valeur numérique'].map(e => texteCell(window.tr(e))).join('') + '</row>'];
         lignes.forEach((l, i) => {
             lignesXml.push('<row r="' + (i + 2) + '"><c><v>' + l.n + '</v></c>' + texteCell(l.heure) + texteCell(l.source) +
                            texteCell(l.texte) + (l.nombre === null ? '' : '<c><v>' + l.nombre + '</v></c>') + '</row>');
@@ -7853,11 +7856,11 @@ try {
     function extraireMesures(texte) {
         const t = texte.trim();
         if (!t) return [];
-        if (RE_UN_NOMBRE.test(t)) return [['Valeur', Number(t.replace(',', '.'))]];
+        if (RE_UN_NOMBRE.test(t)) return [[window.tr('Valeur'), Number(t.replace(',', '.'))]];
         const entre = /^\(.*\)$/.test(t) ? t.slice(1, -1).trim() : t;
         const morceaux = entre.split(/\s*[;,]\s*|\s+/).filter(m => m !== '');
         if (morceaux.length > 1 && morceaux.every(m => RE_VALEUR.test(m))) {
-            return morceaux.map((m, i) => ['Série ' + (i + 1), Number(m)]);
+            return morceaux.map((m, i) => [window.tr('Série {n}', { n: i + 1 }), Number(m)]);
         }
         const paires = [];
         let trouve;
@@ -9352,7 +9355,7 @@ try {
         if (!voileAide) return;
         document.getElementById('aide-titre').textContent = 'Aide sur la console';
         document.getElementById('aide-bloc-nom').textContent = 'Utiliser la console';
-        document.getElementById('aide-bloc-texte').textContent = TEXTE_AIDE_CONSOLE;
+        document.getElementById('aide-bloc-texte').textContent = window.tr(TEXTE_AIDE_CONSOLE);
         document.getElementById('aide-bloc-code-titre').style.display = 'none';
         document.getElementById('aide-bloc-code').style.display = 'none';
         document.getElementById('aide-exemple').style.display = 'none';
@@ -9418,7 +9421,7 @@ try {
         if (!voileAide) return;
         document.getElementById('aide-titre').textContent = 'Aide sur l\'IA';
         document.getElementById('aide-bloc-nom').textContent = 'Reconnaissance d\'images et de sons';
-        document.getElementById('aide-bloc-texte').textContent = TEXTE_AIDE_IA;
+        document.getElementById('aide-bloc-texte').textContent = window.tr(TEXTE_AIDE_IA);
         document.getElementById('aide-bloc-code-titre').style.display = 'none';
         document.getElementById('aide-bloc-code').style.display = 'none';
         document.getElementById('aide-exemple').style.display = 'none';

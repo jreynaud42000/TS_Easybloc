@@ -81,11 +81,14 @@ const son = () => window.iaSonImmediat;
 const attente = ms => new Promise(r => setTimeout(r, ms));
 const messageErreur = e => (e && e.message ? e.message : String(e));
 
+/** Nom d'une classe creee par le logiciel (« Classe 1 », « Class 1 » en anglais). */
+const nomClasse = n => window.tr ? window.tr('Classe {n}', { n }) : 'Classe ' + n;
+
 // ---------- etat ----------
 // classes : [{ nom, ex: [{ v: Float32Array, vignette: dataURL | null }] }]
 const etat = {
     type: 'images',
-    classes: [{ nom: 'Classe 1', ex: [] }, { nom: 'Classe 2', ex: [] }],
+    classes: [{ nom: nomClasse(1), ex: [] }, { nom: nomClasse(2), ex: [] }],
     enMarche: false, minuteur: null, occupe: false, historique: [], finSon: null,
 };
 const estSon = () => etat.type === 'sons';
@@ -770,8 +773,9 @@ function decoder(texte, type) {
 
 // Noms des classes par defaut selon le type, comme le modele R4 (NOMS_DEFAUT) : a l'ouverture, apres « Tout effacer »
 // et au changement de type tant que l'eleve n'a pas renomme ses classes.
-const NOMS_DEFAUT = { images: ['Classe 1', 'Classe 2'], mains: ['Main ouverte', 'Poing'], bras: ['Bras en haut', 'Bras en bas'],
-                      sons: ['Avance', 'Stop'] };
+// Noms crees par le logiciel : dans la langue de l'interface (ensuite, ce sont ceux de l'eleve, jamais traduits).
+const NOMS_DEFAUT = { images: [nomClasse(1), nomClasse(2)], mains: [window.tr('Main ouverte'), window.tr('Poing')],
+                      bras: [window.tr('Bras en haut'), window.tr('Bras en bas')], sons: [window.tr('Avance'), window.tr('Stop')] };
 const classesParDefaut = type => (NOMS_DEFAUT[type] || NOMS_DEFAUT.images).map(nom => ({ nom, ex: [] }));
 const nomsParDefaut = () => etat.classes.length === 2 && Object.values(NOMS_DEFAUT).some(n => n[0] === etat.classes[0].nom && n[1] === etat.classes[1].nom);
 
@@ -798,13 +802,13 @@ function depuisDonnees(d, demander) {
     }
     if (typeof d.nom === 'string' && d.nom.trim()) nomModele = d.nom.trim().slice(0, 60);
     const classes = d.classes.slice(0, MAX_CLASSES).map((c, i) => ({
-        nom: String(c.nom || ('Classe ' + (i + 1))).slice(0, 30),
+        nom: String(c.nom || nomClasse(i + 1)).slice(0, 30),
         ex: (c.exemples || []).slice(0, MAX_EXEMPLES).map(e => ({ v: decoder(e, type), vignette: undefined })),
     }));
     arreter();
     eteindreCapteur('imm-capture');
     etat.type = type;
-    etat.classes = classes.length ? classes : [{ nom: 'Classe 1', ex: [] }, { nom: 'Classe 2', ex: [] }];
+    etat.classes = classes.length ? classes : [{ nom: nomClasse(1), ex: [] }, { nom: nomClasse(2), ex: [] }];
     $('.ia-imm-type', col).value = type;
     apresModification();
     const total = etat.classes.reduce((s, c) => s + c.ex.length, 0);
@@ -904,8 +908,8 @@ video.addEventListener('loadedmetadata', () => ajusterCadre(video));
 $('.ia-ajouter-classe', col).addEventListener('click', () => {
     if (etat.classes.length >= MAX_CLASSES) return;
     let n = etat.classes.length + 1;
-    while (etat.classes.some(c => window.slugIA(c.nom) === window.slugIA('Classe ' + n))) n++;
-    etat.classes.push({ nom: 'Classe ' + n, ex: [] });
+    while (etat.classes.some(c => window.slugIA(c.nom) === window.slugIA(nomClasse(n)))) n++;
+    etat.classes.push({ nom: nomClasse(n), ex: [] });
     apresModification();
 });
 $('.ia-tout-effacer', col).addEventListener('click', () => {
