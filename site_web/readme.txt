@@ -97,8 +97,8 @@ navigateur, c'est que le serveur a ete lance depuis un autre dossier.
   modifie les blocs.
 
   Le repli ne concerne QUE l'affichage : le .hex et le .py contiennent toujours
-  les pilotes en entier. C'est la difference avec Vittascience, qui ecrit ses
-  pilotes dans des modules separes sur la carte (from lcd_i2c import LCD1602) —
+  les pilotes en entier. D'autres editeurs ecrivent leurs
+  pilotes dans des modules separes sur la carte (from lcd_i2c import LCD1602) :
   leur transcription est courte parce que le pilote est ailleurs, pas parce
   qu'il est plus petit. Notre choix garde un main.py autonome, donc un .py
   telechargeable qui fonctionne seul.
@@ -486,8 +486,8 @@ fonction creee. Les parametres s'ajoutent par le bouton + du bloc.
 
 A savoir : tant qu'aucune fonction n'existe, la categorie ne montre que les
 trois premiers blocs. Le bloc d'appel apparait des qu'on a pose une definition
-et nomme la fonction — un par fonction, portant son nom. C'est la difference
-avec Vittascience, qui affiche d'emblee un bloc d'appel generique. Un bloc
+et nomme la fonction — un par fonction, portant son nom. Contrairement a
+d'autres editeurs, aucun bloc d'appel generique n'est affiche d'emblee. Un bloc
 d'appel ne peut pas exister sans fonction cible.
 
 Les fonctions sont ecrites en tete du programme, avant tout code executable,

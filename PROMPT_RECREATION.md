@@ -417,8 +417,8 @@ remplit ces tiroirs lui-même : définition, définition avec retour, retour
 conditionnel, plus **un bloc d'appel par fonction créée**, portant son nom.
 
 À dire à l'utilisateur, car cela surprend : tant qu'aucune fonction n'existe, le
-tiroir ne montre que les blocs de définition. C'est la différence avec
-Vittascience, qui affiche d'emblée un bloc d'appel générique. Un bloc d'appel ne
+tiroir ne montre que les blocs de définition. Contrairement à
+d'autres éditeurs, aucun bloc d'appel générique n'est affiché d'emblée. Un bloc d'appel ne
 peut pas exister sans fonction cible.
 
 Les fonctions sont écrites en tête du programme, avant tout code exécutable,
@@ -829,8 +829,8 @@ Remède : à l'affichage seulement, remplacer chaque région marquée par un
 lcd1602 — 39 lignes ». Ce qui est déplié le reste quand les blocs changent.
 
 **Le repli ne concerne QUE l'affichage** : le `.hex` et le `.py` contiennent
-toujours les pilotes en entier. C'est la différence avec Vittascience, qui écrit
-ses pilotes dans des modules séparés sur la carte (`from lcd_i2c import
+toujours les pilotes en entier. D'autres éditeurs écrivent leurs
+pilotes dans des modules séparés sur la carte (`from lcd_i2c import
 LCD1602`) : leur transcription est courte parce que le pilote est ailleurs, pas
 parce qu'il est plus petit. Le choix retenu ici garde un `main.py` autonome,
 donc un `.py` téléchargeable qui fonctionne seul — à expliquer à l'utilisateur,
