@@ -22,7 +22,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='MicrobitEasybloc_V2.0E',
+    name='MicrobitEasybloc_ModeMinimal',   # nom propre au Mode minimal (nov. 2026), distinct de l'editeur micro:bit
     version='version_info.txt',
     debug=False,
     bootloader_ignore_signals=False,
